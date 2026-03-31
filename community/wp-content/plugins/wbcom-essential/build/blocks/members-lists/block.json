@@ -1,0 +1,137 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "wbcom-essential/members-lists",
+  "version": "1.0.0",
+  "title": "Members Lists",
+  "category": "starter-buddypress",
+  "icon": "groups",
+  "description": "Display a list of BuddyPress members with filtering options.",
+  "keywords": [
+    "members",
+    "buddypress",
+    "users",
+    "community",
+    "list"
+  ],
+  "textdomain": "wbcom-essential",
+  "example": {},
+  "attributes": {
+    "useThemeColors": {
+      "type": "boolean",
+      "default": false
+    },
+    "membersOrder": {
+      "type": "string",
+      "default": "active"
+    },
+    "profileTypes": {
+      "type": "array",
+      "default": []
+    },
+    "membersCount": {
+      "type": "number",
+      "default": 5
+    },
+    "rowSpace": {
+      "type": "number",
+      "default": 10
+    },
+    "alignment": {
+      "type": "string",
+      "default": "left"
+    },
+    "showAllMembersLink": {
+      "type": "boolean",
+      "default": true
+    },
+    "showFilterTypes": {
+      "type": "boolean",
+      "default": true
+    },
+    "showAvatar": {
+      "type": "boolean",
+      "default": true
+    },
+    "showName": {
+      "type": "boolean",
+      "default": true
+    },
+    "showOnlineStatus": {
+      "type": "boolean",
+      "default": true
+    },
+    "headingText": {
+      "type": "string",
+      "default": "Members"
+    },
+    "memberLinkText": {
+      "type": "string",
+      "default": "All Members"
+    },
+    "boxBorderColor": {
+      "type": "string",
+      "default": "#e3e3e3"
+    },
+    "boxBorderRadius": {
+      "type": "number",
+      "default": 4
+    },
+    "boxBackgroundColor": {
+      "type": "string",
+      "default": "#ffffff"
+    },
+    "allMembersLinkColor": {
+      "type": "string",
+      "default": ""
+    },
+    "filterBorderStyle": {
+      "type": "string",
+      "default": "solid"
+    },
+    "filterBorderColor": {
+      "type": "string",
+      "default": "#e3e3e3"
+    },
+    "avatarSize": {
+      "type": "number",
+      "default": 40
+    },
+    "avatarBorderRadius": {
+      "type": "number",
+      "default": 50
+    },
+    "avatarSpacing": {
+      "type": "number",
+      "default": 15
+    },
+    "onlineStatusColor": {
+      "type": "string",
+      "default": "#1CD991"
+    },
+    "onlineStatusSize": {
+      "type": "number",
+      "default": 13
+    },
+    "nameColor": {
+      "type": "string",
+      "default": "#122B46"
+    }
+  },
+  "supports": {
+    "html": false,
+    "align": [
+      "wide",
+      "full"
+    ],
+    "spacing": {
+      "margin": true,
+      "padding": true
+    }
+  },
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css",
+  "viewScript": "file:./view.js",
+  "render": "file:./render.php"
+}

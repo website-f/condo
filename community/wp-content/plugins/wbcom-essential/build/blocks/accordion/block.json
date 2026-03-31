@@ -1,0 +1,177 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "wbcom-essential/accordion",
+  "version": "1.0.0",
+  "title": "Accordion",
+  "category": "starter-content",
+  "icon": "list-view",
+  "description": "Create expandable accordion sections with rich content and customization options.",
+  "keywords": [
+    "accordion",
+    "faq",
+    "collapse",
+    "toggle",
+    "expandable"
+  ],
+  "example": {
+    "attributes": {
+      "items": [
+        {
+          "id": "example-1",
+          "title": "What is an accordion?",
+          "content": "An accordion is a vertically stacked list of items that can be expanded or collapsed to reveal content.",
+          "isOpen": true
+        },
+        {
+          "id": "example-2",
+          "title": "How do I use this block?",
+          "content": "Simply add the block and customize the accordion items in the settings panel.",
+          "isOpen": false
+        }
+      ]
+    }
+  },
+  "attributes": {
+    "useThemeColors": {
+      "type": "boolean",
+      "default": false
+    },
+    "items": {
+      "type": "array",
+      "default": [
+        {
+          "id": "default-1",
+          "title": "Accordion Item 1",
+          "content": "This is the content for accordion item 1.",
+          "isOpen": false,
+          "selfBlock": false,
+          "iconType": "icon",
+          "icon": "dashicons-arrow-down",
+          "iconText": "1"
+        },
+        {
+          "id": "default-2",
+          "title": "Accordion Item 2",
+          "content": "This is the content for accordion item 2.",
+          "isOpen": false,
+          "selfBlock": false,
+          "iconType": "icon",
+          "icon": "dashicons-arrow-down",
+          "iconText": "2"
+        }
+      ]
+    },
+    "openSingle": {
+      "type": "boolean",
+      "default": false
+    },
+    "selfClose": {
+      "type": "boolean",
+      "default": false
+    },
+    "autoScroll": {
+      "type": "boolean",
+      "default": false
+    },
+    "scrollOffset": {
+      "type": "number",
+      "default": 0
+    },
+    "scrollSpeed": {
+      "type": "number",
+      "default": 400
+    },
+    "openSpeed": {
+      "type": "number",
+      "default": 200
+    },
+    "closeSpeed": {
+      "type": "number",
+      "default": 200
+    },
+    "enableFaqSchema": {
+      "type": "boolean",
+      "default": false
+    },
+    "titleTag": {
+      "type": "string",
+      "default": "h3"
+    },
+    "titleColor": {
+      "type": "string"
+    },
+    "titleBgColor": {
+      "type": "string"
+    },
+    "titleHoverColor": {
+      "type": "string"
+    },
+    "titleHoverBgColor": {
+      "type": "string"
+    },
+    "contentColor": {
+      "type": "string"
+    },
+    "contentBgColor": {
+      "type": "string"
+    },
+    "borderColor": {
+      "type": "string"
+    },
+    "borderWidth": {
+      "type": "number",
+      "default": 1
+    },
+    "borderRadius": {
+      "type": "number",
+      "default": 4
+    },
+    "itemSpacing": {
+      "type": "number",
+      "default": 10
+    },
+    "titleFontSize": {
+      "type": "number",
+      "default": 16
+    },
+    "titleFontWeight": {
+      "type": "string",
+      "default": "600"
+    },
+    "titleLineHeight": {
+      "type": "number",
+      "default": 1.5
+    },
+    "contentFontSize": {
+      "type": "number",
+      "default": 14
+    },
+    "contentFontWeight": {
+      "type": "string",
+      "default": "400"
+    },
+    "contentLineHeight": {
+      "type": "number",
+      "default": 1.6
+    }
+  },
+  "supports": {
+    "html": false,
+    "align": true,
+    "color": {
+      "background": true,
+      "text": true
+    },
+    "spacing": {
+      "padding": true,
+      "margin": true
+    }
+  },
+  "textdomain": "wbcom-essential",
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css",
+  "viewScript": "file:./view.js",
+  "render": "file:./render.php"
+}

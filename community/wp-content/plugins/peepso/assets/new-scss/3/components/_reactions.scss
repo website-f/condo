@@ -1,0 +1,11 @@
+.pso-reactions {
+    display: flex;
+    align-items: center;
+    gap: var(--G3);
+}
+
+.pso-reactions__info {
+    font-size: var(--F-XS);
+    font-weight: 500;
+    color: var(--c-contrast-slight);
+}

@@ -1,0 +1,197 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "wbcom-essential/testimonial-carousel",
+  "version": "1.0.0",
+  "title": "Testimonial Carousel",
+  "category": "starter-marketing",
+  "icon": "format-quote",
+  "description": "Display multiple testimonials in an interactive carousel.",
+  "keywords": [
+    "testimonial",
+    "carousel",
+    "reviews",
+    "quotes",
+    "slider",
+    "feedback"
+  ],
+  "supports": {
+    "html": false,
+    "align": [
+      "wide",
+      "full"
+    ]
+  },
+  "attributes": {
+    "useThemeColors": {
+      "type": "boolean",
+      "default": false
+    },
+    "testimonials": {
+      "type": "array",
+      "default": [
+        {
+          "id": 1,
+          "content": "This product has transformed our workflow completely. Highly recommended!",
+          "authorName": "Sarah Johnson",
+          "authorRole": "Marketing Director",
+          "imageId": 1,
+          "imageUrl": "",
+          "rating": 5
+        },
+        {
+          "id": 2,
+          "content": "Outstanding customer support and an amazing product. Worth every penny.",
+          "authorName": "Michael Chen",
+          "authorRole": "CTO, TechStart",
+          "imageId": 2,
+          "imageUrl": "",
+          "rating": 5
+        },
+        {
+          "id": 3,
+          "content": "We've seen a 40% increase in productivity since implementing this solution.",
+          "authorName": "Emily Davis",
+          "authorRole": "Operations Manager",
+          "imageId": 3,
+          "imageUrl": "",
+          "rating": 4
+        }
+      ]
+    },
+    "slidesPerView": {
+      "type": "number",
+      "default": 2
+    },
+    "slidesPerViewTablet": {
+      "type": "number",
+      "default": 1
+    },
+    "slidesPerViewMobile": {
+      "type": "number",
+      "default": 1
+    },
+    "spaceBetween": {
+      "type": "number",
+      "default": 30
+    },
+    "showNavigation": {
+      "type": "boolean",
+      "default": true
+    },
+    "showPagination": {
+      "type": "boolean",
+      "default": true
+    },
+    "loop": {
+      "type": "boolean",
+      "default": true
+    },
+    "autoplay": {
+      "type": "boolean",
+      "default": false
+    },
+    "autoplayDelay": {
+      "type": "number",
+      "default": 5000
+    },
+    "showRating": {
+      "type": "boolean",
+      "default": true
+    },
+    "cardBackground": {
+      "type": "string",
+      "default": "#ffffff"
+    },
+    "cardBorderRadius": {
+      "type": "number",
+      "default": 12
+    },
+    "quoteColor": {
+      "type": "string",
+      "default": "#4a5568"
+    },
+    "nameColor": {
+      "type": "string",
+      "default": "#1a202c"
+    },
+    "roleColor": {
+      "type": "string",
+      "default": "#718096"
+    },
+    "ratingColor": {
+      "type": "string",
+      "default": "#f6ad55"
+    },
+    "navColor": {
+      "type": "string",
+      "default": "#3182ce"
+    },
+    "pauseOnInteraction": {
+      "type": "boolean",
+      "default": false
+    },
+    "effect": {
+      "type": "string",
+      "default": "slide"
+    },
+    "enableKeyboard": {
+      "type": "boolean",
+      "default": true
+    },
+    "grabCursor": {
+      "type": "boolean",
+      "default": true
+    },
+    "cardPadding": {
+      "type": "number",
+      "default": 24
+    },
+    "cardBorderWidth": {
+      "type": "number",
+      "default": 0
+    },
+    "cardBorderColor": {
+      "type": "string",
+      "default": "#e2e8f0"
+    },
+    "cardShadow": {
+      "type": "boolean",
+      "default": true
+    },
+    "avatarSize": {
+      "type": "number",
+      "default": 60
+    },
+    "avatarBorderRadius": {
+      "type": "number",
+      "default": 50
+    },
+    "quoteFontSize": {
+      "type": "number",
+      "default": 16
+    },
+    "nameFontSize": {
+      "type": "number",
+      "default": 16
+    },
+    "roleFontSize": {
+      "type": "number",
+      "default": 14
+    },
+    "paginationColor": {
+      "type": "string",
+      "default": "#cbd5e0"
+    },
+    "paginationActiveColor": {
+      "type": "string",
+      "default": "#3182ce"
+    }
+  },
+  "textdomain": "wbcom-essential",
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css",
+  "viewScript": "file:./view.js",
+  "render": "file:./render.php"
+}

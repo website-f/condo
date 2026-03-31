@@ -1,0 +1,17 @@
+.pso-comments {}
+
+.pso-comments__more {
+    --p: var(--G2) var(--G5);
+    --r: 0;
+
+    justify-content: start;
+    width: 100%;
+    border-top: 1px solid var(--c-base-300);
+}
+
+.pso-comments__list {
+    padding-top: var(--G4);
+    padding-bottom: var(--G3);
+    padding-inline: var(--G5);
+    border-top: 1px solid var(--c-base-300);
+}

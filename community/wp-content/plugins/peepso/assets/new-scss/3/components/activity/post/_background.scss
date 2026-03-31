@@ -1,0 +1,79 @@
+.pso-post__background {
+    aspect-ratio: 16/9;
+    width: 100%;
+    padding: var(--G5);
+    font-size: max(3vw, 100%);
+    text-align: center;
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+
+    .pso-postbox__modal & {
+        border-radius: var(--BORDER-RADIUS--MD);
+    }
+
+    @include mq($from: desktop) {
+        font-size: 125%;
+    }
+}
+
+.pso-post__background--scroll {
+    overflow: auto;
+}
+
+.pso-post__background-inner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100%;
+}
+
+.pso-post__background-text {
+    font-weight: 500;
+    line-height: 1.3;
+    text-shadow: 0 0 10px rgba(0,0,0, .15);
+    word-break: break-word;
+    text-align: center;
+    color: inherit;
+
+    a {
+        color: inherit;
+        
+        > span {
+            text-decoration: underline;
+        }
+
+        &:hover,
+        &:focus {
+            color: inherit;
+            
+            > span {
+                text-decoration: none;
+            }
+        }
+    }
+
+    span[data-highlight] {
+        text-decoration: underline;
+    }
+
+    &[contentEditable=true] {
+        width: 100%;
+        outline: none;
+
+        &:empty {
+            width: auto;
+
+            &:before {
+                content: attr(data-placeholder);
+                color: inherit;
+                opacity: .5;
+                transition: opacity .2s ease;
+            }
+
+            &:not(:focus) {
+                width: 100%;
+            }
+        }
+    }
+}

@@ -1,0 +1,86 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "wbcom-essential/divider",
+  "version": "1.0.0",
+  "title": "Divider",
+  "category": "starter-design",
+  "icon": "minus",
+  "description": "Decorative divider with multiple styles and customization options.",
+  "keywords": [
+    "divider",
+    "separator",
+    "line",
+    "hr",
+    "break"
+  ],
+  "textdomain": "wbcom-essential",
+  "attributes": {
+    "useThemeColors": {
+      "type": "boolean",
+      "default": false
+    },
+    "style": {
+      "type": "string",
+      "default": "solid"
+    },
+    "width": {
+      "type": "number",
+      "default": 100
+    },
+    "widthUnit": {
+      "type": "string",
+      "default": "%"
+    },
+    "thickness": {
+      "type": "number",
+      "default": 2
+    },
+    "color": {
+      "type": "string",
+      "default": ""
+    },
+    "alignment": {
+      "type": "string",
+      "default": "center"
+    },
+    "marginTop": {
+      "type": "number",
+      "default": 20
+    },
+    "marginBottom": {
+      "type": "number",
+      "default": 20
+    },
+    "showIcon": {
+      "type": "boolean",
+      "default": false
+    },
+    "icon": {
+      "type": "string",
+      "default": "star-filled"
+    },
+    "iconSize": {
+      "type": "number",
+      "default": 20
+    },
+    "iconColor": {
+      "type": "string",
+      "default": ""
+    }
+  },
+  "supports": {
+    "html": false,
+    "align": [
+      "wide",
+      "full"
+    ],
+    "spacing": {
+      "margin": true
+    }
+  },
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css",
+  "render": "file:./render.php"
+}

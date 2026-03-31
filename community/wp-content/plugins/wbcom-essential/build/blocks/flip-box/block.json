@@ -1,0 +1,198 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "wbcom-essential/flip-box",
+  "version": "1.0.0",
+  "title": "Flip Box",
+  "category": "starter-design",
+  "icon": "image-flip-horizontal",
+  "description": "A 3D flip box with front and back content revealed on hover.",
+  "keywords": [
+    "flip",
+    "card",
+    "box",
+    "hover",
+    "3d",
+    "animation",
+    "interactive"
+  ],
+  "textdomain": "wbcom-essential",
+  "example": {},
+  "attributes": {
+    "useThemeColors": {
+      "type": "boolean",
+      "default": false
+    },
+    "frontIcon": {
+      "type": "string",
+      "default": "star-filled"
+    },
+    "frontTitle": {
+      "type": "string",
+      "default": "Front Title"
+    },
+    "frontTitleTag": {
+      "type": "string",
+      "default": "h3"
+    },
+    "frontContent": {
+      "type": "string",
+      "default": "Add your front content here."
+    },
+    "backIcon": {
+      "type": "string",
+      "default": ""
+    },
+    "backTitle": {
+      "type": "string",
+      "default": "Back Title"
+    },
+    "backTitleTag": {
+      "type": "string",
+      "default": "h3"
+    },
+    "backContent": {
+      "type": "string",
+      "default": "Add your back content here."
+    },
+    "buttonText": {
+      "type": "string",
+      "default": "Learn More"
+    },
+    "buttonUrl": {
+      "type": "string",
+      "default": ""
+    },
+    "buttonNewTab": {
+      "type": "boolean",
+      "default": false
+    },
+    "flipDirection": {
+      "type": "string",
+      "default": "flip-right"
+    },
+    "animationDuration": {
+      "type": "number",
+      "default": 0.6
+    },
+    "animationTiming": {
+      "type": "string",
+      "default": "ease"
+    },
+    "boxWidth": {
+      "type": "number",
+      "default": 300
+    },
+    "boxHeight": {
+      "type": "number",
+      "default": 300
+    },
+    "boxAlign": {
+      "type": "string",
+      "default": "center"
+    },
+    "frontBackground": {
+      "type": "string",
+      "default": "#f5f5f5"
+    },
+    "frontTitleColor": {
+      "type": "string",
+      "default": "#1a1a1a"
+    },
+    "frontContentColor": {
+      "type": "string",
+      "default": "#666666"
+    },
+    "frontIconColor": {
+      "type": "string",
+      "default": "#3182ce"
+    },
+    "frontIconSize": {
+      "type": "number",
+      "default": 48
+    },
+    "backBackground": {
+      "type": "string",
+      "default": "#3182ce"
+    },
+    "backTitleColor": {
+      "type": "string",
+      "default": "#ffffff"
+    },
+    "backContentColor": {
+      "type": "string",
+      "default": "rgba(255, 255, 255, 0.9)"
+    },
+    "backIconColor": {
+      "type": "string",
+      "default": "#ffffff"
+    },
+    "backIconSize": {
+      "type": "number",
+      "default": 48
+    },
+    "buttonBackground": {
+      "type": "string",
+      "default": "#ffffff"
+    },
+    "buttonTextColor": {
+      "type": "string",
+      "default": "#3182ce"
+    },
+    "borderRadius": {
+      "type": "number",
+      "default": 8
+    },
+    "buttonSkin": {
+      "type": "string",
+      "default": ""
+    },
+    "buttonHoverBackground": {
+      "type": "string",
+      "default": "#2c5aa0"
+    },
+    "buttonHoverTextColor": {
+      "type": "string",
+      "default": "#ffffff"
+    },
+    "frontBorderWidth": {
+      "type": "number",
+      "default": 0
+    },
+    "frontBorderColor": {
+      "type": "string",
+      "default": "#e0e0e0"
+    },
+    "frontBoxShadow": {
+      "type": "boolean",
+      "default": false
+    },
+    "backBorderWidth": {
+      "type": "number",
+      "default": 0
+    },
+    "backBorderColor": {
+      "type": "string",
+      "default": "#e0e0e0"
+    },
+    "backBoxShadow": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "supports": {
+    "html": false,
+    "align": [
+      "wide",
+      "full"
+    ],
+    "spacing": {
+      "margin": true,
+      "padding": true
+    }
+  },
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css",
+  "render": "file:./render.php"
+}

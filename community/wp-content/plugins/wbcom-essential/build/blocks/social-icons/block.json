@@ -1,0 +1,120 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "wbcom-essential/social-icons",
+  "version": "1.0.0",
+  "title": "Social Icons",
+  "category": "starter-design",
+  "icon": "share",
+  "description": "Display social media icons with customizable links and styles.",
+  "keywords": [
+    "social",
+    "icons",
+    "facebook",
+    "twitter",
+    "instagram",
+    "links"
+  ],
+  "textdomain": "wbcom-essential",
+  "example": {
+    "attributes": {
+      "icons": [
+        {
+          "platform": "facebook",
+          "url": "https://facebook.com"
+        },
+        {
+          "platform": "twitter",
+          "url": "https://twitter.com"
+        },
+        {
+          "platform": "instagram",
+          "url": "https://instagram.com"
+        }
+      ]
+    }
+  },
+  "attributes": {
+    "useThemeColors": {
+      "type": "boolean",
+      "default": false
+    },
+    "icons": {
+      "type": "array",
+      "default": [
+        {
+          "platform": "facebook",
+          "url": ""
+        },
+        {
+          "platform": "twitter",
+          "url": ""
+        },
+        {
+          "platform": "instagram",
+          "url": ""
+        }
+      ]
+    },
+    "alignment": {
+      "type": "string",
+      "default": "center"
+    },
+    "iconSize": {
+      "type": "number",
+      "default": 24
+    },
+    "iconGap": {
+      "type": "number",
+      "default": 12
+    },
+    "iconPadding": {
+      "type": "number",
+      "default": 12
+    },
+    "iconColor": {
+      "type": "string",
+      "default": ""
+    },
+    "iconBgColor": {
+      "type": "string",
+      "default": ""
+    },
+    "iconHoverColor": {
+      "type": "string",
+      "default": ""
+    },
+    "iconHoverBgColor": {
+      "type": "string",
+      "default": ""
+    },
+    "borderRadius": {
+      "type": "number",
+      "default": 50
+    },
+    "style": {
+      "type": "string",
+      "default": "filled"
+    },
+    "openInNewTab": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "supports": {
+    "html": false,
+    "align": [
+      "left",
+      "center",
+      "right"
+    ],
+    "spacing": {
+      "margin": true,
+      "padding": true
+    }
+  },
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css",
+  "render": "file:./render.php"
+}

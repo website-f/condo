@@ -1,0 +1,140 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "wbcom-essential/icon-box",
+  "version": "1.0.0",
+  "title": "Icon Box",
+  "category": "starter-design",
+  "icon": "admin-generic",
+  "description": "Display features or services with an icon, title, and description.",
+  "keywords": [
+    "icon",
+    "box",
+    "feature",
+    "service",
+    "info"
+  ],
+  "textdomain": "wbcom-essential",
+  "example": {
+    "attributes": {
+      "icon": "star-filled",
+      "title": "Feature Title",
+      "description": "Describe your feature or service here."
+    }
+  },
+  "attributes": {
+    "useThemeColors": {
+      "type": "boolean",
+      "default": false
+    },
+    "icon": {
+      "type": "string",
+      "default": "star-filled"
+    },
+    "iconType": {
+      "type": "string",
+      "default": "dashicon"
+    },
+    "customIconUrl": {
+      "type": "string",
+      "default": ""
+    },
+    "title": {
+      "type": "string",
+      "default": "Feature Title"
+    },
+    "description": {
+      "type": "string",
+      "default": ""
+    },
+    "titleTag": {
+      "type": "string",
+      "default": "h3"
+    },
+    "linkUrl": {
+      "type": "string",
+      "default": ""
+    },
+    "linkTarget": {
+      "type": "boolean",
+      "default": false
+    },
+    "layout": {
+      "type": "string",
+      "default": "top"
+    },
+    "alignment": {
+      "type": "string",
+      "default": "center"
+    },
+    "iconSize": {
+      "type": "number",
+      "default": 48
+    },
+    "iconColor": {
+      "type": "string",
+      "default": ""
+    },
+    "iconBgColor": {
+      "type": "string",
+      "default": ""
+    },
+    "iconBorderRadius": {
+      "type": "number",
+      "default": 50
+    },
+    "iconPadding": {
+      "type": "number",
+      "default": 16
+    },
+    "titleColor": {
+      "type": "string",
+      "default": ""
+    },
+    "descriptionColor": {
+      "type": "string",
+      "default": ""
+    },
+    "hoverIconColor": {
+      "type": "string",
+      "default": ""
+    },
+    "hoverIconBgColor": {
+      "type": "string",
+      "default": ""
+    },
+    "hoverTitleColor": {
+      "type": "string",
+      "default": ""
+    },
+    "iconSpacing": {
+      "type": "number",
+      "default": 16
+    },
+    "titleSpacing": {
+      "type": "number",
+      "default": 12
+    }
+  },
+  "supports": {
+    "html": false,
+    "align": [
+      "left",
+      "center",
+      "right",
+      "wide"
+    ],
+    "spacing": {
+      "margin": true,
+      "padding": true
+    },
+    "color": {
+      "background": true,
+      "gradients": true
+    }
+  },
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css",
+  "render": "file:./render.php"
+}

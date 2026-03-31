@@ -1,0 +1,55 @@
+{
+  "_SchedulesModal-Bo7X9Gj5.js": {
+    "file": "assets/SchedulesModal-Bo7X9Gj5.js",
+    "name": "SchedulesModal",
+    "imports": [
+      "_global.module-DFcttiOz.js"
+    ]
+  },
+  "_VideoThumbExtractor-D9M7gVcb.js": {
+    "file": "assets/VideoThumbExtractor-D9M7gVcb.js",
+    "name": "VideoThumbExtractor",
+    "imports": [
+      "_global.module-DFcttiOz.js"
+    ]
+  },
+  "_global.module-DFcttiOz.js": {
+    "file": "assets/global.module-DFcttiOz.js",
+    "name": "global.module"
+  },
+  "src/dashboard.tsx": {
+    "file": "fs-poster.dashboard.YTj-Q6Dx.js",
+    "name": "dashboard",
+    "src": "src/dashboard.tsx",
+    "isEntry": true,
+    "imports": [
+      "_global.module-DFcttiOz.js",
+      "_SchedulesModal-Bo7X9Gj5.js",
+      "_VideoThumbExtractor-D9M7gVcb.js"
+    ]
+  },
+  "src/metabox.tsx": {
+    "file": "fs-poster.metabox.DY32e7zT.js",
+    "name": "metabox",
+    "src": "src/metabox.tsx",
+    "isEntry": true,
+    "imports": [
+      "_global.module-DFcttiOz.js",
+      "_SchedulesModal-Bo7X9Gj5.js"
+    ]
+  },
+  "src/portal.tsx": {
+    "file": "fs-poster.portal.CSHwEjQj.js",
+    "name": "portal",
+    "src": "src/portal.tsx",
+    "isEntry": true,
+    "imports": [
+      "_global.module-DFcttiOz.js",
+      "_VideoThumbExtractor-D9M7gVcb.js"
+    ]
+  },
+  "style.css": {
+    "file": "fs-poster.style.Bq8Mu-0g.css",
+    "src": "style.css"
+  }
+}

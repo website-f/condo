@@ -1,0 +1,347 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "wbcom-essential/portfolio-grid",
+  "version": "1.0.0",
+  "title": "Portfolio Grid",
+  "category": "starter-blog",
+  "icon": "grid-view",
+  "description": "Display portfolio items in a filterable grid or masonry layout with hover effects and lightbox support.",
+  "keywords": [
+    "portfolio",
+    "grid",
+    "gallery",
+    "projects",
+    "filter",
+    "isotope",
+    "masonry",
+    "lightbox"
+  ],
+  "textdomain": "wbcom-essential",
+  "example": {},
+  "attributes": {
+    "useThemeColors": {
+      "type": "boolean",
+      "default": false
+    },
+    "items": {
+      "type": "array",
+      "default": [
+        {
+          "id": "item-1",
+          "image": "",
+          "imageId": 0,
+          "title": "Project One",
+          "description": "A brief description of this project.",
+          "link": "",
+          "linkTarget": "_self",
+          "filters": "design",
+          "columnWidth": 1,
+          "rowHeight": 1
+        },
+        {
+          "id": "item-2",
+          "image": "",
+          "imageId": 0,
+          "title": "Project Two",
+          "description": "A brief description of this project.",
+          "link": "",
+          "linkTarget": "_self",
+          "filters": "development",
+          "columnWidth": 1,
+          "rowHeight": 1
+        },
+        {
+          "id": "item-3",
+          "image": "",
+          "imageId": 0,
+          "title": "Project Three",
+          "description": "A brief description of this project.",
+          "link": "",
+          "linkTarget": "_self",
+          "filters": "design development",
+          "columnWidth": 1,
+          "rowHeight": 1
+        }
+      ]
+    },
+    "filters": {
+      "type": "array",
+      "default": [
+        {
+          "id": "all",
+          "label": "All",
+          "isDefault": true
+        },
+        {
+          "id": "design",
+          "label": "Design",
+          "isDefault": false
+        },
+        {
+          "id": "development",
+          "label": "Development",
+          "isDefault": false
+        }
+      ]
+    },
+    "showFilters": {
+      "type": "boolean",
+      "default": true
+    },
+    "layout": {
+      "type": "string",
+      "default": "grid"
+    },
+    "layoutType": {
+      "type": "string",
+      "default": "grid",
+      "enum": [
+        "grid",
+        "masonry"
+      ]
+    },
+    "showLayoutSwitcher": {
+      "type": "boolean",
+      "default": false
+    },
+    "columns": {
+      "type": "number",
+      "default": 3
+    },
+    "columnsTablet": {
+      "type": "number",
+      "default": 2
+    },
+    "columnsMobile": {
+      "type": "number",
+      "default": 1
+    },
+    "gap": {
+      "type": "number",
+      "default": 30
+    },
+    "imageSize": {
+      "type": "string",
+      "default": "large"
+    },
+    "imageAspectRatio": {
+      "type": "string",
+      "default": "4:3"
+    },
+    "titleHtmlTag": {
+      "type": "string",
+      "default": "h3"
+    },
+    "descriptionHtmlTag": {
+      "type": "string",
+      "default": "p"
+    },
+    "hoverEffect": {
+      "type": "string",
+      "default": "zoom",
+      "enum": [
+        "none",
+        "zoom",
+        "overlay",
+        "slide-up",
+        "fade"
+      ]
+    },
+    "hoverAnimation": {
+      "type": "string",
+      "default": ""
+    },
+    "enableLightbox": {
+      "type": "boolean",
+      "default": false
+    },
+    "lightboxIcon": {
+      "type": "string",
+      "default": "search"
+    },
+    "textPlacement": {
+      "type": "string",
+      "default": "overlay",
+      "enum": [
+        "overlay",
+        "below"
+      ]
+    },
+    "overlayVerticalAlign": {
+      "type": "string",
+      "default": "flex-end"
+    },
+    "textAlign": {
+      "type": "string",
+      "default": "left"
+    },
+    "itemBackground": {
+      "type": "string",
+      "default": "#ffffff"
+    },
+    "itemBorderRadius": {
+      "type": "number",
+      "default": 8
+    },
+    "itemBorderWidth": {
+      "type": "number",
+      "default": 0
+    },
+    "itemBorderColor": {
+      "type": "string",
+      "default": "#e2e8f0"
+    },
+    "itemBoxShadow": {
+      "type": "object",
+      "default": {
+        "enabled": true,
+        "horizontal": 0,
+        "vertical": 2,
+        "blur": 8,
+        "spread": 0,
+        "color": "rgba(0, 0, 0, 0.08)"
+      }
+    },
+    "itemHoverBoxShadow": {
+      "type": "object",
+      "default": {
+        "enabled": true,
+        "horizontal": 0,
+        "vertical": 8,
+        "blur": 24,
+        "spread": 0,
+        "color": "rgba(0, 0, 0, 0.12)"
+      }
+    },
+    "overlayColor": {
+      "type": "string",
+      "default": "rgba(0, 0, 0, 0.7)"
+    },
+    "overlayHoverColor": {
+      "type": "string",
+      "default": "rgba(0, 0, 0, 0.85)"
+    },
+    "titleColor": {
+      "type": "string",
+      "default": "#ffffff"
+    },
+    "titleFontSize": {
+      "type": "number",
+      "default": 18
+    },
+    "titleFontWeight": {
+      "type": "string",
+      "default": "600"
+    },
+    "titleMargin": {
+      "type": "object",
+      "default": {
+        "top": 0,
+        "right": 0,
+        "bottom": 8,
+        "left": 0
+      }
+    },
+    "descriptionColor": {
+      "type": "string",
+      "default": "rgba(255, 255, 255, 0.9)"
+    },
+    "descriptionFontSize": {
+      "type": "number",
+      "default": 14
+    },
+    "descriptionLineClamp": {
+      "type": "number",
+      "default": 2
+    },
+    "filterActiveColor": {
+      "type": "string",
+      "default": "#3182ce"
+    },
+    "filterTextColor": {
+      "type": "string",
+      "default": "#4a5568"
+    },
+    "filterActiveBackground": {
+      "type": "string",
+      "default": ""
+    },
+    "filterBackground": {
+      "type": "string",
+      "default": "rgba(0, 0, 0, 0.05)"
+    },
+    "filterBorderRadius": {
+      "type": "number",
+      "default": 4
+    },
+    "filterPadding": {
+      "type": "object",
+      "default": {
+        "top": 8,
+        "right": 20,
+        "bottom": 8,
+        "left": 20
+      }
+    },
+    "imagePadding": {
+      "type": "object",
+      "default": {
+        "top": 0,
+        "right": 0,
+        "bottom": 0,
+        "left": 0
+      }
+    },
+    "imageBorderRadius": {
+      "type": "number",
+      "default": 0
+    },
+    "contentPadding": {
+      "type": "object",
+      "default": {
+        "top": 24,
+        "right": 24,
+        "bottom": 24,
+        "left": 24
+      }
+    },
+    "contentMargin": {
+      "type": "object",
+      "default": {
+        "top": 0,
+        "right": 0,
+        "bottom": 0,
+        "left": 0
+      }
+    },
+    "contentBackground": {
+      "type": "string",
+      "default": ""
+    },
+    "contentBorderRadius": {
+      "type": "number",
+      "default": 0
+    }
+  },
+  "supports": {
+    "html": false,
+    "align": [
+      "wide",
+      "full"
+    ],
+    "spacing": {
+      "margin": true,
+      "padding": true
+    },
+    "typography": {
+      "fontSize": true,
+      "lineHeight": true
+    }
+  },
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css",
+  "viewScript": "file:./view.js",
+  "render": "file:./render.php"
+}

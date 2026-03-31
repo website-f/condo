@@ -1,0 +1,121 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "wbcom-essential/groups-lists",
+  "version": "1.0.0",
+  "title": "Groups Lists",
+  "category": "starter-buddypress",
+  "icon": "groups",
+  "description": "Display a list of BuddyPress groups with filter tabs.",
+  "keywords": [
+    "groups",
+    "buddypress",
+    "list",
+    "community",
+    "social"
+  ],
+  "textdomain": "wbcom-essential",
+  "example": {},
+  "attributes": {
+    "useThemeColors": {
+      "type": "boolean",
+      "default": false
+    },
+    "groupsOrder": {
+      "type": "string",
+      "default": "active"
+    },
+    "groupTypes": {
+      "type": "array",
+      "default": []
+    },
+    "groupsCount": {
+      "type": "number",
+      "default": 5
+    },
+    "showAllGroupsLink": {
+      "type": "boolean",
+      "default": true
+    },
+    "showFilterTypes": {
+      "type": "boolean",
+      "default": true
+    },
+    "showAvatar": {
+      "type": "boolean",
+      "default": true
+    },
+    "showMeta": {
+      "type": "boolean",
+      "default": true
+    },
+    "headingText": {
+      "type": "string",
+      "default": "Groups"
+    },
+    "allGroupsLinkText": {
+      "type": "string",
+      "default": "All Groups"
+    },
+    "boxBgColor": {
+      "type": "string",
+      "default": "#ffffff"
+    },
+    "boxBorderColor": {
+      "type": "string",
+      "default": "#e3e3e3"
+    },
+    "boxBorderRadius": {
+      "type": "number",
+      "default": 4
+    },
+    "avatarSize": {
+      "type": "number",
+      "default": 40
+    },
+    "avatarBorderRadius": {
+      "type": "number",
+      "default": 3
+    },
+    "titleColor": {
+      "type": "string",
+      "default": "#303030"
+    },
+    "metaColor": {
+      "type": "string",
+      "default": "#a3a5a9"
+    },
+    "linkColor": {
+      "type": "string",
+      "default": "#1d76da"
+    },
+    "filterNormalColor": {
+      "type": "string",
+      "default": "#9c9c9c"
+    },
+    "filterActiveColor": {
+      "type": "string",
+      "default": "#303030"
+    },
+    "filterActiveBorderColor": {
+      "type": "string",
+      "default": "#1d76da"
+    }
+  },
+  "supports": {
+    "html": false,
+    "align": [
+      "wide",
+      "full"
+    ],
+    "spacing": {
+      "margin": true,
+      "padding": true
+    }
+  },
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css",
+  "viewScript": "file:./view.js",
+  "render": "file:./render.php"
+}

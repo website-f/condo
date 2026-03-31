@@ -1,0 +1,242 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "wbcom-essential/header-bar",
+  "version": "1.0.0",
+  "title": "Header Bar",
+  "category": "starter-buddypress",
+  "icon": "menu-alt3",
+  "description": "Header bar with profile dropdown, search, notifications, messages, and cart icons.",
+  "keywords": [
+    "header",
+    "bar",
+    "buddypress",
+    "profile",
+    "navigation",
+    "menu"
+  ],
+  "textdomain": "wbcom-essential",
+  "example": {},
+  "attributes": {
+    "useThemeColors": {
+      "type": "boolean",
+      "default": false
+    },
+    "alignment": {
+      "type": "string",
+      "default": "right"
+    },
+    "showProfileDropdown": {
+      "type": "boolean",
+      "default": true
+    },
+    "profileMenu": {
+      "type": "string",
+      "default": ""
+    },
+    "showSeparator": {
+      "type": "boolean",
+      "default": true
+    },
+    "showFriendRequests": {
+      "type": "boolean",
+      "default": true
+    },
+    "showSearch": {
+      "type": "boolean",
+      "default": true
+    },
+    "showMessages": {
+      "type": "boolean",
+      "default": true
+    },
+    "showNotifications": {
+      "type": "boolean",
+      "default": true
+    },
+    "showCart": {
+      "type": "boolean",
+      "default": true
+    },
+    "showDarkModeToggle": {
+      "type": "boolean",
+      "default": false
+    },
+    "spaceBetween": {
+      "type": "number",
+      "default": 15
+    },
+    "iconSize": {
+      "type": "number",
+      "default": 18
+    },
+    "avatarSize": {
+      "type": "number",
+      "default": 36
+    },
+    "avatarBorderRadius": {
+      "type": "number",
+      "default": 50
+    },
+    "separatorColor": {
+      "type": "string",
+      "default": "rgba(0,0,0,0.1)"
+    },
+    "separatorWidth": {
+      "type": "number",
+      "default": 1
+    },
+    "iconColor": {
+      "type": "string",
+      "default": "#303030"
+    },
+    "friendRequestsIcon": {
+      "type": "string",
+      "default": ""
+    },
+    "friendRequestsIconColor": {
+      "type": "string",
+      "default": ""
+    },
+    "searchIcon": {
+      "type": "string",
+      "default": ""
+    },
+    "searchIconColor": {
+      "type": "string",
+      "default": ""
+    },
+    "messagesIcon": {
+      "type": "string",
+      "default": ""
+    },
+    "messagesIconColor": {
+      "type": "string",
+      "default": ""
+    },
+    "notificationsIcon": {
+      "type": "string",
+      "default": ""
+    },
+    "notificationsIconColor": {
+      "type": "string",
+      "default": ""
+    },
+    "cartIcon": {
+      "type": "string",
+      "default": ""
+    },
+    "cartIconColor": {
+      "type": "string",
+      "default": ""
+    },
+    "darkModeIcon": {
+      "type": "string",
+      "default": ""
+    },
+    "darkModeIconColor": {
+      "type": "string",
+      "default": ""
+    },
+    "iconTextShadow": {
+      "type": "string",
+      "default": ""
+    },
+    "counterBgColor": {
+      "type": "string",
+      "default": "#1D76DA"
+    },
+    "counterTextColor": {
+      "type": "string",
+      "default": "#ffffff"
+    },
+    "counterBoxShadow": {
+      "type": "string",
+      "default": ""
+    },
+    "dropdownBgColor": {
+      "type": "string",
+      "default": "#ffffff"
+    },
+    "dropdownTextColor": {
+      "type": "string",
+      "default": "#303030"
+    },
+    "dropdownHoverBgColor": {
+      "type": "string",
+      "default": ""
+    },
+    "dropdownHoverTextColor": {
+      "type": "string",
+      "default": ""
+    },
+    "dropdownBorderColor": {
+      "type": "string",
+      "default": ""
+    },
+    "dropdownBorderWidth": {
+      "type": "number",
+      "default": 0
+    },
+    "dropdownBorderRadius": {
+      "type": "number",
+      "default": 8
+    },
+    "dropdownBoxShadow": {
+      "type": "string",
+      "default": "0 4px 20px rgba(0, 0, 0, 0.15)"
+    },
+    "userNameColor": {
+      "type": "string",
+      "default": "#303030"
+    },
+    "userNameHoverColor": {
+      "type": "string",
+      "default": ""
+    },
+    "signInColor": {
+      "type": "string",
+      "default": ""
+    },
+    "signInHoverColor": {
+      "type": "string",
+      "default": ""
+    },
+    "signUpBgColor": {
+      "type": "string",
+      "default": ""
+    },
+    "signUpTextColor": {
+      "type": "string",
+      "default": ""
+    },
+    "signUpHoverBgColor": {
+      "type": "string",
+      "default": ""
+    },
+    "signUpHoverTextColor": {
+      "type": "string",
+      "default": ""
+    },
+    "signUpBorderRadius": {
+      "type": "number",
+      "default": 4
+    }
+  },
+  "supports": {
+    "html": false,
+    "align": [
+      "wide",
+      "full"
+    ],
+    "spacing": {
+      "margin": true,
+      "padding": true
+    }
+  },
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css",
+  "viewScript": "file:./view.js",
+  "render": "file:./render.php"
+}

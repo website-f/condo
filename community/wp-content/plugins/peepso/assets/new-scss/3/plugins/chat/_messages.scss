@@ -1,0 +1,835 @@
+.pso-messages-post__input {
+	max-height: 200px;
+	overflow: auto;
+}
+
+.ps-app {
+    .pso-messages {
+        height: 100%;
+
+        .pso-messages__side,
+        .pso-messages__main {
+            height: 100%;
+        }
+    }
+
+    .pso-btn[data-ps="btn-focus"] {
+        display: none;
+    }
+
+    .pso-messages .pso-postbox__moods {
+        height: 50vh;
+    }
+
+    .pso-messages .ps-postbox__location {
+        --map-height: 150px;
+    }
+
+    .pso-messages .ps-postbox__location-search {
+        flex-direction: column-reverse;
+        flex-wrap: nowrap;
+    }
+
+    .pso-messages .ps-postbox__location-list {
+        width: 100%;
+    }
+
+    .pso-messages .ps-postbox__location {
+        max-height: 80vh;
+    }
+
+    .pso-messages .ps-postbox__location-list {
+        max-height: 100%;
+    }
+}
+
+.pso-messages {
+    --bg: var(--c-base);
+    --side-width: 60px;
+    --side-open-width: 300px;
+
+    position: relative;
+    display: flex;
+    align-items: stretch;
+    height: 500px;
+
+    @include mq($from: desktop) {
+        height: 750px;
+    }
+
+    @include mq($until: desktop) {
+        .ps-postbox__location {
+            --map-height: 150px;
+        }
+
+        .pso-postbox__moods {
+            height: 400px;
+        }
+    
+        .ps-postbox__location-search {
+            flex-direction: column-reverse;
+            flex-wrap: nowrap;
+        }
+    
+        .ps-postbox__location-list {
+            width: 100%;
+        }
+    
+        .ps-postbox__location {
+            height: 400px;
+            max-height: 400px;
+        }
+
+        .ps-postbox__location-list {
+            max-height: 100%;
+        }
+    }
+
+    @include mq($until: wide) {
+        --side-open-width: 300px;
+    }
+
+    .ps-chat__message-time {
+        word-break: initial;
+    }
+}
+
+.pso-messages--focus {
+    --side-open-width: 320px;
+
+    position: fixed;
+    z-index: 99999;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: auto;
+    background-color: var(--c-base);
+
+    @include mq($from: 782px) {
+        .admin-bar & {
+            top: 32px;
+        }
+    }
+}
+
+.pso-messages__info {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--G1);
+    padding: var(--G1);
+    font-size: var(--F-S);
+    font-weight: 500;
+    color: var(--c-primary);
+    background-color: var(--c-primary-ulight);
+    border-radius: var(--BORDER-RADIUS);
+
+    > span {
+        display: none;
+    }
+
+    .pso-messages__side--open & {
+        > span {
+            display: block;
+        }
+    }
+}
+
+.pso-messages__side {
+    display: none;
+    background-color: var(--c-base);
+
+    .ps-messages__search {
+        position: relative;
+        display: none;
+        padding: 0;
+    }
+
+    .ps-messages__search,
+    .ps-messages__search-inner {
+        .ps-input--sm {
+            --height: 39px !important;
+            height: 39px !important;
+            max-height: var(--height) !important;
+        }
+    }
+
+    @include mq($until: desktop) {
+        border: 1px solid var(--c-base-200);
+        border-radius: var(--R);
+        
+        .pso-messages--focus & {
+            border: none;
+            border-radius: 0;
+        }
+
+        .pso-messages__toggle {
+            display: none;
+        }
+    }
+
+    @include mq($from: desktop) {
+        position: absolute;
+        top: 0;
+
+        @if $rtl {
+            right: 0;
+        } @else {
+            left: 0;
+        }
+
+        bottom: 0;
+        z-index: 10;
+        display: flex;
+        flex-direction: column;
+        width: var(--side-width);
+        min-width: var(--side-width);
+        max-width: var(--side-width);
+        border: 1px solid var(--c-base-200);
+        border-start-start-radius: var(--R);
+        border-end-start-radius: var(--R);
+
+        + .pso-messages__main {
+            margin-inline-start: var(--side-width);
+        }
+    }
+}
+
+.pso-messages__side--open {
+    width: 100%;
+
+    .ps-messages__search {
+        display: block;
+    }
+
+    @include mq($until: desktop) {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 10;
+        display: flex;
+        flex-direction: column;
+    }
+
+    @include mq($from: desktop) {
+        width: var(--side-open-width);
+        min-width: var(--side-open-width);
+        max-width: var(--side-open-width);
+
+        + .pso-messages__main {
+            margin-inline-start: var(--side-open-width);
+        }
+    }
+
+    .pso-messages__toggle {
+        display: none;
+    }
+}
+
+.pso-messages-side__header {
+    display: none;
+    align-items: center;
+    gap: var(--G2);
+    padding: var(--G2);
+    border-bottom: 1px solid var(--c-base-200);
+
+    > span {
+        width: 100%;
+    }
+
+    .pso-btn {
+        --w: 39px;
+        --h: 39px;
+    }
+
+    .pso-messages__side--open & {
+        display: flex;
+    }
+
+    @include mq($until: desktop) {
+        > a {
+            span {
+                display: none;
+            }
+        }
+
+        .pso-btn[data-ps="btn-toggle"] {
+            display: none;
+        }
+    }
+
+    @include mq($from: desktop) {
+        > span,
+        .pso-messages__focus {
+            display: none;
+        }
+    }
+}
+
+.pso-messages-side__filters {
+    display: none;
+    align-items: center;
+    gap: var(--G2);
+    margin-inline-start: auto;
+
+    .pso-messages__side--open & {
+        display: flex;
+    }
+}
+
+.pso-messages__list {
+    padding: var(--G2);
+    padding-top: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    .pso-messages__side--open & {
+        padding-top: var(--G2);
+    }
+}
+
+.pso-messages__items {
+    display: flex;
+    flex-direction: column;
+    gap: var(--G2);
+
+    .pso-messages__side--open & {
+        gap: 0;
+    }
+}
+
+.pso-messages-list__item {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: var(--G2);
+    cursor: pointer;
+
+    .ps-emoticon {
+        vertical-align: middle;
+    }
+
+    .pso-messages__side--open & {
+        padding: var(--G2);
+        border-radius: var(--BORDER-RADIUS);
+
+        &:hover {
+            background-color: var(--PS-COLOR--APP--GRAY);
+        }
+    }
+
+    &:before {
+        position: absolute;
+        top: 4px;
+        left: calc(-1 * var(--G2));
+        bottom: 4px;
+        width: 4px;
+        display: block;
+        border-top-right-radius: 4px;
+        border-bottom-right-radius: 4px;
+        background-color: var(--c-primary-light);
+        content: " ";
+        opacity: 0;
+        transition: var(--TRANS-O);
+    }
+}
+
+.pso-messages-list__item--selected {
+    &:before {
+        opacity: 1;
+    }
+}
+
+.pso-messages-list__item--unread {
+    .pso-messages__side--open & {
+        background-color: var(--c-ps-notification-unread-bg);
+
+        &:hover {
+            background-color: var(--c-ps-notification-unread-bg);
+            opacity: .8;
+        }
+    }
+}
+
+.pso-messages-list-item__details {
+    width: 100%;
+    display: none;
+    flex-direction: column;
+    gap: 1px;
+    font-size: var(--F-S);
+    overflow: hidden;
+
+    .pso-messages__side--open & {
+        display: flex;
+    }
+}
+
+.pso-messages-list-item__avatar {}
+
+.pso-messages-list-item__excerpt {
+    line-height: 1.4;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.pso-messages-list-item__author {
+    font-weight: 500;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.pso-messages-list-item__meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: var(--F-XS);
+
+    span {
+        opacity: .75;
+    }
+}
+
+.pso-messages-list-item__unread {
+    display: none;
+
+    .pso-messages-list__item--unread & {
+        display: block;
+        color: var(--c-primary);
+        opacity: 1;
+    }
+}
+
+.pso-messages-list-item__data {}
+
+.pso-messages__main {
+    display: flex;
+    flex-direction: column;
+    justify-content: stretch;
+    min-width: 0;
+    width: 100%;
+    height: 100%;
+    background-color: var(--bg);
+    border-radius: var(--R);
+    border: 1px solid var(--c-base-200);
+
+    .pso-messages--focus & {
+        border: none;
+        border-radius: 0;
+    }
+
+    @include mq($from: desktop) {
+        border-radius: var(--R);
+        border-start-start-radius: 0;
+        border-end-start-radius: 0;
+        border: 1px solid var(--c-base-200);
+        border-inline-start: none;
+    }
+}
+
+.pso-messages__header {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: var(--G1);
+    min-height: 60px;
+    padding: var(--G1) var(--G2);
+    border-bottom: 1px solid var(--c-base-200);
+
+    .pso-btn {
+        --w: 39px;
+        --h: 39px;
+    }
+
+    @include mq($from: desktop) {
+        padding: var(--G2) var(--G4);
+
+        .pso-btn[data-ps="btn-toggle"] {
+            display: none;
+        }
+    }
+}
+
+.pso-messages__toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--G2);
+
+    > button {
+        --w: 39px;
+        --h: 39px;
+    }
+
+    .pso-messages__side--open & {
+        padding-bottom: 0;
+    }
+}
+
+.pso-messages__new {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--G2);
+    border-bottom: 1px solid var(--c-base-200);
+
+    > a {
+        --w: 39px;
+        --h: 39px;
+    }
+
+    .pso-messages__side--open & {
+        display: none;
+    }
+}
+
+.pso-messages__participant {
+    display: flex;
+    align-items: center;
+    gap: var(--G1);
+    font-size: var(--F-S);
+    font-weight: 500;
+    overflow: hidden;
+}
+
+.pso-messages-participant__avatar {
+    width: auto;
+    min-width: auto;
+
+    .ps-avatar {
+        padding: 1px;
+        background-color: var(--bg);
+        border-radius: var(--radius);
+    }
+}
+
+.pso-messages-participant__name {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+
+    a {
+        color: var(--c-contrast);
+    }
+}
+
+.pso-messages__options {
+    display: flex;
+    gap: var(--G1);
+
+    .pso-messages--focus & {
+        .pso-i-arrow-expand {
+            &:before {
+                content: "\E831";
+            }
+        }
+    }
+
+    @include mq($from: desktop) {
+        position: relative;
+    }
+}
+
+.pso-messages-options__menu {
+    top: 100%;
+    left: auto;
+    right: 0;
+    width: 250px;
+    padding: var(--G1);
+
+    > a {
+        display: flex;
+        gap: var(--G1);
+        padding: var(--G2);
+        font-size: var(--F-S);
+        color: var(--c-contrast);
+        border-radius: var(--BORDER-RADIUS);
+
+        > i {
+            min-width: 20px;
+            margin-top: 2px;
+        }
+
+        &:hover {
+            color: var(--c-contrast);
+            background-color: var(--PS-COLOR--APP--GRAY);
+        }
+    }
+
+    @include mq($until: desktop) {
+        width: 100%;
+        left: 0;
+        right: 0;
+        border-radius: 0;
+    }
+}
+
+.pso-messages__recipients {
+    padding: var(--G1) var(--G2);
+    border-bottom: 1px solid var(--c-base-200);
+
+    > div {
+        width: 100%;
+    }
+
+    .selectize-input {
+        color: var(--c-contrast);
+        border-radius: var(--BORDER-RADIUS--MD);
+        background-color: var(--c-base);
+        border-color: var(--c-base-200);
+
+        input {
+            color: var(--c-contrast);
+        }
+    }
+
+    > .pso-btn {
+        --h: 35px;
+    }
+
+    @include mq($from: desktop) {
+        display: flex;
+        gap: var(--G1);
+        padding: var(--G2) var(--G4);
+    }
+}
+
+.pso-messages__chat {
+    height: 100%;
+    background-color: var(--c-base-50);
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+}
+
+.pso-messages__post {
+    border-top: 1px solid var(--c-base-200);
+
+    .ps-giphy__preview,
+    .ps-postbox__file-previews {
+        border-bottom: none;
+    }
+
+    .ps-giphy__search {
+        border-top: none;
+    }
+
+    .ps-postbox__photos-info,
+    .ps-postbox__files-info {
+        padding: var(--G2);
+
+        @include mq($from: desktop) {
+            padding: var(--G4);
+        }
+    }
+}
+
+.pso-messages-post__attachments {
+    text-align: center;
+    border-bottom: 1px solid var(--c-base-200);
+}
+
+.pso-messages-post-input__wrapper {
+    display: flex;
+    align-items: start;
+    gap: var(--G2);
+    padding: var(--G2);
+
+    .pso-btn {
+        --w: 39px;
+        --h: 39px;
+    }
+
+    .pso-btn--primary {
+        border-radius: 50%;
+    }
+
+    @include mq($from: desktop) {
+        padding: var(--G4);
+    }
+}
+
+.pso-messages-post__input {
+    width: 100%;
+    min-height: 39px;
+	max-height: 200px;
+    margin: 0;
+    padding: 0;
+    padding-top: 8px;
+    font-size: 16px;
+    font-weight: 400;
+    overflow: auto;
+    color: var(--c-contrast);
+    background-color: var(--c-base);
+
+    // reset
+    border: none;
+    outline: none;
+    box-shadow: none;
+    resize: none;
+
+    &:hover,
+    &:focus {
+        border: none;
+        outline: none;
+        box-shadow: none;
+        resize: none;
+    }
+
+    @include mq($from: desktop) {
+        font-size: var(--F-M);
+    }
+}
+
+.pso-messages-post-input__extra {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    padding-inline: var(--G2);
+    padding-bottom: var(--G2);
+    font-size: var(--F-S);
+
+    &:before {
+        content: '—';
+    }
+
+    > i {
+        margin-inline: var(--G1);
+    }
+
+    > strong {
+        margin-inline: var(--G1);
+
+        &:last-of-type {
+            margin-inline-end: 0;
+        }
+    }
+
+    @include mq($from: desktop) {
+        padding-inline: var(--G4);
+        padding-bottom: var(--G4);
+        font-size: var(--F-M);
+    }
+}
+
+.pso-messages-post__cancel {
+    @include mq($from: desktop) {
+        order: 2;
+    }
+}
+
+.pso-messages-post__send {
+    @include mq($from: desktop) {
+        order: 3;
+    }
+}
+
+.pso-messages-post__enter {
+    display: none;
+
+    @include mq($from: desktop) {
+        display: flex;
+        align-items: center;
+        gap: var(--G1);
+        height: 39px;
+        margin-inline-start: auto;
+        padding-inline: var(--G2);
+        font-size: var(--F-S);
+        font-weight: 500;
+        cursor: pointer;
+
+        * {
+            cursor: pointer;
+        }
+    }
+}
+
+.pso-messages-post__menu {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: var(--G2);
+    padding-inline: var(--G2);
+    padding-bottom: var(--G2);
+
+    @include mq($from: desktop) {
+        padding-inline: var(--G4);
+        padding-bottom: var(--G4);
+    }
+}
+
+.pso-messages-post__types {
+    display: flex;
+    align-items: center;
+    gap: var(--G2);
+
+    > .pso-btn {
+        --w: 39px;
+        --h: 39px;
+    }
+
+    > .pso-btn--neutral {
+        --ac-c: var(--c-contrast-light);
+        --ac-ic: var(--c-primary);
+        --ac-bg: var(--c-primary-ulight);
+    }
+}
+
+.pso-messages-post__addons {
+    display: flex;
+    align-items: center;
+    gap: var(--G1);
+}
+
+.pso-messages-post__addon {
+    > .pso-btn {
+        --w: 39px;
+        --h: 39px;
+    }
+
+    > .pso-btn--neutral {
+        --ac-c: var(--c-contrast-light);
+        --ac-ic: var(--c-primary);
+        --ac-bg: var(--c-primary-ulight);
+    }
+}
+
+.pso-messages-post__addon--active {
+    &:before {
+        content: " ";
+        position: absolute;
+        left: calc(var(--G3) / 2);
+        bottom: calc(var(--G3) / 2);
+        width: 6px;
+        height: 6px;
+        background-color: var(--c-primary);
+        border-radius: 50%;
+        box-shadow: 0 0 0 2px var(--c-base);
+    }
+}
+
+.pso-messages-post-addon__box {
+    top: auto;
+    left: var(--G4);
+    right: var(--G4);
+    bottom: 125%;
+    width: auto;
+
+    .ps-dropdown__menu {
+        position: static;
+        width: auto;
+        background: none;
+        box-shadow: unset;
+    }
+
+    @include mq($until: desktop) {
+        left: var(--G2);
+        right: var(--G2);
+        width: auto;
+    }
+}

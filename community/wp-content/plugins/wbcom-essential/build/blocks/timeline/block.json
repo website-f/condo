@@ -1,0 +1,205 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "wbcom-essential/timeline",
+  "version": "1.0.0",
+  "title": "Timeline",
+  "category": "starter-content",
+  "icon": "backup",
+  "description": "Display events or milestones in a vertical timeline layout.",
+  "keywords": [
+    "timeline",
+    "history",
+    "events",
+    "milestones",
+    "chronology",
+    "roadmap"
+  ],
+  "textdomain": "wbcom-essential",
+  "example": {},
+  "attributes": {
+    "useThemeColors": {
+      "type": "boolean",
+      "default": false
+    },
+    "items": {
+      "type": "array",
+      "default": [
+        {
+          "id": 1,
+          "icon": "star",
+          "imageId": 0,
+          "imageUrl": "",
+          "date": "Jan 2024",
+          "titleTag": "h3",
+          "title": "Project Launch",
+          "content": "We successfully launched our new project with great enthusiasm and dedication.",
+          "textAlign": "left"
+        },
+        {
+          "id": 2,
+          "icon": "flag",
+          "imageId": 0,
+          "imageUrl": "",
+          "date": "Mar 2024",
+          "titleTag": "h3",
+          "title": "First Milestone",
+          "content": "Reached our first major milestone ahead of schedule.",
+          "textAlign": "left"
+        }
+      ]
+    },
+    "layout": {
+      "type": "string",
+      "default": "two-column"
+    },
+    "showArrow": {
+      "type": "boolean",
+      "default": true
+    },
+    "enableAnimation": {
+      "type": "boolean",
+      "default": true
+    },
+    "barThickness": {
+      "type": "number",
+      "default": 4
+    },
+    "barColor": {
+      "type": "string",
+      "default": "#e2e8f0"
+    },
+    "iconContainerSize": {
+      "type": "number",
+      "default": 60
+    },
+    "iconContainerBackground": {
+      "type": "string",
+      "default": "#3182ce"
+    },
+    "iconContainerBorderRadius": {
+      "type": "number",
+      "default": 50
+    },
+    "iconSize": {
+      "type": "number",
+      "default": 24
+    },
+    "iconColor": {
+      "type": "string",
+      "default": "#ffffff"
+    },
+    "contentBackground": {
+      "type": "string",
+      "default": "#f7fafc"
+    },
+    "contentBorderRadius": {
+      "type": "number",
+      "default": 12
+    },
+    "dateColor": {
+      "type": "string",
+      "default": "#718096"
+    },
+    "titleColor": {
+      "type": "string",
+      "default": "#1a202c"
+    },
+    "textColor": {
+      "type": "string",
+      "default": "#4a5568"
+    },
+    "contentPadding": {
+      "type": "number",
+      "default": 24
+    },
+    "contentBoxShadow": {
+      "type": "boolean",
+      "default": true
+    },
+    "dateFontSize": {
+      "type": "number",
+      "default": 14
+    },
+    "titleFontSize": {
+      "type": "number",
+      "default": 20
+    },
+    "textFontSize": {
+      "type": "number",
+      "default": 16
+    },
+    "itemSpacing": {
+      "type": "number",
+      "default": 40
+    },
+    "contentBorderType": {
+      "type": "string",
+      "default": "none"
+    },
+    "contentBorderWidth": {
+      "type": "number",
+      "default": 1
+    },
+    "contentBorderColor": {
+      "type": "string",
+      "default": "#e2e8f0"
+    },
+    "contentBoxShadowHorizontal": {
+      "type": "number",
+      "default": 0
+    },
+    "contentBoxShadowVertical": {
+      "type": "number",
+      "default": 4
+    },
+    "contentBoxShadowBlur": {
+      "type": "number",
+      "default": 15
+    },
+    "contentBoxShadowSpread": {
+      "type": "number",
+      "default": 0
+    },
+    "contentBoxShadowColor": {
+      "type": "string",
+      "default": "rgba(0, 0, 0, 0.08)"
+    },
+    "dateFontWeight": {
+      "type": "string",
+      "default": "600"
+    },
+    "dateTextTransform": {
+      "type": "string",
+      "default": "none"
+    },
+    "dateLineHeight": {
+      "type": "number",
+      "default": 1.4
+    },
+    "dateLetterSpacing": {
+      "type": "number",
+      "default": 0
+    },
+    "imageBorderRadius": {
+      "type": "number",
+      "default": 8
+    }
+  },
+  "supports": {
+    "html": false,
+    "align": [
+      "wide",
+      "full"
+    ],
+    "spacing": {
+      "margin": true,
+      "padding": true
+    }
+  },
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css",
+  "viewScript": "file:./view.js",
+  "render": "file:./render.php"
+}

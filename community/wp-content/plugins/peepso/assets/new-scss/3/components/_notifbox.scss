@@ -1,0 +1,90 @@
+.pso-notifbox {
+    position: absolute;
+    z-index: 100;
+    top: 100%;
+
+    @if $rtl {
+        left: calc(-1 * (var(--G2) / 1.5));
+    } @else {
+        right: calc(-1 * (var(--G2) / 1.5));
+    }
+
+    display: none;
+    width: 400px;
+    font-size: var(--F-M);
+    background-color: var(--c-base);
+    border-radius: var(--R);
+    box-shadow: var(--SH);
+
+    #wp-toolbar & {
+        position: absolute !important;
+        z-index: 100 !important;
+        top: 100% !important;
+        right: 0 !important;
+        width: 400px !important;
+    }
+
+    @include mq($until: desktop) {
+        left: 0;
+        right: 0;
+        width: 100%;
+    }
+}
+
+.pso-notifbox--open {}
+
+.pso-notifbox__inner {}
+
+.pso-notifbox__top {}
+
+.pso-notifbox__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 45px;
+    padding-top: var(--G1);
+    padding-inline-start: var(--G3);
+    padding-inline-end: var(--G1);
+    padding-bottom: var(--G1);
+    border-bottom: 1px solid var(--DV);
+}
+
+.pso-notifbox__title {
+    font-weight: 500;
+}
+
+.pso-notifbox__settings {
+    --w: var(--h);
+}
+
+.pso-notifbox__tabs {
+    .pso-tabs__item {
+        width: 50%;
+        justify-content: center;
+        padding-inline: var(--G3);
+    }
+}
+
+.pso-notifbox__notice {
+    padding: var(--G3);
+    font-size: var(--F-S);
+    text-align: center;
+    color: var(--c-contrast-slight);
+}
+
+.pso-notifbox__list {}
+
+.pso-notifbox__actions {
+    display: flex;
+    gap: var(--G2);
+    padding: var(--G3);
+    border-top: 1px solid var(--DV);
+
+    > .pso-btn {
+        width: 50%;
+
+        &:first-child:last-child {
+            flex-grow: 1;
+        }
+    }
+}

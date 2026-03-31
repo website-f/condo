@@ -1,0 +1,116 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "wbcom-essential/product-grid",
+  "version": "1.0.0",
+  "title": "Product Grid",
+  "category": "starter-woocommerce",
+  "icon": "grid-view",
+  "description": "Display WooCommerce products in a customizable grid layout.",
+  "keywords": [
+    "products",
+    "woocommerce",
+    "shop",
+    "grid",
+    "store"
+  ],
+  "textdomain": "wbcom-essential",
+  "example": {},
+  "attributes": {
+    "useThemeColors": {
+      "type": "boolean",
+      "default": false
+    },
+    "columns": {
+      "type": "number",
+      "default": 4
+    },
+    "rows": {
+      "type": "number",
+      "default": 2
+    },
+    "category": {
+      "type": "string",
+      "default": ""
+    },
+    "orderBy": {
+      "type": "string",
+      "default": "date"
+    },
+    "order": {
+      "type": "string",
+      "default": "desc"
+    },
+    "showOnSale": {
+      "type": "boolean",
+      "default": false
+    },
+    "showFeatured": {
+      "type": "boolean",
+      "default": false
+    },
+    "showSaleBadge": {
+      "type": "boolean",
+      "default": true
+    },
+    "showRating": {
+      "type": "boolean",
+      "default": true
+    },
+    "showPrice": {
+      "type": "boolean",
+      "default": true
+    },
+    "showAddToCart": {
+      "type": "boolean",
+      "default": true
+    },
+    "gap": {
+      "type": "number",
+      "default": 24
+    },
+    "imageRatio": {
+      "type": "string",
+      "default": "1"
+    },
+    "cardBgColor": {
+      "type": "string",
+      "default": ""
+    },
+    "cardBorderRadius": {
+      "type": "number",
+      "default": 8
+    },
+    "titleColor": {
+      "type": "string",
+      "default": ""
+    },
+    "priceColor": {
+      "type": "string",
+      "default": ""
+    },
+    "saleBadgeColor": {
+      "type": "string",
+      "default": "#ffffff"
+    },
+    "saleBadgeBgColor": {
+      "type": "string",
+      "default": "#e53935"
+    }
+  },
+  "supports": {
+    "html": false,
+    "align": [
+      "wide",
+      "full"
+    ],
+    "spacing": {
+      "margin": true,
+      "padding": true
+    }
+  },
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css",
+  "render": "file:./render.php"
+}

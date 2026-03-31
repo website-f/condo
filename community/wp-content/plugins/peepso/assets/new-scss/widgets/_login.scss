@@ -1,0 +1,37 @@
+.psw-login {}
+
+.psw-login--horizontal {
+  .ps-form--login {
+    display: grid;
+    grid-row-gap: var(--PADD);
+    grid-column-gap: var(--PADD);
+    grid-template-areas:
+      "one two three"
+      "four four four";
+
+    .ps-form__row--username {
+      grid-area: one;
+    }
+
+    .ps-form__row--password {
+      grid-area: two;
+    }
+
+    .ps-form__row--submit {
+      grid-area: three;
+    }
+
+    .ps-form__row--remember {
+      grid-area: four;
+    }
+  }
+
+  .psf-login__links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--PADD);
+    margin-top: 0;
+  }
+}
+
+.psw-login--vertical {}

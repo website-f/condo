@@ -1,0 +1,102 @@
+
+---Downloaded files---
+The import files for: BuddyX with BuddyPress were successfully downloaded!
+Initial max execution time = 300
+Files info:
+Site URL = https://condo.com.my/community
+Data file = /home/property/domains/condo.com.my/public_html/community/wp-content/plugins/buddyx-demo-importer//demos/buddyx/buddypress/demo-content.xml
+Widget file = /home/property/domains/condo.com.my/public_html/community/wp-content/plugins/buddyx-demo-importer//demos/buddyx/buddypress/widgets.json
+Customizer file = /home/property/domains/condo.com.my/public_html/community/wp-content/plugins/buddyx-demo-importer//demos/buddyx/buddypress/customizer.dat
+Redux files:
+not defined!
+
+---Importing widgets---
+Right Sidebar : 
+
+Search - No Title - Widget already exists
+Recent Posts - No Title - Widget already exists
+Categories - Categories - Widget already exists
+Tag Cloud - Tags - Widget already exists
+
+Left Sidebar : 
+
+Archives - No Title - Widget already exists
+Categories - No Title - Widget already exists
+
+Community Left Sidebar : 
+
+Block - No Title - Widget already exists
+Block - No Title - Widget already exists
+
+Activity Directory Right Sidebar : 
+
+(BuddyPress) Profile Completion - Complete Your Profile - Widget already exists
+Block - No Title - Widget already exists
+Block - No Title - Widget already exists
+
+Members Directory Right Sidebar : 
+
+Block - No Title - Widget already exists
+Block - No Title - Widget already exists
+Block - No Title - Widget already exists
+
+Groups Directory Right Sidebar : 
+
+Block - No Title - Widget already exists
+Block - No Title - Widget already exists
+Block - No Title - Widget already exists
+
+Members Single Profile Sidebar : 
+
+Block - No Title - Widget already exists
+Block - No Title - Widget already exists
+Block - No Title - Widget already exists
+
+Members Single User Activity : 
+
+Block - No Title - Widget already exists
+Block - No Title - Widget already exists
+
+Groups Single Group Sidebar : 
+
+Block - No Title - Widget already exists
+Block - No Title - Widget already exists
+Block - No Title - Widget already exists
+
+Groups Single Group Activity : 
+
+Block - No Title - Widget already exists
+
+woocommerce-sidebar-left : Sidebar does not exist in theme (moving widget to Inactive)
+
+Block - No Title - Widget already exists
+woocommerce_products - Products - Site does not support widget
+
+woocommerce-sidebar-right : Sidebar does not exist in theme (moving widget to Inactive)
+
+woocommerce_product_search - No Title - Site does not support widget
+woocommerce_products - Products - Site does not support widget
+
+Footer 1 : 
+
+Custom HTML - No Title - Widget already exists
+
+Footer 2 : 
+
+Recent Posts - Latest Post - Widget already exists
+
+Footer 3 : 
+
+Block - No Title - Widget already exists
+
+Footer 4 : 
+
+Block - No Title - Widget already exists
+
+
+
+---Importing customizer settings---
+Customizer settings import finished!
+
+---ocdi/after_import---
+

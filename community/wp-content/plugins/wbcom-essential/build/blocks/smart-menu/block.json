@@ -1,0 +1,202 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "wbcom-essential/smart-menu",
+  "version": "1.0.0",
+  "title": "Smart Menu",
+  "category": "starter-header",
+  "icon": "menu",
+  "description": "A powerful and flexible navigation menu block with extensive styling options",
+  "keywords": [
+    "menu",
+    "navigation",
+    "nav",
+    "links"
+  ],
+  "textdomain": "wbcom-essential",
+  "example": {},
+  "attributes": {
+    "useThemeColors": {
+      "type": "boolean",
+      "default": false
+    },
+    "menuId": {
+      "type": "number",
+      "default": 0
+    },
+    "menuLayout": {
+      "type": "string",
+      "default": "horizontal"
+    },
+    "menuAlign": {
+      "type": "string",
+      "default": "flex-start"
+    },
+    "verticalMenuWidth": {
+      "type": "string",
+      "default": "100%"
+    },
+    "mobileBreakpoint": {
+      "type": "number",
+      "default": 1024
+    },
+    "showMobileToggle": {
+      "type": "boolean",
+      "default": true
+    },
+    "mobileToggleText": {
+      "type": "string",
+      "default": "MENU"
+    },
+    "mobileToggleAlign": {
+      "type": "string",
+      "default": "flex-start"
+    },
+    "dropdownIcon": {
+      "type": "string",
+      "default": "chevron-down"
+    },
+    "mainMenuBackground": {
+      "type": "object",
+      "default": {}
+    },
+    "mainMenuTransitionDuration": {
+      "type": "number",
+      "default": 0.2
+    },
+    "dropdownIconSize": {
+      "type": "number",
+      "default": 14
+    },
+    "mainMenuItemColor": {
+      "type": "string",
+      "default": ""
+    },
+    "mainMenuItemBg": {
+      "type": "string",
+      "default": ""
+    },
+    "mainMenuItemColorHover": {
+      "type": "string",
+      "default": ""
+    },
+    "mainMenuItemBgHover": {
+      "type": "string",
+      "default": ""
+    },
+    "mainMenuItemColorActive": {
+      "type": "string",
+      "default": ""
+    },
+    "mainMenuItemBgActive": {
+      "type": "string",
+      "default": ""
+    },
+    "subMenuBg": {
+      "type": "string",
+      "default": ""
+    },
+    "subMenuItemColor": {
+      "type": "string",
+      "default": ""
+    },
+    "subMenuItemBg": {
+      "type": "string",
+      "default": ""
+    },
+    "subMenuItemColorHover": {
+      "type": "string",
+      "default": ""
+    },
+    "subMenuItemBgHover": {
+      "type": "string",
+      "default": ""
+    },
+    "subMenuItemColorActive": {
+      "type": "string",
+      "default": ""
+    },
+    "subMenuItemBgActive": {
+      "type": "string",
+      "default": ""
+    },
+    "mobileMenuColor": {
+      "type": "string",
+      "default": ""
+    },
+    "mobileMenuBackground": {
+      "type": "object",
+      "default": {}
+    },
+    "mobileMenuWidth": {
+      "type": "object",
+      "default": {}
+    },
+    "collapsibleBehavior": {
+      "type": "string",
+      "default": "link"
+    },
+    "submenuAnimation": {
+      "type": "string",
+      "default": ""
+    },
+    "submenuMinWidth": {
+      "type": "object",
+      "default": {
+        "size": 10,
+        "unit": "em"
+      }
+    },
+    "submenuMaxWidth": {
+      "type": "object",
+      "default": {
+        "size": 20,
+        "unit": "em"
+      }
+    },
+    "submenuOffsetX": {
+      "type": "number",
+      "default": 0
+    },
+    "submenuOffsetY": {
+      "type": "number",
+      "default": 0
+    },
+    "submenuLevel2OffsetX": {
+      "type": "number",
+      "default": 0
+    },
+    "submenuLevel2OffsetY": {
+      "type": "number",
+      "default": 0
+    },
+    "submenuTransitionDuration": {
+      "type": "number",
+      "default": 0.3
+    },
+    "submenuIndicatorIcon": {
+      "type": "string",
+      "default": "caret"
+    },
+    "submenuIndicatorIconSize": {
+      "type": "number",
+      "default": 12
+    }
+  },
+  "supports": {
+    "html": false,
+    "align": [
+      "wide",
+      "full"
+    ],
+    "spacing": {
+      "margin": true,
+      "padding": true
+    }
+  },
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css",
+  "viewScript": "file:./view.js",
+  "render": "file:./render.php"
+}

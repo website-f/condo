@@ -1,0 +1,173 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "wbcom-essential/pricing-table",
+  "version": "1.0.0",
+  "title": "Pricing Table",
+  "category": "starter-marketing",
+  "icon": "money-alt",
+  "description": "Display pricing plans with features, pricing, and CTA buttons",
+  "keywords": [
+    "pricing",
+    "price",
+    "table",
+    "plan",
+    "subscription"
+  ],
+  "textdomain": "wbcom-essential",
+  "example": {},
+  "attributes": {
+    "useThemeColors": {
+      "type": "boolean",
+      "default": false
+    },
+    "title": {
+      "type": "string",
+      "default": "Basic Plan"
+    },
+    "description": {
+      "type": "string",
+      "default": "Perfect for getting started"
+    },
+    "headingTag": {
+      "type": "string",
+      "default": "h3"
+    },
+    "pricePrefix": {
+      "type": "string",
+      "default": "$"
+    },
+    "price": {
+      "type": "string",
+      "default": "49"
+    },
+    "priceSuffix": {
+      "type": "string",
+      "default": ".99"
+    },
+    "originalPrice": {
+      "type": "string",
+      "default": ""
+    },
+    "period": {
+      "type": "string",
+      "default": "/month"
+    },
+    "features": {
+      "type": "array",
+      "default": [
+        {
+          "text": "10 Users Included",
+          "icon": "yes"
+        },
+        {
+          "text": "5GB Storage",
+          "icon": "yes"
+        },
+        {
+          "text": "Email Support",
+          "icon": "yes"
+        }
+      ]
+    },
+    "buttonText": {
+      "type": "string",
+      "default": "Get Started"
+    },
+    "buttonUrl": {
+      "type": "string",
+      "default": "#"
+    },
+    "buttonTarget": {
+      "type": "boolean",
+      "default": false
+    },
+    "footerText": {
+      "type": "string",
+      "default": ""
+    },
+    "showRibbon": {
+      "type": "boolean",
+      "default": false
+    },
+    "ribbonText": {
+      "type": "string",
+      "default": "POPULAR"
+    },
+    "ribbonStyle": {
+      "type": "string",
+      "default": "ribbon"
+    },
+    "headerBackground": {
+      "type": "string",
+      "default": "#4a5568"
+    },
+    "headerTextColor": {
+      "type": "string",
+      "default": "#ffffff"
+    },
+    "containerBackground": {
+      "type": "string",
+      "default": "#f7fafc"
+    },
+    "priceColor": {
+      "type": "string",
+      "default": "#1a202c"
+    },
+    "buttonBackground": {
+      "type": "string",
+      "default": "#3182ce"
+    },
+    "buttonTextColor": {
+      "type": "string",
+      "default": "#ffffff"
+    },
+    "buttonHoverBackground": {
+      "type": "string",
+      "default": "#2c5aa0"
+    },
+    "buttonHoverTextColor": {
+      "type": "string",
+      "default": "#ffffff"
+    },
+    "buttonHoverBorder": {
+      "type": "string",
+      "default": "#2c5aa0"
+    },
+    "buttonSkin": {
+      "type": "string",
+      "default": ""
+    },
+    "buttonSize": {
+      "type": "string",
+      "default": "wbcom-btn-md"
+    },
+    "ribbonBackground": {
+      "type": "string",
+      "default": "#48bb78"
+    },
+    "ribbonTextColor": {
+      "type": "string",
+      "default": "#ffffff"
+    },
+    "borderRadius": {
+      "type": "number",
+      "default": 8
+    }
+  },
+  "supports": {
+    "html": false,
+    "align": [
+      "wide",
+      "full"
+    ],
+    "spacing": {
+      "margin": true,
+      "padding": true
+    }
+  },
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css",
+  "render": "file:./render.php"
+}

@@ -1,0 +1,166 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "wbcom-essential/forums",
+  "version": "1.0.0",
+  "title": "Forums",
+  "category": "starter-buddypress",
+  "description": "Display a list of recent bbPress forum topics with avatars, meta data, and last reply excerpts.",
+  "keywords": [
+    "forums",
+    "topics",
+    "bbpress",
+    "discussion",
+    "community"
+  ],
+  "textdomain": "wbcom-essential",
+  "attributes": {
+    "useThemeColors": {
+      "type": "boolean",
+      "default": false
+    },
+    "headingText": {
+      "type": "string",
+      "default": "Forums"
+    },
+    "forumsCount": {
+      "type": "number",
+      "default": 5
+    },
+    "rowSpace": {
+      "type": "number",
+      "default": 20
+    },
+    "showAllForumsLink": {
+      "type": "boolean",
+      "default": true
+    },
+    "allForumsLinkText": {
+      "type": "string",
+      "default": "All Forums"
+    },
+    "showAvatar": {
+      "type": "boolean",
+      "default": true
+    },
+    "avatarSize": {
+      "type": "number",
+      "default": 52
+    },
+    "avatarBorderType": {
+      "type": "string",
+      "default": "none"
+    },
+    "avatarBorderWidth": {
+      "type": "number",
+      "default": 0
+    },
+    "avatarBorderColor": {
+      "type": "string",
+      "default": ""
+    },
+    "avatarBorderRadius": {
+      "type": "object",
+      "default": {
+        "top": 50,
+        "right": 50,
+        "bottom": 50,
+        "left": 50,
+        "unit": "%"
+      }
+    },
+    "avatarOpacity": {
+      "type": "number",
+      "default": 1
+    },
+    "avatarSpacing": {
+      "type": "number",
+      "default": 15
+    },
+    "showMeta": {
+      "type": "boolean",
+      "default": true
+    },
+    "showMetaReplies": {
+      "type": "boolean",
+      "default": true
+    },
+    "showLastReply": {
+      "type": "boolean",
+      "default": true
+    },
+    "boxBorderType": {
+      "type": "string",
+      "default": "solid"
+    },
+    "boxBorderWidth": {
+      "type": "number",
+      "default": 1
+    },
+    "boxBorderColor": {
+      "type": "string",
+      "default": "#e3e3e3"
+    },
+    "boxBorderRadius": {
+      "type": "object",
+      "default": {
+        "top": 4,
+        "right": 4,
+        "bottom": 4,
+        "left": 4,
+        "unit": "px"
+      }
+    },
+    "boxBgColor": {
+      "type": "string",
+      "default": "#ffffff"
+    },
+    "allForumsLinkColor": {
+      "type": "string",
+      "default": ""
+    },
+    "titleFontSize": {
+      "type": "number",
+      "default": 14
+    },
+    "titleFontWeight": {
+      "type": "string",
+      "default": "400"
+    },
+    "titleLineHeight": {
+      "type": "number",
+      "default": 1.5
+    },
+    "titleColor": {
+      "type": "string",
+      "default": "#122B46"
+    },
+    "titleHoverColor": {
+      "type": "string",
+      "default": "#007CFF"
+    },
+    "metaFontSize": {
+      "type": "number",
+      "default": 13
+    },
+    "metaColor": {
+      "type": "string",
+      "default": "#A3A5A9"
+    },
+    "lastReplyColor": {
+      "type": "string",
+      "default": "#4D5C6D"
+    }
+  },
+  "supports": {
+    "html": false,
+    "align": [
+      "wide",
+      "full"
+    ]
+  },
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css",
+  "render": "file:./render.php"
+}

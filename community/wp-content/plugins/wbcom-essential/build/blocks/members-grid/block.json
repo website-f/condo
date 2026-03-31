@@ -1,0 +1,108 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "wbcom-essential/members-grid",
+  "version": "1.0.0",
+  "title": "Members Grid",
+  "category": "starter-buddypress",
+  "icon": "screenoptions",
+  "description": "Display BuddyPress members in a responsive grid layout.",
+  "keywords": [
+    "members",
+    "buddypress",
+    "grid",
+    "users",
+    "community"
+  ],
+  "textdomain": "wbcom-essential",
+  "example": {},
+  "attributes": {
+    "useThemeColors": {
+      "type": "boolean",
+      "default": false
+    },
+    "sortType": {
+      "type": "string",
+      "default": "newest"
+    },
+    "totalMembers": {
+      "type": "number",
+      "default": 12
+    },
+    "columns": {
+      "type": "number",
+      "default": 3
+    },
+    "columnsTablet": {
+      "type": "number",
+      "default": 2
+    },
+    "columnsMobile": {
+      "type": "number",
+      "default": 1
+    },
+    "gap": {
+      "type": "number",
+      "default": 30
+    },
+    "showAvatar": {
+      "type": "boolean",
+      "default": true
+    },
+    "showName": {
+      "type": "boolean",
+      "default": true
+    },
+    "showLastActive": {
+      "type": "boolean",
+      "default": true
+    },
+    "showFriendButton": {
+      "type": "boolean",
+      "default": true
+    },
+    "avatarSize": {
+      "type": "number",
+      "default": 126
+    },
+    "cardBgColor": {
+      "type": "string",
+      "default": "#ffffff"
+    },
+    "cardBorderRadius": {
+      "type": "number",
+      "default": 8
+    },
+    "cardPadding": {
+      "type": "number",
+      "default": 20
+    },
+    "cardShadow": {
+      "type": "boolean",
+      "default": true
+    },
+    "nameColor": {
+      "type": "string",
+      "default": "#122B46"
+    },
+    "metaColor": {
+      "type": "string",
+      "default": "#A3A5A9"
+    }
+  },
+  "supports": {
+    "html": false,
+    "align": [
+      "wide",
+      "full"
+    ],
+    "spacing": {
+      "margin": true,
+      "padding": true
+    }
+  },
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css",
+  "render": "file:./render.php"
+}

@@ -1,0 +1,224 @@
+.pso-w-profile {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    font-size: var(--F);
+    box-shadow: var(--BOX-SHADOW--HARD);
+    border-radius: var(--R);
+
+    > * {
+        &:last-child {
+            border-bottom-left-radius: var(--R);
+            border-bottom-right-radius: var(--R);
+        }
+    }
+}
+
+.pso-w-profile--guest {
+    padding: var(--G4);
+    background-color: var(--c-base);
+}
+
+.pso-w-profile__cover {
+    --h: 130px;
+
+    position: relative;
+    display: flex;
+    align-items: start;
+    justify-content: space-between;
+    height: var(--h);
+    padding: var(--G4);
+    background-color: var(--c-base-700);
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+    border-top-left-radius: var(--R);
+    border-top-right-radius: var(--R);
+
+    &:before {
+        content: "";
+        position: absolute;
+        z-index: 0;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(180deg, rgba(0, 0, 0, .25) 0%, rgba(0, 0, 0, 0) 100%);
+        border-top-left-radius: var(--R);
+        border-top-right-radius: var(--R);
+    }
+}
+
+.pso-w-profile-cover__notifs {
+    display: flex;
+    gap: var(--G1);
+    margin-inline-end: auto;
+
+    .pso-notif {
+        position: static;
+    }
+
+    .pso-notifbox {
+        top: calc(var(--G5) + 30px);
+        left: 0;
+        right: 0;
+        width: 100%;
+    }
+}
+
+.pso-w-profile-cover__actions {
+    display: flex;
+    gap: var(--G1);
+    margin-inline-start: auto;
+}
+
+.pso-w-profile__user {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--G2);
+    padding: var(--G3) var(--G4);
+    background-color: var(--c-base);
+
+    @include mq($from: desktop) {
+        gap: var(--G3);
+    }
+}
+
+.pso-w-profile__data {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-weight: 500;
+}
+
+.pso-w-profile-user__avatar {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin-inline: auto;
+    padding: 4px;
+}
+
+.pso-w-profile-user__meta {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: var(--TRANS);
+
+    > span {
+        &:first-child {}
+
+        &:last-child {
+            font-size: var(--F-XS);
+            color: var(--c-contrast-slight);
+        }
+    }
+
+    &:hover {
+        color: var(--c-primary);
+    }
+}
+
+.pso-w-profile__name {
+    align-self: center;
+    font-weight: 500;
+    text-align: center;
+    color: var(--c-contrast);
+    transition: var(--TRANS);
+
+    &:hover {
+        color: var(--c-primary);
+    }
+}
+
+.pso-w-profile__progress {
+    padding: var(--G3) var(--G4);
+    background-color: var(--c-base);
+    text-align: center;
+    text-decoration: none;
+    border-top: 1px solid var(--c-base-200);
+
+    &:hover {
+        text-decoration: none;
+        background-color: var(--c-base-50);
+    }
+
+    .pso-progress__label {
+        font-size: var(--F-XS);
+    }
+
+    @include mq($from: desktop) {
+        transition: var(--TRANS);
+    }
+}
+
+.pso-w-profile__nav {
+    padding-top: var(--G3);
+    padding-bottom: var(--G2);
+    padding-inline: var(--G4);
+    background-color: var(--c-base);
+}
+
+.pso-w-profile-nav__title {
+    font-size: var(--F-M);
+    font-weight: 500;
+    color: var(--c-contrast);
+}
+
+.pso-w-profile-nav__links {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+}
+
+.pso-w-profile-nav__link {
+    --c: var(--c-contrast-light);
+    --ic: var(--c-contrast-slight);
+
+    display: flex;
+    align-items: center;
+    gap: var(--G2);
+    padding-block: calc(var(--G3) / 2);
+    font-size: var(--F-S);
+    color: var(--c);
+    text-decoration: none;
+    border-bottom: 1px solid var(--c-base-200);
+
+    i {
+        font-size: var(--F);
+        color: var(--ic);
+    }
+
+    &:hover,
+    &:active {
+        --c: var(--c-primary-sdark);
+        --ic: var(--c-primary-sdark);
+
+        text-decoration: none;
+    }
+
+    &:last-child {
+        border-bottom: none;
+    }
+
+    @include mq($from: desktop) {
+        transition: var(--TRANS);
+    }
+}
+
+.pso-w-profile-nav__link--zero .pso-badge {
+    display: none;
+}
+
+.pso-w-profile-nav__links--profile {
+    + .pso-w-profile-nav__title {
+        margin-top: var(--G2);
+    }
+}
+
+.pso-w-profile-nav__links--community {}

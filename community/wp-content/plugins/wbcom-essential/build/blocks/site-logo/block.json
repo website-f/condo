@@ -1,0 +1,128 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "wbcom-essential/site-logo",
+  "version": "1.0.0",
+  "title": "Site Logo",
+  "category": "starter-header",
+  "icon": "format-image",
+  "description": "Display your site logo with responsive desktop/mobile variants.",
+  "keywords": [
+    "logo",
+    "site",
+    "brand",
+    "image",
+    "header"
+  ],
+  "textdomain": "wbcom-essential",
+  "example": {},
+  "attributes": {
+    "useThemeColors": {
+      "type": "boolean",
+      "default": false
+    },
+    "logoSource": {
+      "type": "string",
+      "default": "customizer"
+    },
+    "desktopLogoId": {
+      "type": "number",
+      "default": 0
+    },
+    "desktopLogoUrl": {
+      "type": "string",
+      "default": ""
+    },
+    "mobileLogoId": {
+      "type": "number",
+      "default": 0
+    },
+    "mobileLogoUrl": {
+      "type": "string",
+      "default": ""
+    },
+    "imageSize": {
+      "type": "string",
+      "default": "full"
+    },
+    "mobileImageSize": {
+      "type": "string",
+      "default": "large"
+    },
+    "linkUrl": {
+      "type": "string",
+      "default": ""
+    },
+    "linkHome": {
+      "type": "boolean",
+      "default": true
+    },
+    "linkNewTab": {
+      "type": "boolean",
+      "default": false
+    },
+    "linkRel": {
+      "type": "string",
+      "default": ""
+    },
+    "mobileBreakpoint": {
+      "type": "number",
+      "default": 768
+    },
+    "alignment": {
+      "type": "string",
+      "default": "flex-start"
+    },
+    "maxWidth": {
+      "type": "number",
+      "default": 200
+    },
+    "maxWidthTablet": {
+      "type": "number",
+      "default": 150
+    },
+    "maxWidthMobile": {
+      "type": "number",
+      "default": 120
+    },
+    "backgroundColor": {
+      "type": "string",
+      "default": ""
+    },
+    "borderStyle": {
+      "type": "string",
+      "default": "none"
+    },
+    "borderWidth": {
+      "type": "number",
+      "default": 0
+    },
+    "borderColor": {
+      "type": "string",
+      "default": ""
+    },
+    "borderRadius": {
+      "type": "number",
+      "default": 0
+    },
+    "boxShadow": {
+      "type": "string",
+      "default": ""
+    }
+  },
+  "supports": {
+    "html": false,
+    "align": [
+      "wide",
+      "full"
+    ],
+    "spacing": {
+      "margin": true,
+      "padding": true
+    }
+  },
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css",
+  "render": "file:./render.php"
+}

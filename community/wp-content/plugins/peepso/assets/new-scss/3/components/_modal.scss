@@ -1,0 +1,31 @@
+.pso-modal {
+    --bg: var(--c-ps-post-bg);
+    --radius: var(--BORDER-RADIUS--XL);
+
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--G3);
+    margin-bottom: var(--G3);
+    padding: var(--G4);
+    background-color: var(--bg);
+    border-radius: var(--radius);
+    box-shadow: 0 10px 30px rgba(0,0,0, .15);
+
+    @include mq($from: desktop) {
+        gap: var(--G4);
+        padding: var(--G4);
+        margin-bottom: var(--G4);
+    }
+}
+
+.pso-modal__body {}
+
+.pso-modal__footer {
+    display: flex;
+    align-items: center;
+    justify-content: end;
+    gap: var(--G2);
+    padding-top: var(--G4);
+    border-top: 1px solid var(--c-base-300);
+}

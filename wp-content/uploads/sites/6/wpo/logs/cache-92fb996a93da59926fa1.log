@@ -1,0 +1,7 @@
+[2025-06-03 12:51:42 : INFO] - Pruning the Cache log file 
+[2025-06-03 12:51:42 : INFO] - Full Cache Purge triggered by: WPO_Page_Cache::maybe_update_advanced_cache 
+[2025-06-03 12:51:42 : INFO] - Cache for URL: https://newproject.condo.com.my/?p=7 has been purged, triggered by action: save_post 
+[2025-06-03 12:51:42 : INFO] - Cache for previous post (with URL: https://newproject.condo.com.my/2025/04/03/hello-world/) adjacent to post with id: 7 has been purged, triggered by action: save_post 
+[2025-06-03 12:51:42 : INFO] - Cache for all archives page associated with post_type: post and Title: "Auto Draft" have been purged, triggered by action: save_post 
+[2025-06-03 12:52:13 : INFO] - Pruning the Cache log file 
+[2025-06-03 13:46:12 : INFO] - Full Cache Purge triggered by: WPO_Page_Cache::maybe_update_advanced_cache 

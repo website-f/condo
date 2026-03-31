@@ -1,0 +1,216 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "wbcom-essential/slider",
+  "version": "1.0.0",
+  "title": "Slider",
+  "category": "starter-design",
+  "description": "Create beautiful sliders with images, text, animations, and navigation",
+  "keywords": [
+    "slider",
+    "carousel",
+    "slideshow",
+    "gallery",
+    "images"
+  ],
+  "icon": "slides",
+  "textdomain": "wbcom-essential",
+  "attributes": {
+    "useThemeColors": {
+      "type": "boolean",
+      "default": false
+    },
+    "slides": {
+      "type": "array",
+      "default": [
+        {
+          "id": 1,
+          "image": {
+            "id": "",
+            "url": "",
+            "alt": ""
+          },
+          "image_position": "center center",
+          "image_repeat": "no-repeat",
+          "image_bg_size": "cover",
+          "title": "Title #1",
+          "content": "Content here...",
+          "link": {
+            "url": "",
+            "is_external": false,
+            "nofollow": false
+          },
+          "overlay_color": "#ffffff",
+          "overlay_opacity": 0.5
+        }
+      ]
+    },
+    "sliderHeight": {
+      "type": "object",
+      "default": {
+        "size": 700,
+        "unit": "px"
+      }
+    },
+    "sliderHeightTablet": {
+      "type": "object",
+      "default": {
+        "size": 500,
+        "unit": "px"
+      }
+    },
+    "sliderHeightMobile": {
+      "type": "object",
+      "default": {
+        "size": 400,
+        "unit": "px"
+      }
+    },
+    "autoplay": {
+      "type": "boolean",
+      "default": false
+    },
+    "autoplayDuration": {
+      "type": "number",
+      "default": 5
+    },
+    "slideTransition": {
+      "type": "string",
+      "default": "fade"
+    },
+    "showDots": {
+      "type": "boolean",
+      "default": false
+    },
+    "showArrows": {
+      "type": "boolean",
+      "default": true
+    },
+    "slideBgColor": {
+      "type": "string",
+      "default": "#0073aa"
+    },
+    "titleColor": {
+      "type": "string",
+      "default": "#111111"
+    },
+    "contentColor": {
+      "type": "string",
+      "default": "#333333"
+    },
+    "navArrowsDesktop": {
+      "type": "boolean",
+      "default": false
+    },
+    "navArrowsTablet": {
+      "type": "boolean",
+      "default": false
+    },
+    "navArrowsMobile": {
+      "type": "boolean",
+      "default": false
+    },
+    "navDotsDesktop": {
+      "type": "boolean",
+      "default": false
+    },
+    "navDotsTablet": {
+      "type": "boolean",
+      "default": false
+    },
+    "navDotsMobile": {
+      "type": "boolean",
+      "default": false
+    },
+    "transitionDuration": {
+      "type": "number",
+      "default": 300
+    },
+    "arrowColor": {
+      "type": "string",
+      "default": "#ffffff"
+    },
+    "arrowHoverColor": {
+      "type": "string",
+      "default": "#ffffff"
+    },
+    "arrowBgColor": {
+      "type": "string",
+      "default": "rgba(0, 0, 0, 0.5)"
+    },
+    "arrowBgHoverColor": {
+      "type": "string",
+      "default": "rgba(0, 0, 0, 0.7)"
+    },
+    "arrowSize": {
+      "type": "number",
+      "default": 24
+    },
+    "arrowBoxSize": {
+      "type": "number",
+      "default": 50
+    },
+    "arrowBorderRadius": {
+      "type": "number",
+      "default": 50
+    },
+    "dotsColor": {
+      "type": "string",
+      "default": "rgba(255, 255, 255, 0.5)"
+    },
+    "dotsActiveColor": {
+      "type": "string",
+      "default": "#ffffff"
+    },
+    "dotsSize": {
+      "type": "number",
+      "default": 12
+    },
+    "dotsSpacing": {
+      "type": "number",
+      "default": 10
+    },
+    "dotsPosition": {
+      "type": "string",
+      "default": "inside"
+    },
+    "dotsBottomOffset": {
+      "type": "number",
+      "default": 20
+    },
+    "enableKeyboardNav": {
+      "type": "boolean",
+      "default": true
+    },
+    "pauseOnHover": {
+      "type": "boolean",
+      "default": true
+    },
+    "infiniteLoop": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "supports": {
+    "align": [
+      "left",
+      "center",
+      "right",
+      "wide",
+      "full"
+    ],
+    "color": {
+      "text": true,
+      "background": true
+    },
+    "spacing": {
+      "margin": true,
+      "padding": true
+    }
+  },
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css",
+  "viewScript": "file:./view.js",
+  "render": "file:./render.php"
+}

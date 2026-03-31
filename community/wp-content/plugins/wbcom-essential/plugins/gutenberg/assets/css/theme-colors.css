@@ -1,0 +1,669 @@
+/**
+ * WBCom Essential - Theme Colors Integration
+ *
+ * Maps WordPress theme.json color palette to wbcom-essential block CSS custom properties.
+ * This allows blocks to automatically inherit colors from the active theme.
+ *
+ * @package wbcom-essential
+ * @since 4.1.0
+ */
+
+:root,
+.editor-styles-wrapper {
+	/*
+	 * Primary Colors - Used for buttons, links, accents
+	 * Falls back to theme.json preset, then hardcoded default
+	 */
+	--wbcom-color-primary: var(--wp--preset--color--primary, #0073aa);
+	--wbcom-color-primary-hover: var(--wp--preset--color--secondary, color-mix(in srgb, var(--wbcom-color-primary) 85%, black));
+	--wbcom-color-secondary: var(--wp--preset--color--secondary, #005177);
+
+	/*
+	 * Background Colors - Used for cards, containers
+	 */
+	--wbcom-color-base: var(--wp--preset--color--base, #ffffff);
+	--wbcom-color-base-2: var(--wp--preset--color--base-2, #f8f9fa);
+	--wbcom-color-tertiary: var(--wp--preset--color--tertiary, #f0f0f0);
+
+	/*
+	 * Text Colors - Headings, body text, muted text
+	 */
+	--wbcom-color-contrast: var(--wp--preset--color--contrast, #1e1e1e);
+	--wbcom-color-contrast-2: var(--wp--preset--color--contrast-2, #636363);
+	--wbcom-color-neutral: var(--wp--preset--color--neutral, #757575);
+
+	/*
+	 * Border Colors
+	 */
+	--wbcom-color-border: var(--wp--preset--color--neutral, #e3e3e3);
+	--wbcom-color-border-light: color-mix(in srgb, var(--wbcom-color-border) 50%, transparent);
+
+	/*
+	 * Static Colors
+	 */
+	--wbcom-color-white: #ffffff;
+	--wbcom-color-black: #000000;
+
+	/*
+	 * Status Colors
+	 */
+	--wbcom-color-success: #16a34a;
+	--wbcom-color-error: #dc2626;
+	--wbcom-color-warning: #d97706;
+	--wbcom-color-info: var(--wbcom-color-primary);
+
+	/*
+	 * Component-specific mappings
+	 * These map semantic names to the theme colors above
+	 */
+
+	/* Buttons */
+	--wbcom-button-bg: var(--wbcom-color-primary);
+	--wbcom-button-text: var(--wbcom-color-white);
+	--wbcom-button-bg-hover: var(--wbcom-color-primary-hover);
+	--wbcom-button-border: var(--wbcom-color-primary);
+
+	/* Outline/Ghost Buttons */
+	--wbcom-button-outline-text: var(--wbcom-color-primary);
+	--wbcom-button-outline-border: var(--wbcom-color-primary);
+	--wbcom-button-outline-bg-hover: var(--wbcom-color-primary);
+	--wbcom-button-outline-text-hover: var(--wbcom-color-white);
+
+	/* Links */
+	--wbcom-link-color: var(--wbcom-color-primary);
+	--wbcom-link-color-hover: var(--wbcom-color-primary-hover);
+
+	/* Cards */
+	--wbcom-card-bg: var(--wbcom-color-base);
+	--wbcom-card-border: var(--wbcom-color-border);
+	--wbcom-card-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+	--wbcom-card-shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.12);
+
+	/* Form Inputs */
+	--wbcom-input-bg: var(--wbcom-color-base-2);
+	--wbcom-input-border: var(--wbcom-color-border);
+	--wbcom-input-text: var(--wbcom-color-contrast);
+	--wbcom-input-focus-border: var(--wbcom-color-primary);
+	--wbcom-input-focus-shadow: 0 0 0 3px color-mix(in srgb, var(--wbcom-color-primary) 15%, transparent);
+
+	/* Text */
+	--wbcom-heading-color: var(--wbcom-color-contrast);
+	--wbcom-text-color: var(--wbcom-color-contrast-2);
+	--wbcom-meta-color: var(--wbcom-color-neutral);
+	--wbcom-label-color: var(--wbcom-color-contrast);
+}
+
+/*
+ * Block-specific variable mappings
+ * Override block default variables with theme-aware values
+ */
+
+/* Members Grid Block */
+.wbcom-essential-members-grid {
+	--card-bg: var(--wbcom-card-bg);
+	--name-color: var(--wbcom-heading-color);
+	--meta-color: var(--wbcom-meta-color);
+}
+
+.wbcom-essential-members-grid .wbcom-member-grid-action .generic-button a,
+.wbcom-essential-members-grid .wbcom-member-grid-action .generic-button button {
+	color: var(--wbcom-button-outline-text);
+	border-color: var(--wbcom-button-outline-border);
+}
+
+.wbcom-essential-members-grid .wbcom-member-grid-action .generic-button a:hover,
+.wbcom-essential-members-grid .wbcom-member-grid-action .generic-button button:hover {
+	color: var(--wbcom-button-outline-text-hover);
+	background: var(--wbcom-button-outline-bg-hover);
+}
+
+/* Members Lists Block */
+.wbcom-essential-members-lists {
+	--card-bg: var(--wbcom-card-bg);
+	--name-color: var(--wbcom-heading-color);
+	--meta-color: var(--wbcom-meta-color);
+}
+
+.wbcom-essential-members-lists .wbcom-member-list-action .generic-button a,
+.wbcom-essential-members-lists .wbcom-member-list-action .generic-button button {
+	color: var(--wbcom-button-outline-text);
+	border-color: var(--wbcom-button-outline-border);
+}
+
+.wbcom-essential-members-lists .wbcom-member-list-action .generic-button a:hover,
+.wbcom-essential-members-lists .wbcom-member-list-action .generic-button button:hover {
+	color: var(--wbcom-button-outline-text-hover);
+	background: var(--wbcom-button-outline-bg-hover);
+}
+
+/* Groups Grid Block */
+.wbcom-essential-groups-grid {
+	--card-bg: var(--wbcom-card-bg);
+	--name-color: var(--wbcom-heading-color);
+	--meta-color: var(--wbcom-meta-color);
+}
+
+.wbcom-essential-groups-grid .wbcom-group-grid-action .generic-button a,
+.wbcom-essential-groups-grid .wbcom-group-grid-action .generic-button button {
+	color: var(--wbcom-button-outline-text);
+	border-color: var(--wbcom-button-outline-border);
+}
+
+.wbcom-essential-groups-grid .wbcom-group-grid-action .generic-button a:hover,
+.wbcom-essential-groups-grid .wbcom-group-grid-action .generic-button button:hover {
+	color: var(--wbcom-button-outline-text-hover);
+	background: var(--wbcom-button-outline-bg-hover);
+}
+
+/* Groups Lists Block */
+.wbcom-essential-groups-lists {
+	--card-bg: var(--wbcom-card-bg);
+	--name-color: var(--wbcom-heading-color);
+	--meta-color: var(--wbcom-meta-color);
+}
+
+.wbcom-essential-groups-lists .wbcom-group-list-action .generic-button a,
+.wbcom-essential-groups-lists .wbcom-group-list-action .generic-button button {
+	color: var(--wbcom-button-outline-text);
+	border-color: var(--wbcom-button-outline-border);
+}
+
+.wbcom-essential-groups-lists .wbcom-group-list-action .generic-button a:hover,
+.wbcom-essential-groups-lists .wbcom-group-list-action .generic-button button:hover {
+	color: var(--wbcom-button-outline-text-hover);
+	background: var(--wbcom-button-outline-bg-hover);
+}
+
+/* Login Form Block */
+.wbcom-essential-login-form-wrapper {
+	--form-bg-color: var(--wbcom-card-bg);
+	--title-color: var(--wbcom-heading-color);
+	--subtitle-color: var(--wbcom-text-color);
+	--label-color: var(--wbcom-label-color);
+	--input-bg-color: var(--wbcom-input-bg);
+	--input-border-color: var(--wbcom-input-border);
+	--input-text-color: var(--wbcom-input-text);
+	--input-focus-border-color: var(--wbcom-input-focus-border);
+	--button-bg-color: var(--wbcom-button-bg);
+	--button-text-color: var(--wbcom-button-text);
+	--button-hover-bg-color: var(--wbcom-button-bg-hover);
+	--link-color: var(--wbcom-link-color);
+	--link-hover-color: var(--wbcom-link-color-hover);
+	--checkbox-color: var(--wbcom-color-primary);
+}
+
+/* Members Carousel Block */
+.wbcom-essential-members-carousel {
+	--card-bg: var(--wbcom-card-bg);
+	--name-color: var(--wbcom-heading-color);
+	--meta-color: var(--wbcom-meta-color);
+}
+
+/* Groups Carousel Block */
+.wbcom-essential-group-carousel {
+	--card-bg: var(--wbcom-card-bg);
+	--name-color: var(--wbcom-heading-color);
+	--meta-color: var(--wbcom-meta-color);
+}
+
+/* Header Bar Block */
+.wbcom-essential-header-bar {
+	--header-bg: var(--wbcom-card-bg);
+	--header-text: var(--wbcom-heading-color);
+	--header-link: var(--wbcom-link-color);
+}
+
+/* Dashboard Intro Block */
+.wbcom-essential-dashboard-intro {
+	--card-bg: var(--wbcom-card-bg);
+	--heading-color: var(--wbcom-heading-color);
+	--text-color: var(--wbcom-text-color);
+	--link-color: var(--wbcom-link-color);
+}
+
+/* Profile Completion Block */
+.wbcom-essential-profile-completion {
+	--card-bg: var(--wbcom-card-bg);
+	--heading-color: var(--wbcom-heading-color);
+	--text-color: var(--wbcom-text-color);
+	--progress-bg: var(--wbcom-color-tertiary);
+	--progress-fill: var(--wbcom-color-primary);
+}
+
+/* Notification Area Block */
+.wbcom-essential-notification-area {
+	--notification-bg: var(--wbcom-card-bg);
+	--notification-text: var(--wbcom-text-color);
+	--notification-link: var(--wbcom-link-color);
+}
+
+/* Forums Block */
+.wbcom-essential-forums {
+	--forum-bg: var(--wbcom-card-bg);
+	--forum-title: var(--wbcom-heading-color);
+	--forum-meta: var(--wbcom-meta-color);
+	--forum-link: var(--wbcom-link-color);
+}
+
+/* Forums Activity Block */
+.wbcom-essential-forums-activity {
+	--activity-bg: var(--wbcom-card-bg);
+	--activity-title: var(--wbcom-heading-color);
+	--activity-meta: var(--wbcom-meta-color);
+	--activity-link: var(--wbcom-link-color);
+}
+
+/* Testimonial Block */
+.wbcom-essential-testimonial {
+	--testimonial-bg: var(--wbcom-card-bg);
+	--testimonial-text: var(--wbcom-text-color);
+	--testimonial-name: var(--wbcom-heading-color);
+	--testimonial-role: var(--wbcom-meta-color);
+}
+
+/* Testimonial Carousel Block */
+.wbcom-essential-testimonial-carousel {
+	--testimonial-bg: var(--wbcom-card-bg);
+	--testimonial-text: var(--wbcom-text-color);
+	--testimonial-name: var(--wbcom-heading-color);
+	--testimonial-role: var(--wbcom-meta-color);
+}
+
+/* Team Carousel Block */
+.wbcom-essential-team-carousel {
+	--team-bg: var(--wbcom-card-bg);
+	--team-name: var(--wbcom-heading-color);
+	--team-role: var(--wbcom-meta-color);
+	--team-social: var(--wbcom-link-color);
+}
+
+/* Pricing Table Block */
+.wbcom-essential-pricing-table {
+	--pricing-bg: var(--wbcom-card-bg);
+	--pricing-title: var(--wbcom-heading-color);
+	--pricing-text: var(--wbcom-text-color);
+	--pricing-price: var(--wbcom-color-primary);
+	--pricing-button-bg: var(--wbcom-button-bg);
+	--pricing-button-text: var(--wbcom-button-text);
+	--pricing-featured-bg: var(--wbcom-color-primary);
+}
+
+/* Progress Bar Block */
+.wbcom-essential-progress-bar {
+	--progress-track-bg: var(--wbcom-color-tertiary);
+	--progress-fill-bg: var(--wbcom-color-primary);
+	--progress-text: var(--wbcom-heading-color);
+}
+
+/* Timeline Block */
+.wbcom-essential-timeline {
+	--timeline-bg: var(--wbcom-card-bg);
+	--timeline-title: var(--wbcom-heading-color);
+	--timeline-text: var(--wbcom-text-color);
+	--timeline-date: var(--wbcom-meta-color);
+	--timeline-line: var(--wbcom-color-primary);
+	--timeline-dot: var(--wbcom-color-primary);
+}
+
+/* Countdown Block */
+.wbcom-essential-countdown {
+	--countdown-bg: var(--wbcom-card-bg);
+	--countdown-number: var(--wbcom-heading-color);
+	--countdown-label: var(--wbcom-meta-color);
+}
+
+/* Accordion Block */
+.wbcom-essential-accordion {
+	--accordion-bg: var(--wbcom-card-bg);
+	--accordion-title: var(--wbcom-heading-color);
+	--accordion-content: var(--wbcom-text-color);
+	--accordion-border: var(--wbcom-card-border);
+	--accordion-icon: var(--wbcom-color-primary);
+}
+
+/* Advanced Tabs Block */
+.wbcom-essential-advanced-tabs {
+	--tabs-bg: var(--wbcom-card-bg);
+	--tabs-title: var(--wbcom-heading-color);
+	--tabs-content: var(--wbcom-text-color);
+	--tabs-active: var(--wbcom-color-primary);
+	--tabs-inactive: var(--wbcom-meta-color);
+}
+
+/* Post Carousel Block */
+.wbcom-essential-post-carousel {
+	--post-bg: var(--wbcom-card-bg);
+	--post-title: var(--wbcom-heading-color);
+	--post-excerpt: var(--wbcom-text-color);
+	--post-meta: var(--wbcom-meta-color);
+	--post-link: var(--wbcom-link-color);
+}
+
+/* Posts Carousel Block */
+.wbcom-essential-posts-carousel {
+	--post-bg: var(--wbcom-card-bg);
+	--post-title: var(--wbcom-heading-color);
+	--post-excerpt: var(--wbcom-text-color);
+	--post-meta: var(--wbcom-meta-color);
+	--post-link: var(--wbcom-link-color);
+}
+
+/* Post Slider Block */
+.wbcom-essential-post-slider {
+	--slide-title: var(--wbcom-color-white);
+	--slide-meta: rgba(255, 255, 255, 0.8);
+	--slide-button-bg: var(--wbcom-button-bg);
+	--slide-button-text: var(--wbcom-button-text);
+}
+
+/* Post Timeline Block */
+.wbcom-essential-post-timeline {
+	--timeline-bg: var(--wbcom-card-bg);
+	--timeline-title: var(--wbcom-heading-color);
+	--timeline-excerpt: var(--wbcom-text-color);
+	--timeline-meta: var(--wbcom-meta-color);
+	--timeline-line: var(--wbcom-color-primary);
+}
+
+/* Posts Ticker Block */
+.wbcom-essential-posts-ticker {
+	--ticker-bg: var(--wbcom-card-bg);
+	--ticker-title: var(--wbcom-heading-color);
+	--ticker-link: var(--wbcom-link-color);
+}
+
+/* Posts Revolution Block */
+.wbcom-essential-posts-revolution {
+	--post-bg: var(--wbcom-card-bg);
+	--post-title: var(--wbcom-heading-color);
+	--post-excerpt: var(--wbcom-text-color);
+	--post-meta: var(--wbcom-meta-color);
+}
+
+/* Portfolio Grid Block */
+.wbcom-essential-portfolio-grid {
+	--portfolio-overlay: rgba(0, 0, 0, 0.6);
+	--portfolio-title: var(--wbcom-color-white);
+	--portfolio-category: rgba(255, 255, 255, 0.8);
+}
+
+/* Flip Box Block */
+.wbcom-essential-flip-box {
+	--flip-front-bg: var(--wbcom-card-bg);
+	--flip-back-bg: var(--wbcom-color-primary);
+	--flip-front-text: var(--wbcom-heading-color);
+	--flip-back-text: var(--wbcom-color-white);
+}
+
+/* Dropdown Button Block */
+.wbcom-essential-dropdown-button {
+	--dropdown-bg: var(--wbcom-card-bg);
+	--dropdown-text: var(--wbcom-text-color);
+	--dropdown-hover-bg: var(--wbcom-color-tertiary);
+	--dropdown-button-bg: var(--wbcom-button-bg);
+	--dropdown-button-text: var(--wbcom-button-text);
+}
+
+/* Heading Block */
+.wbcom-essential-heading {
+	--heading-color: var(--wbcom-heading-color);
+	--heading-highlight: var(--wbcom-color-primary);
+}
+
+/* Slider Block */
+.wbcom-essential-slider {
+	--slider-nav-bg: var(--wbcom-card-bg);
+	--slider-nav-color: var(--wbcom-heading-color);
+	--slider-dots-active: var(--wbcom-color-primary);
+	--slider-dots-inactive: var(--wbcom-meta-color);
+}
+
+/* Smart Menu Block */
+.wbcom-essential-smart-menu {
+	--menu-bg: var(--wbcom-card-bg);
+	--menu-text: var(--wbcom-heading-color);
+	--menu-link: var(--wbcom-link-color);
+	--menu-hover-bg: var(--wbcom-color-tertiary);
+}
+
+/* Branding Block */
+.wbcom-essential-branding {
+	--branding-text: var(--wbcom-heading-color);
+}
+
+/* Site Logo Block */
+.wbcom-essential-site-logo {
+	/* Usually inherits from theme */
+}
+
+/* Shape Block */
+.wbcom-essential-shape {
+	--shape-fill: var(--wbcom-color-primary);
+}
+
+/* Text Rotator Block */
+.wbcom-essential-text-rotator {
+	--rotator-text: var(--wbcom-heading-color);
+	--rotator-highlight: var(--wbcom-color-primary);
+}
+
+/*
+ * ============================================
+ * Dark Mode Overrides
+ * ============================================
+ * These override the light mode values when dark mode is active.
+ * Uses the same .dark-mode class that BuddyX Pro uses.
+ */
+.dark-mode,
+.dark-mode .editor-styles-wrapper,
+html.dark-mode,
+body.dark-mode {
+	/*
+	 * Primary Colors - Keep primary accent, adjust secondary
+	 */
+	--wbcom-color-primary-hover: color-mix(in srgb, var(--wbcom-color-primary) 85%, white);
+
+	/*
+	 * Background Colors - Dark backgrounds
+	 */
+	--wbcom-color-base: var(--wp--preset--color--base, #1a1a1a);
+	--wbcom-color-base-2: var(--wp--preset--color--tertiary, #2a2a2a);
+	--wbcom-color-tertiary: var(--wp--preset--color--tertiary, #2a2a2a);
+
+	/*
+	 * Text Colors - Light text on dark
+	 */
+	--wbcom-color-contrast: var(--wp--preset--color--contrast, #ffffff);
+	--wbcom-color-contrast-2: var(--wp--preset--color--neutral, #cccccc);
+	--wbcom-color-neutral: var(--wp--preset--color--neutral, #999999);
+
+	/*
+	 * Border Colors - Subtle light borders
+	 */
+	--wbcom-color-border: rgba(255, 255, 255, 0.15);
+	--wbcom-color-border-light: rgba(255, 255, 255, 0.08);
+
+	/*
+	 * Component-specific dark mode overrides
+	 */
+
+	/* Cards - Dark backgrounds */
+	--wbcom-card-bg: var(--wbcom-color-base-2);
+	--wbcom-card-border: var(--wbcom-color-border);
+	--wbcom-card-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+	--wbcom-card-shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.4);
+
+	/* Alternate card background - slightly different shade */
+	--wbcom-card-bg-alt: color-mix(in srgb, var(--wbcom-color-base-2) 80%, white);
+
+	/* Form Inputs - Dark inputs */
+	--wbcom-input-bg: var(--wbcom-color-base);
+	--wbcom-input-border: var(--wbcom-color-border);
+	--wbcom-input-text: var(--wbcom-color-contrast);
+	--wbcom-input-focus-shadow: 0 0 0 3px color-mix(in srgb, var(--wbcom-color-primary) 25%, transparent);
+
+	/* Text colors - Light text */
+	--wbcom-heading-color: var(--wbcom-color-contrast);
+	--wbcom-text-color: var(--wbcom-color-contrast-2);
+	--wbcom-meta-color: var(--wbcom-color-neutral);
+	--wbcom-label-color: var(--wbcom-color-contrast);
+}
+
+/*
+ * Block-specific dark mode overrides
+ * Note: No !important needed since blocks don't output color inline styles.
+ * Colors are controlled entirely via CSS, enabling proper dark mode support.
+ */
+.dark-mode .wbcom-essential-members-grid,
+.dark-mode .wbcom-essential-members-lists,
+.dark-mode .wbcom-essential-groups-grid,
+.dark-mode .wbcom-essential-groups-lists,
+.dark-mode .wbcom-essential-members-carousel,
+.dark-mode .wbcom-essential-group-carousel {
+	--card-bg: var(--wbcom-card-bg);
+	--name-color: var(--wbcom-heading-color);
+	--meta-color: var(--wbcom-meta-color);
+}
+
+.dark-mode .wbcom-essential-login-form-wrapper {
+	--form-bg-color: var(--wbcom-card-bg);
+	--title-color: var(--wbcom-heading-color);
+	--subtitle-color: var(--wbcom-text-color);
+	--label-color: var(--wbcom-label-color);
+	--input-bg-color: var(--wbcom-input-bg);
+	--input-border-color: var(--wbcom-input-border);
+	--input-text-color: var(--wbcom-input-text);
+}
+
+.dark-mode .wbcom-essential-testimonial,
+.dark-mode .wbcom-essential-testimonial-carousel {
+	--testimonial-bg: var(--wbcom-card-bg);
+	--testimonial-text: var(--wbcom-text-color);
+	--testimonial-name: var(--wbcom-heading-color);
+}
+
+.dark-mode .wbcom-essential-team-carousel {
+	--team-bg: var(--wbcom-card-bg);
+	--team-name: var(--wbcom-heading-color);
+}
+
+.dark-mode .wbcom-essential-pricing-table {
+	--pricing-bg: var(--wbcom-card-bg);
+	--pricing-title: var(--wbcom-heading-color);
+	--pricing-text: var(--wbcom-text-color);
+}
+
+.dark-mode .wbcom-essential-timeline {
+	--timeline-bg: var(--wbcom-card-bg);
+	--timeline-title: var(--wbcom-heading-color);
+	--timeline-text: var(--wbcom-text-color);
+}
+
+.dark-mode .wbcom-essential-accordion {
+	--accordion-bg: var(--wbcom-card-bg);
+	--accordion-title: var(--wbcom-heading-color);
+	--accordion-content: var(--wbcom-text-color);
+	--accordion-border: var(--wbcom-color-border);
+}
+
+.dark-mode .wbcom-essential-advanced-tabs {
+	--tabs-bg: var(--wbcom-card-bg);
+	--tabs-title: var(--wbcom-heading-color);
+	--tabs-content: var(--wbcom-text-color);
+}
+
+.dark-mode .wbcom-essential-post-carousel,
+.dark-mode .wbcom-essential-posts-carousel,
+.dark-mode .wbcom-essential-posts-revolution {
+	--post-bg: var(--wbcom-card-bg);
+	--post-title: var(--wbcom-heading-color);
+	--post-excerpt: var(--wbcom-text-color);
+}
+
+.dark-mode .wbcom-essential-countdown {
+	--countdown-bg: var(--wbcom-card-bg);
+	--countdown-number: var(--wbcom-heading-color);
+}
+
+.dark-mode .wbcom-essential-dropdown-button {
+	--dropdown-bg: var(--wbcom-card-bg);
+	--dropdown-text: var(--wbcom-text-color);
+	--dropdown-hover-bg: var(--wbcom-color-tertiary);
+}
+
+.dark-mode .wbcom-essential-smart-menu {
+	--menu-bg: var(--wbcom-card-bg);
+	--menu-text: var(--wbcom-heading-color);
+	--menu-hover-bg: var(--wbcom-color-tertiary);
+}
+
+.dark-mode .wbcom-essential-flip-box {
+	--flip-front-bg: var(--wbcom-card-bg);
+	--flip-front-text: var(--wbcom-heading-color);
+}
+
+.dark-mode .wbcom-essential-heading {
+	--heading-color: var(--wbcom-heading-color);
+}
+
+.dark-mode .wbcom-essential-text-rotator {
+	--rotator-text: var(--wbcom-heading-color);
+}
+
+.dark-mode .wbcom-essential-branding {
+	--branding-text: var(--wbcom-heading-color);
+}
+
+.dark-mode .wbcom-essential-slider {
+	--slider-nav-bg: var(--wbcom-card-bg);
+	--slider-nav-color: var(--wbcom-heading-color);
+}
+
+.dark-mode .wbcom-essential-header-bar {
+	--header-bg: var(--wbcom-card-bg);
+	--header-text: var(--wbcom-heading-color);
+}
+
+.dark-mode .wbcom-essential-dashboard-intro {
+	--card-bg: var(--wbcom-card-bg);
+	--heading-color: var(--wbcom-heading-color);
+	--text-color: var(--wbcom-text-color);
+}
+
+.dark-mode .wbcom-essential-profile-completion {
+	--card-bg: var(--wbcom-card-bg);
+	--heading-color: var(--wbcom-heading-color);
+	--text-color: var(--wbcom-text-color);
+	--progress-bg: var(--wbcom-color-tertiary);
+}
+
+.dark-mode .wbcom-essential-notification-area {
+	--notification-bg: var(--wbcom-card-bg);
+	--notification-text: var(--wbcom-text-color);
+}
+
+.dark-mode .wbcom-essential-forums,
+.dark-mode .wbcom-essential-forums-activity {
+	--forum-bg: var(--wbcom-card-bg);
+	--forum-title: var(--wbcom-heading-color);
+	--forum-meta: var(--wbcom-meta-color);
+	--activity-bg: var(--wbcom-card-bg);
+	--activity-title: var(--wbcom-heading-color);
+	--activity-meta: var(--wbcom-meta-color);
+}
+
+.dark-mode .wbcom-essential-post-timeline {
+	--timeline-bg: var(--wbcom-card-bg);
+	--timeline-title: var(--wbcom-heading-color);
+	--timeline-excerpt: var(--wbcom-text-color);
+}
+
+.dark-mode .wbcom-essential-posts-ticker {
+	--ticker-bg: var(--wbcom-card-bg);
+	--ticker-title: var(--wbcom-heading-color);
+}
+
+.dark-mode .wbcom-essential-progress-bar {
+	--progress-track-bg: var(--wbcom-color-tertiary);
+	--progress-text: var(--wbcom-heading-color);
+}

@@ -1,0 +1,54 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "wbcom-essential/edd-account-dashboard",
+  "version": "1.0.0",
+  "title": "EDD Account Dashboard",
+  "category": "starter-design",
+  "description": "A unified My Account dashboard for Easy Digital Downloads with sidebar navigation, orders, downloads, licenses, and subscriptions.",
+  "keywords": [
+    "edd",
+    "account",
+    "dashboard",
+    "downloads",
+    "licenses",
+    "purchases",
+    "subscriptions"
+  ],
+  "icon": "admin-users",
+  "textdomain": "wbcom-essential",
+  "attributes": {
+    "showSupport": {
+      "type": "boolean",
+      "default": true
+    },
+    "supportUrl": {
+      "type": "string",
+      "default": ""
+    },
+    "supportLabel": {
+      "type": "string",
+      "default": "My Tickets"
+    },
+    "defaultTab": {
+      "type": "string",
+      "default": "dashboard"
+    }
+  },
+  "supports": {
+    "align": [
+      "wide",
+      "full"
+    ],
+    "html": false,
+    "spacing": {
+      "margin": true,
+      "padding": true
+    }
+  },
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css",
+  "render": "file:./render.php",
+  "viewScript": "file:./view.js"
+}

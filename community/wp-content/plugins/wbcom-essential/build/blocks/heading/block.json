@@ -1,0 +1,228 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "wbcom-essential/heading",
+  "version": "1.0.0",
+  "title": "Heading",
+  "category": "starter-design",
+  "description": "Display heading with advanced styling options",
+  "keywords": [
+    "heading",
+    "title",
+    "text",
+    "typography"
+  ],
+  "icon": "heading",
+  "textdomain": "wbcom-essential",
+  "attributes": {
+    "useThemeColors": {
+      "type": "boolean",
+      "default": false
+    },
+    "headingText": {
+      "type": "string",
+      "default": "Add Your Heading Text Here"
+    },
+    "htmlTag": {
+      "type": "string",
+      "default": "h2"
+    },
+    "link": {
+      "type": "object",
+      "default": {
+        "url": "",
+        "isExternal": false,
+        "nofollow": false
+      }
+    },
+    "titleColor": {
+      "type": "string",
+      "default": ""
+    },
+    "typography": {
+      "type": "object",
+      "default": {
+        "fontFamily": "",
+        "fontSize": "",
+        "fontWeight": "",
+        "lineHeight": "",
+        "letterSpacing": "",
+        "textTransform": "",
+        "textDecoration": ""
+      }
+    },
+    "textShadow": {
+      "type": "object",
+      "default": {
+        "horizontal": 0,
+        "vertical": 0,
+        "blur": 0,
+        "color": ""
+      }
+    },
+    "blendMode": {
+      "type": "string",
+      "default": ""
+    },
+    "flexDirection": {
+      "type": "string",
+      "default": "column"
+    },
+    "textAlign": {
+      "type": "string",
+      "default": ""
+    },
+    "maxWidth": {
+      "type": "object",
+      "default": {
+        "value": "",
+        "unit": "px"
+      }
+    },
+    "margin": {
+      "type": "object",
+      "default": {
+        "top": "",
+        "right": "",
+        "bottom": "",
+        "left": "",
+        "unit": "px"
+      }
+    },
+    "padding": {
+      "type": "object",
+      "default": {
+        "top": "",
+        "right": "",
+        "bottom": "",
+        "left": "",
+        "unit": "px"
+      }
+    },
+    "gradientHeading": {
+      "type": "boolean",
+      "default": false
+    },
+    "gradientColorStart": {
+      "type": "string",
+      "default": "#000000"
+    },
+    "gradientColorEnd": {
+      "type": "string",
+      "default": "#ffffff"
+    },
+    "gradientType": {
+      "type": "string",
+      "default": "linear"
+    },
+    "gradientDirection": {
+      "type": "string",
+      "default": "to right"
+    },
+    "rotateSwitch": {
+      "type": "boolean",
+      "default": false
+    },
+    "textRotate": {
+      "type": "number",
+      "default": 180
+    },
+    "beforeLine": {
+      "type": "object",
+      "default": {
+        "width": {
+          "value": 0,
+          "unit": "px"
+        },
+        "height": {
+          "value": 0,
+          "unit": "px"
+        },
+        "color": "",
+        "align": "flex-start",
+        "margin": {
+          "top": "",
+          "right": "",
+          "bottom": "",
+          "left": "",
+          "unit": "px"
+        },
+        "borderRadius": {
+          "top": "",
+          "right": "",
+          "bottom": "",
+          "left": "",
+          "unit": "px"
+        },
+        "boxShadow": {
+          "horizontal": 0,
+          "vertical": 0,
+          "blur": 0,
+          "spread": 0,
+          "color": "",
+          "inset": false
+        }
+      }
+    },
+    "afterLine": {
+      "type": "object",
+      "default": {
+        "width": {
+          "value": 0,
+          "unit": "px"
+        },
+        "height": {
+          "value": 0,
+          "unit": "px"
+        },
+        "color": "",
+        "align": "flex-start",
+        "margin": {
+          "top": "",
+          "right": "",
+          "bottom": "",
+          "left": "",
+          "unit": "px"
+        },
+        "borderRadius": {
+          "top": "",
+          "right": "",
+          "bottom": "",
+          "left": "",
+          "unit": "px"
+        },
+        "boxShadow": {
+          "horizontal": 0,
+          "vertical": 0,
+          "blur": 0,
+          "spread": 0,
+          "color": "",
+          "inset": false
+        }
+      }
+    }
+  },
+  "supports": {
+    "align": [
+      "left",
+      "center",
+      "right"
+    ],
+    "color": {
+      "text": true,
+      "background": true
+    },
+    "spacing": {
+      "margin": true,
+      "padding": true
+    },
+    "typography": {
+      "fontSize": true,
+      "lineHeight": true
+    }
+  },
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css",
+  "render": "file:./render.php"
+}

@@ -1,0 +1,6 @@
+[2025-06-03 13:47:08 : INFO] - Full Cache Purge triggered by: WPO_Page_Cache::maybe_update_advanced_cache 
+[2025-06-03 13:47:08 : INFO] - Cache for URL: https://sample.condo.com.my/?p=4 has been purged, triggered by action: save_post 
+[2025-06-03 13:47:08 : INFO] - Cache for previous post (with URL: https://sample.condo.com.my/2025/05/14/hello-world/) adjacent to post with id: 4 has been purged, triggered by action: save_post 
+[2025-06-03 13:47:08 : INFO] - Cache for all archives page associated with post_type: post and Title: "Auto Draft" have been purged, triggered by action: save_post 
+[2025-06-05 10:12:24 : INFO] - Full Cache Purge triggered by: WPO_Page_Cache::maybe_update_advanced_cache 
+[2025-06-05 10:12:27 : INFO] - Pruning the Cache log file 

@@ -1,0 +1,233 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "wbcom-essential/post-slider",
+  "version": "1.0.0",
+  "title": "Post Slider",
+  "category": "starter-blog",
+  "icon": "slides",
+  "description": "Display posts in a fullscreen hero slider with animations.",
+  "keywords": [
+    "post",
+    "slider",
+    "hero",
+    "fullscreen",
+    "carousel",
+    "featured",
+    "banner"
+  ],
+  "textdomain": "wbcom-essential",
+  "example": {},
+  "attributes": {
+    "useThemeColors": {
+      "type": "boolean",
+      "default": false
+    },
+    "postType": {
+      "type": "string",
+      "default": "post"
+    },
+    "categories": {
+      "type": "array",
+      "default": []
+    },
+    "tags": {
+      "type": "array",
+      "default": []
+    },
+    "numberOfPosts": {
+      "type": "number",
+      "default": 5
+    },
+    "orderBy": {
+      "type": "string",
+      "default": "date"
+    },
+    "order": {
+      "type": "string",
+      "default": "DESC"
+    },
+    "includeIds": {
+      "type": "string",
+      "default": ""
+    },
+    "excludeIds": {
+      "type": "string",
+      "default": ""
+    },
+    "showExcerpt": {
+      "type": "boolean",
+      "default": true
+    },
+    "excerptLength": {
+      "type": "number",
+      "default": 140
+    },
+    "showDate": {
+      "type": "boolean",
+      "default": true
+    },
+    "showButton": {
+      "type": "boolean",
+      "default": true
+    },
+    "buttonText": {
+      "type": "string",
+      "default": "Read More"
+    },
+    "titleTag": {
+      "type": "string",
+      "default": "h2"
+    },
+    "sliderHeight": {
+      "type": "number",
+      "default": 600
+    },
+    "sliderHeightUnit": {
+      "type": "string",
+      "default": "px"
+    },
+    "transition": {
+      "type": "string",
+      "default": "fade"
+    },
+    "transitionDuration": {
+      "type": "number",
+      "default": 500
+    },
+    "autoplay": {
+      "type": "boolean",
+      "default": true
+    },
+    "autoplayDelay": {
+      "type": "number",
+      "default": 5000
+    },
+    "showNavigation": {
+      "type": "boolean",
+      "default": true
+    },
+    "showPagination": {
+      "type": "boolean",
+      "default": true
+    },
+    "hideNavOnHover": {
+      "type": "boolean",
+      "default": false
+    },
+    "bgAnimation": {
+      "type": "string",
+      "default": "none"
+    },
+    "bgAnimationDuration": {
+      "type": "number",
+      "default": 8
+    },
+    "textAnimation": {
+      "type": "string",
+      "default": "fadeInUp"
+    },
+    "overlayColor": {
+      "type": "string",
+      "default": "rgba(0, 0, 0, 0.4)"
+    },
+    "contentWidth": {
+      "type": "number",
+      "default": 800
+    },
+    "contentAlign": {
+      "type": "string",
+      "default": "center"
+    },
+    "verticalAlign": {
+      "type": "string",
+      "default": "center"
+    },
+    "titleColor": {
+      "type": "string",
+      "default": "#ffffff"
+    },
+    "excerptColor": {
+      "type": "string",
+      "default": "rgba(255, 255, 255, 0.9)"
+    },
+    "dateColor": {
+      "type": "string",
+      "default": "rgba(255, 255, 255, 0.8)"
+    },
+    "buttonBgColor": {
+      "type": "string",
+      "default": "#ffffff"
+    },
+    "buttonTextColor": {
+      "type": "string",
+      "default": "#1a202c"
+    },
+    "buttonHoverBgColor": {
+      "type": "string",
+      "default": "#1a202c"
+    },
+    "buttonHoverTextColor": {
+      "type": "string",
+      "default": "#ffffff"
+    },
+    "buttonBorderRadius": {
+      "type": "number",
+      "default": 4
+    },
+    "navColor": {
+      "type": "string",
+      "default": "#ffffff"
+    },
+    "bgPosition": {
+      "type": "string",
+      "default": "center center"
+    },
+    "bgSize": {
+      "type": "string",
+      "default": "cover"
+    },
+    "showDivider": {
+      "type": "boolean",
+      "default": false
+    },
+    "dividerColor": {
+      "type": "string",
+      "default": "#0073aa"
+    },
+    "dividerWidth": {
+      "type": "number",
+      "default": 80
+    },
+    "contentPadding": {
+      "type": "number",
+      "default": 40
+    },
+    "defaultImageId": {
+      "type": "number",
+      "default": 0
+    },
+    "defaultImageUrl": {
+      "type": "string",
+      "default": ""
+    }
+  },
+  "supports": {
+    "html": false,
+    "align": [
+      "wide",
+      "full"
+    ],
+    "spacing": {
+      "margin": true
+    }
+  },
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css",
+  "viewScript": [
+    "file:./view.js",
+    "swiper"
+  ],
+  "render": "file:./render.php"
+}

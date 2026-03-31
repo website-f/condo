@@ -1,0 +1,119 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "wbcom-essential/forums-activity",
+  "version": "1.0.0",
+  "title": "Forums Activity",
+  "category": "starter-buddypress",
+  "description": "Display the logged-in user's most recent forum discussion with meta data and excerpt.",
+  "keywords": [
+    "forums",
+    "activity",
+    "discussion",
+    "bbpress",
+    "user",
+    "topics"
+  ],
+  "textdomain": "wbcom-essential",
+  "attributes": {
+    "useThemeColors": {
+      "type": "boolean",
+      "default": false
+    },
+    "showForumTitle": {
+      "type": "boolean",
+      "default": true
+    },
+    "showMeta": {
+      "type": "boolean",
+      "default": true
+    },
+    "showExcerpt": {
+      "type": "boolean",
+      "default": true
+    },
+    "showViewButton": {
+      "type": "boolean",
+      "default": true
+    },
+    "viewButtonText": {
+      "type": "string",
+      "default": "View Discussion"
+    },
+    "showMyDiscussionsButton": {
+      "type": "boolean",
+      "default": true
+    },
+    "myDiscussionsButtonText": {
+      "type": "string",
+      "default": "View My Discussions"
+    },
+    "noForumsText": {
+      "type": "string",
+      "default": "You don't have any discussions yet."
+    },
+    "noForumsButtonText": {
+      "type": "string",
+      "default": "Explore Forums"
+    },
+    "boxBgColor": {
+      "type": "string",
+      "default": "#ffffff"
+    },
+    "boxBorderColor": {
+      "type": "string",
+      "default": "#e3e3e3"
+    },
+    "boxBorderRadius": {
+      "type": "number",
+      "default": 4
+    },
+    "boxPadding": {
+      "type": "number",
+      "default": 20
+    },
+    "forumTitleColor": {
+      "type": "string",
+      "default": "#A3A5A9"
+    },
+    "topicTitleColor": {
+      "type": "string",
+      "default": "#122B46"
+    },
+    "metaColor": {
+      "type": "string",
+      "default": "#A3A5A9"
+    },
+    "excerptColor": {
+      "type": "string",
+      "default": "#666666"
+    },
+    "buttonColor": {
+      "type": "string",
+      "default": "#122B46"
+    },
+    "buttonBgColor": {
+      "type": "string",
+      "default": ""
+    },
+    "buttonBorderColor": {
+      "type": "string",
+      "default": "#e3e3e3"
+    },
+    "buttonAlign": {
+      "type": "string",
+      "default": "right"
+    }
+  },
+  "supports": {
+    "html": false,
+    "align": [
+      "wide",
+      "full"
+    ]
+  },
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css",
+  "render": "file:./render.php"
+}

@@ -1,0 +1,3 @@
+/wp-content/plugins/simple-goto-top-button/assets/js/sgtb_c2tw.js
+/wp-content/cache/asset-cleanup/1/js/item/simple-goto-top-button__assets__js__sgtb_c2tw-js-va792b5b8785d487624602dbda23e35dd41edd14c.js
+1745492058

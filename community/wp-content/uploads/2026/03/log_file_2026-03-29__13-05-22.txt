@@ -1,0 +1,102 @@
+
+---Downloaded files---
+The import files for: BuddyX with BuddyPress were successfully downloaded!
+Initial max execution time = 300
+Files info:
+Site URL = https://condo.com.my/community
+Data file = /home/property/domains/condo.com.my/public_html/community/wp-content/plugins/buddyx-demo-importer//demos/buddyx/buddypress/demo-content.xml
+Widget file = /home/property/domains/condo.com.my/public_html/community/wp-content/plugins/buddyx-demo-importer//demos/buddyx/buddypress/widgets.json
+Customizer file = /home/property/domains/condo.com.my/public_html/community/wp-content/plugins/buddyx-demo-importer//demos/buddyx/buddypress/customizer.dat
+Redux files:
+not defined!
+
+---Importing widgets---
+Right Sidebar : 
+
+Search - No Title - Imported
+Recent Posts - No Title - Imported
+Categories - Categories - Imported
+Tag Cloud - Tags - Imported
+
+Left Sidebar : 
+
+Archives - No Title - Imported
+Categories - No Title - Imported
+
+Community Left Sidebar : 
+
+Block - No Title - Imported
+Block - No Title - Imported
+
+Activity Directory Right Sidebar : 
+
+(BuddyPress) Profile Completion - Complete Your Profile - Imported
+Block - No Title - Imported
+Block - No Title - Imported
+
+Members Directory Right Sidebar : 
+
+Block - No Title - Imported
+Block - No Title - Imported
+Block - No Title - Imported
+
+Groups Directory Right Sidebar : 
+
+Block - No Title - Imported
+Block - No Title - Imported
+Block - No Title - Imported
+
+Members Single Profile Sidebar : 
+
+Block - No Title - Imported
+Block - No Title - Imported
+Block - No Title - Imported
+
+Members Single User Activity : 
+
+Block - No Title - Imported
+Block - No Title - Imported
+
+Groups Single Group Sidebar : 
+
+Block - No Title - Imported
+Block - No Title - Imported
+Block - No Title - Imported
+
+Groups Single Group Activity : 
+
+Block - No Title - Imported
+
+woocommerce-sidebar-left : Sidebar does not exist in theme (moving widget to Inactive)
+
+Block - No Title - Imported to Inactive
+woocommerce_products - Products - Site does not support widget
+
+woocommerce-sidebar-right : Sidebar does not exist in theme (moving widget to Inactive)
+
+woocommerce_product_search - No Title - Site does not support widget
+woocommerce_products - Products - Site does not support widget
+
+Footer 1 : 
+
+Custom HTML - No Title - Imported
+
+Footer 2 : 
+
+Recent Posts - Latest Post - Imported
+
+Footer 3 : 
+
+Block - No Title - Imported
+
+Footer 4 : 
+
+Block - No Title - Imported
+
+
+
+---Importing customizer settings---
+Customizer settings import finished!
+
+---ocdi/after_import---
+

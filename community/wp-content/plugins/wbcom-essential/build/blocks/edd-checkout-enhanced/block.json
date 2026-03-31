@@ -1,0 +1,63 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "wbcom-essential/edd-checkout-enhanced",
+  "version": "1.0.0",
+  "title": "EDD Enhanced Checkout",
+  "category": "starter-design",
+  "icon": "cart",
+  "description": "Enhanced checkout page with progress bar, trust badges, reviews, and recommendations wrapping EDD's native checkout.",
+  "keywords": [
+    "edd",
+    "checkout",
+    "payment",
+    "cart",
+    "easy digital downloads"
+  ],
+  "supports": {
+    "html": false,
+    "align": [
+      "wide",
+      "full"
+    ],
+    "spacing": {
+      "margin": true,
+      "padding": true
+    }
+  },
+  "attributes": {
+    "showProgressBar": {
+      "type": "boolean",
+      "default": true
+    },
+    "showTrustBadges": {
+      "type": "boolean",
+      "default": true
+    },
+    "trustBadgeText": {
+      "type": "string",
+      "default": "Secure checkout powered by Stripe"
+    },
+    "showReviews": {
+      "type": "boolean",
+      "default": true
+    },
+    "reviewCount": {
+      "type": "number",
+      "default": 3
+    },
+    "showRecommendations": {
+      "type": "boolean",
+      "default": true
+    },
+    "recommendationCount": {
+      "type": "number",
+      "default": 3
+    }
+  },
+  "textdomain": "wbcom-essential",
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css",
+  "render": "file:./render.php"
+}

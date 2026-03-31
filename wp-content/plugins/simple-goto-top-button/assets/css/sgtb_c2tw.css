@@ -1,0 +1,34 @@
+
+/* === Simple Sticky Header Menu by Come2theweb ==== */
+.sgtb_btn {position: fixed; width:50px;	z-index: 9999;	bottom: 15px; transition:all ease-in-out 0.3s; -moz-transition:all ease-in-out 0.3s; -o-transition:all ease-in-out 0.3s; -webkit-transition:all ease-in-out 0.3s; -ms-transition:all ease-in-out 0.3s;}
+.sgtb_btn img{display:block; max-width:100%;}
+.sgtbpos-right{left:auto; right:15px;}
+.sgtbpos-center {left: 50%;	transform: translateX(-50%);}
+.sgtbpos-left{left:15px;}
+.sgtbres-mobile{display:none;}
+.sgtbres-desktop{display:block;}
+.sgtbhot-yes{visibility:hidden; opacity:0;}
+.sgtbhot-yes.sgtbvis{visibility:visible; opacity:1;}
+
+.btnani-rorating{-webkit-animation:sgtbrotate 4s linear infinite; -moz-animation:sgtbrotate 4s linear infinite; animation:sgtbrotate 4s linear infinite; -moz-transform:rotate(0deg); -webkit-transform:rotate(0deg); transform:rotate(0deg);}
+.btnani-updown{-webkit-animation:sgtbupdown 4s linear infinite; -moz-animation:sgtbupdown 4s linear infinite; animation:sgtbupdown 4s linear infinite; -moz-transform:translateY(0%); -webkit-transform:translateY(0%); transform:translateY(0%);}
+.btnani-flashing{-webkit-animation:sgtbflash 4s linear infinite; -moz-animation:sgtbflash 4s linear infinite; animation:sgtbflash 4s linear infinite;}
+
+@-moz-keyframes sgtbrotate { 100% { -moz-transform: rotate(360deg); } }
+@-webkit-keyframes sgtbrotate { 100% { -webkit-transform: rotate(360deg); } }
+@keyframes sgtbrotate { 100% { -webkit-transform: rotate(360deg); transform:rotate(360deg); } }
+
+@-moz-keyframes sgtbupdown { 0% { -moz-transform:translateY(0px); } 50% { -moz-transform:translateY(-30px); } 100% { -moz-transform:translateY(0px); } }
+@-webkit-keyframes sgtbupdown { 0% { -webkit-transform:translateY(0px); } 50% { -webkit-transform:translateY(-30px); } 100% { -webkit-transform:translateY(0px); } }
+@keyframes sgtbupdown { 0% { -webkit-transform:translateY(0px);transform:translateY(0px); } 50% { -webkit-transform:translateY(-50px);transform:translateY(-30px); } 100% { -webkit-transform:translateY(0px);transform:translateY(0px); } }
+
+
+@-moz-keyframes sgtbflash { 0% { opacity:1; } 50% { opacity:0;} 100% { opacity:1; } }
+@-webkit-keyframes sgtbflash { 0% { opacity:1; } 50% { opacity:0;} 100% { opacity:1; } }
+@keyframes sgtbflash { 0% { opacity:1; } 50% { opacity:0;} 100% { opacity:1; }  }
+
+
+@media(max-width:767px){
+	.sgtbres-mobile{display:block;}
+	.sgtbres-desktop{display:none;}
+}

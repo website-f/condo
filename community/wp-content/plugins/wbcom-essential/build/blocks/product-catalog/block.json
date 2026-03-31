@@ -1,0 +1,65 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "wbcom-essential/product-catalog",
+  "version": "1.0.0",
+  "title": "Product Catalog",
+  "category": "widgets",
+  "icon": "grid-view",
+  "description": "An AJAX-powered product grid with category, price, and search filters for EDD products.",
+  "keywords": [
+    "catalog",
+    "products",
+    "filter",
+    "shop",
+    "edd",
+    "downloads"
+  ],
+  "supports": {
+    "html": false,
+    "align": [
+      "wide",
+      "full"
+    ],
+    "multiple": false
+  },
+  "textdomain": "wbcom-essential",
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css",
+  "viewScript": "file:./view.js",
+  "attributes": {
+    "columns": {
+      "type": "number",
+      "default": 3
+    },
+    "perPage": {
+      "type": "number",
+      "default": 12
+    },
+    "showSearch": {
+      "type": "boolean",
+      "default": true
+    },
+    "showCategoryFilter": {
+      "type": "boolean",
+      "default": true
+    },
+    "showPriceFilter": {
+      "type": "boolean",
+      "default": true
+    },
+    "showSort": {
+      "type": "boolean",
+      "default": true
+    },
+    "defaultCategory": {
+      "type": "number",
+      "default": 0
+    },
+    "defaultSort": {
+      "type": "string",
+      "default": "title"
+    }
+  }
+}

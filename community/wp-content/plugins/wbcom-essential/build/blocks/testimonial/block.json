@@ -1,0 +1,240 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "wbcom-essential/testimonial",
+  "version": "1.0.0",
+  "title": "Testimonial",
+  "category": "starter-marketing",
+  "icon": "format-quote",
+  "description": "Display a customer testimonial with quote, author info, and optional rating.",
+  "keywords": [
+    "testimonial",
+    "quote",
+    "review",
+    "customer",
+    "feedback"
+  ],
+  "supports": {
+    "html": false,
+    "align": [
+      "wide",
+      "full"
+    ]
+  },
+  "attributes": {
+    "useThemeColors": {
+      "type": "boolean",
+      "default": false
+    },
+    "content": {
+      "type": "string",
+      "default": "This product exceeded my expectations. The quality is outstanding and the customer service was incredibly helpful throughout the entire process."
+    },
+    "authorName": {
+      "type": "string",
+      "default": "John Doe"
+    },
+    "authorRole": {
+      "type": "string",
+      "default": "CEO, Company Inc."
+    },
+    "imageId": {
+      "type": "number",
+      "default": 0
+    },
+    "imageUrl": {
+      "type": "string",
+      "default": ""
+    },
+    "imageSize": {
+      "type": "string",
+      "default": "thumbnail"
+    },
+    "showRating": {
+      "type": "boolean",
+      "default": true
+    },
+    "rating": {
+      "type": "number",
+      "default": 5
+    },
+    "layout": {
+      "type": "string",
+      "default": "column",
+      "enum": [
+        "column",
+        "column-reverse",
+        "row",
+        "row-reverse"
+      ]
+    },
+    "authorInfoDirection": {
+      "type": "string",
+      "default": "row",
+      "enum": [
+        "column",
+        "column-reverse",
+        "row",
+        "row-reverse"
+      ]
+    },
+    "textAlign": {
+      "type": "string",
+      "default": "center"
+    },
+    "backgroundColor": {
+      "type": "string",
+      "default": "#ffffff"
+    },
+    "itemMaxWidth": {
+      "type": "number",
+      "default": 600
+    },
+    "borderRadius": {
+      "type": "number",
+      "default": 12
+    },
+    "borderWidth": {
+      "type": "number",
+      "default": 0
+    },
+    "borderStyle": {
+      "type": "string",
+      "default": "solid",
+      "enum": [
+        "none",
+        "solid",
+        "dashed",
+        "dotted",
+        "double"
+      ]
+    },
+    "borderColor": {
+      "type": "string",
+      "default": "#e2e8f0"
+    },
+    "quoteColor": {
+      "type": "string",
+      "default": "#4a5568"
+    },
+    "nameColor": {
+      "type": "string",
+      "default": "#1a202c"
+    },
+    "roleColor": {
+      "type": "string",
+      "default": "#718096"
+    },
+    "ratingColor": {
+      "type": "string",
+      "default": "#f6ad55"
+    },
+    "padding": {
+      "type": "number",
+      "default": 32
+    },
+    "boxShadow": {
+      "type": "boolean",
+      "default": true
+    },
+    "boxShadowColor": {
+      "type": "string",
+      "default": "rgba(0, 0, 0, 0.08)"
+    },
+    "boxShadowBlur": {
+      "type": "number",
+      "default": 20
+    },
+    "boxShadowSpread": {
+      "type": "number",
+      "default": 0
+    },
+    "boxShadowHorizontal": {
+      "type": "number",
+      "default": 0
+    },
+    "boxShadowVertical": {
+      "type": "number",
+      "default": 4
+    },
+    "avatarSize": {
+      "type": "number",
+      "default": 60
+    },
+    "avatarBorderRadius": {
+      "type": "number",
+      "default": 50
+    },
+    "avatarBorderWidth": {
+      "type": "number",
+      "default": 0
+    },
+    "avatarBorderStyle": {
+      "type": "string",
+      "default": "solid",
+      "enum": [
+        "none",
+        "solid",
+        "dashed",
+        "dotted",
+        "double"
+      ]
+    },
+    "avatarBorderColor": {
+      "type": "string",
+      "default": "#e2e8f0"
+    },
+    "avatarBoxShadow": {
+      "type": "boolean",
+      "default": false
+    },
+    "quoteIconSize": {
+      "type": "number",
+      "default": 64
+    },
+    "quoteIconColor": {
+      "type": "string",
+      "default": "#1d76da"
+    },
+    "quoteFontSize": {
+      "type": "number",
+      "default": 18
+    },
+    "nameFontSize": {
+      "type": "number",
+      "default": 16
+    },
+    "roleFontSize": {
+      "type": "number",
+      "default": 14
+    },
+    "spacing": {
+      "type": "number",
+      "default": 24
+    },
+    "contentArrow": {
+      "type": "string",
+      "default": "none",
+      "enum": [
+        "none",
+        "top",
+        "bottom",
+        "left",
+        "right"
+      ]
+    },
+    "contentArrowColor": {
+      "type": "string",
+      "default": "#ffffff"
+    },
+    "contentArrowSize": {
+      "type": "number",
+      "default": 15
+    }
+  },
+  "textdomain": "wbcom-essential",
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css",
+  "render": "file:./render.php"
+}

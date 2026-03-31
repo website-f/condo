@@ -1,0 +1,39 @@
+.pso-postbox__pin {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--G2);
+    height: 100%;
+    padding: var(--G5) var(--G3);
+}
+
+.pso-postbox-pin__title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-inline: var(--G2);
+    font-size: var(--F-M);
+    font-weight: 500;
+}
+
+.pso-postbox-pin__list {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    height: 100%;
+    overflow: auto;
+}
+
+.pso-postbox-pin__option {
+    display: block;
+    padding: var(--G2);
+    font-size: var(--F-M);
+    color: var(--c-contrast-light);
+    border-radius: var(--R);
+    transition: var(--TRANS);
+
+    &:hover {
+        color: var(--c-contrast-light);
+        background-color: var(--PS-COLOR--APP--GRAY);
+    }
+}

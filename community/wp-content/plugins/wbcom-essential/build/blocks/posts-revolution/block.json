@@ -1,0 +1,126 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "wbcom-essential/posts-revolution",
+  "version": "1.0.0",
+  "title": "Posts Revolution",
+  "category": "starter-blog",
+  "icon": "grid-view",
+  "description": "Display posts in 7 creative magazine-style layouts with featured post emphasis.",
+  "keywords": [
+    "posts",
+    "grid",
+    "layout",
+    "featured",
+    "magazine",
+    "blog",
+    "revolution"
+  ],
+  "supports": {
+    "html": false,
+    "align": [
+      "wide",
+      "full"
+    ],
+    "spacing": {
+      "margin": true,
+      "padding": true
+    }
+  },
+  "attributes": {
+    "useThemeColors": {
+      "type": "boolean",
+      "default": false
+    },
+    "displayType": {
+      "type": "string",
+      "default": "posts_type1"
+    },
+    "columns": {
+      "type": "number",
+      "default": 2
+    },
+    "showExcerpt": {
+      "type": "boolean",
+      "default": true
+    },
+    "excerptLength": {
+      "type": "number",
+      "default": 150
+    },
+    "dateFormat": {
+      "type": "string",
+      "default": "F j, Y"
+    },
+    "querySource": {
+      "type": "string",
+      "default": "wp_posts"
+    },
+    "customPostType": {
+      "type": "string",
+      "default": ""
+    },
+    "categories": {
+      "type": "array",
+      "default": []
+    },
+    "stickyPosts": {
+      "type": "string",
+      "default": "allposts"
+    },
+    "postsPerPage": {
+      "type": "number",
+      "default": 5
+    },
+    "orderBy": {
+      "type": "string",
+      "default": "date"
+    },
+    "order": {
+      "type": "string",
+      "default": "DESC"
+    },
+    "enablePagination": {
+      "type": "boolean",
+      "default": false
+    },
+    "paginationType": {
+      "type": "string",
+      "default": "numeric"
+    },
+    "enableAnimation": {
+      "type": "boolean",
+      "default": false
+    },
+    "animationType": {
+      "type": "string",
+      "default": "fade-in"
+    },
+    "animationDelay": {
+      "type": "number",
+      "default": 1000
+    },
+    "enableCustomStyle": {
+      "type": "boolean",
+      "default": false
+    },
+    "mainColor": {
+      "type": "string",
+      "default": "#1d76da"
+    },
+    "hoverColor": {
+      "type": "string",
+      "default": "#1d76da"
+    },
+    "sectionLabel": {
+      "type": "string",
+      "default": ""
+    }
+  },
+  "textdomain": "wbcom-essential",
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css",
+  "viewScript": "file:./view.js",
+  "render": "file:./render.php"
+}

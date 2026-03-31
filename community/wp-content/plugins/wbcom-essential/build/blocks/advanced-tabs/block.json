@@ -1,0 +1,131 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "wbcom-essential/advanced-tabs",
+  "version": "1.0.0",
+  "title": "Advanced Tabs",
+  "category": "starter-content",
+  "icon": "category",
+  "description": "A powerful tabbed interface that transforms into an accordion on mobile devices.",
+  "keywords": [
+    "tabs",
+    "tabbed",
+    "content",
+    "accordion",
+    "toggle"
+  ],
+  "textdomain": "wbcom-essential",
+  "example": {
+    "attributes": {
+      "tabs": [
+        {
+          "title": "Features",
+          "icon": "star-filled",
+          "content": "Discover amazing features that make your content stand out."
+        },
+        {
+          "title": "Benefits",
+          "icon": "thumbs-up",
+          "content": "Learn about the benefits of using this powerful block."
+        }
+      ]
+    }
+  },
+  "attributes": {
+    "useThemeColors": {
+      "type": "boolean",
+      "default": false
+    },
+    "tabs": {
+      "type": "array",
+      "default": [
+        {
+          "id": "tab-1",
+          "title": "Tab 1",
+          "icon": "",
+          "content": "This is the content for tab 1.",
+          "imageUrl": "",
+          "imageId": null
+        },
+        {
+          "id": "tab-2",
+          "title": "Tab 2",
+          "icon": "",
+          "content": "This is the content for tab 2.",
+          "imageUrl": "",
+          "imageId": null
+        }
+      ]
+    },
+    "layout": {
+      "type": "string",
+      "default": "horizontal"
+    },
+    "enableUrlHash": {
+      "type": "boolean",
+      "default": false
+    },
+    "titleColor": {
+      "type": "string"
+    },
+    "titleActiveColor": {
+      "type": "string"
+    },
+    "titleBgColor": {
+      "type": "string"
+    },
+    "titleActiveBgColor": {
+      "type": "string"
+    },
+    "titleBorderColor": {
+      "type": "string"
+    },
+    "titleActiveBorderColor": {
+      "type": "string"
+    },
+    "contentColor": {
+      "type": "string"
+    },
+    "contentBgColor": {
+      "type": "string"
+    },
+    "contentBorderColor": {
+      "type": "string"
+    },
+    "iconColor": {
+      "type": "string"
+    },
+    "iconActiveColor": {
+      "type": "string"
+    },
+    "iconSize": {
+      "type": "number",
+      "default": 16
+    },
+    "titleAlignment": {
+      "type": "string",
+      "default": "left"
+    },
+    "mobileBreakpoint": {
+      "type": "number",
+      "default": 768
+    }
+  },
+  "supports": {
+    "html": false,
+    "align": true,
+    "spacing": {
+      "margin": true,
+      "padding": true
+    },
+    "typography": {
+      "fontSize": true,
+      "lineHeight": true
+    }
+  },
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css",
+  "viewScript": "file:./view.js",
+  "render": "file:./render.php"
+}

@@ -1,0 +1,25 @@
+.pso-page--friends {
+    // temp
+    .ps-focus {
+        margin-bottom: 0;
+    }
+}
+
+.pso-friends {}
+
+.pso-friends__tabs {
+    .pso-tabs__item {
+        flex-grow: 1;
+        justify-content: center;
+    }
+
+    @include mq($from: desktop) {
+        .pso-tabs__item {
+            width: 50%;
+        }
+
+        .pso-btn {
+            --fs: var(--FS--MD);
+        }
+    }
+}

@@ -1,0 +1,154 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "wbcom-essential/posts-carousel",
+  "version": "1.0.0",
+  "title": "Posts Carousel",
+  "category": "starter-blog",
+  "icon": "slides",
+  "description": "Display WordPress posts in a beautiful carousel slider.",
+  "keywords": [
+    "posts",
+    "carousel",
+    "slider",
+    "blog",
+    "articles",
+    "news"
+  ],
+  "textdomain": "wbcom-essential",
+  "example": {},
+  "attributes": {
+    "useThemeColors": {
+      "type": "boolean",
+      "default": false
+    },
+    "displayType": {
+      "type": "string",
+      "default": "card"
+    },
+    "postType": {
+      "type": "string",
+      "default": "post"
+    },
+    "categories": {
+      "type": "array",
+      "default": []
+    },
+    "numberOfPosts": {
+      "type": "number",
+      "default": 6
+    },
+    "orderBy": {
+      "type": "string",
+      "default": "date"
+    },
+    "order": {
+      "type": "string",
+      "default": "DESC"
+    },
+    "showExcerpt": {
+      "type": "boolean",
+      "default": true
+    },
+    "excerptLength": {
+      "type": "number",
+      "default": 120
+    },
+    "showDate": {
+      "type": "boolean",
+      "default": true
+    },
+    "showAuthor": {
+      "type": "boolean",
+      "default": true
+    },
+    "showCategory": {
+      "type": "boolean",
+      "default": true
+    },
+    "dateFormat": {
+      "type": "string",
+      "default": "F j, Y"
+    },
+    "slidesPerView": {
+      "type": "number",
+      "default": 3
+    },
+    "slidesPerViewTablet": {
+      "type": "number",
+      "default": 2
+    },
+    "slidesPerViewMobile": {
+      "type": "number",
+      "default": 1
+    },
+    "spaceBetween": {
+      "type": "number",
+      "default": 30
+    },
+    "showNavigation": {
+      "type": "boolean",
+      "default": true
+    },
+    "showPagination": {
+      "type": "boolean",
+      "default": true
+    },
+    "loop": {
+      "type": "boolean",
+      "default": true
+    },
+    "autoplay": {
+      "type": "boolean",
+      "default": false
+    },
+    "autoplayDelay": {
+      "type": "number",
+      "default": 5000
+    },
+    "cardBackground": {
+      "type": "string",
+      "default": "#ffffff"
+    },
+    "cardBorderRadius": {
+      "type": "number",
+      "default": 10
+    },
+    "categoryColor": {
+      "type": "string",
+      "default": "#3182ce"
+    },
+    "titleColor": {
+      "type": "string",
+      "default": "#1a202c"
+    },
+    "excerptColor": {
+      "type": "string",
+      "default": "#4a5568"
+    },
+    "metaColor": {
+      "type": "string",
+      "default": "#718096"
+    },
+    "navColor": {
+      "type": "string",
+      "default": "#3182ce"
+    }
+  },
+  "supports": {
+    "html": false,
+    "align": [
+      "wide",
+      "full"
+    ],
+    "spacing": {
+      "margin": true,
+      "padding": true
+    }
+  },
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css",
+  "viewScript": "file:./view.js",
+  "render": "file:./render.php"
+}

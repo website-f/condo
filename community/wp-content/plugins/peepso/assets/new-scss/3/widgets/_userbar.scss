@@ -1,0 +1,268 @@
+.pso-w-userbar {
+    display: flex;
+    align-items: stretch;
+    font-size: var(--F);
+
+    .pso-w-userbar-user__dropdown {
+        > .pso-vip {
+            display: flex;
+            align-items: center;
+
+            .pso-dropdown__toggle {
+                display: none;
+            }
+        }
+    }
+
+    .ps-badgeos__widget-title {
+        display: none;
+    }
+
+    .ps-badgeos__widget-list {
+        align-items: center;
+        margin: 0;
+    }
+
+    .ps-badgeos__item > a {
+        display: flex;
+        align-items: center;
+    }
+}
+
+.pso-w-userbar__inner {
+    display: flex;
+    align-items: stretch;
+    gap: var(--G1);
+    width: 100%;
+
+    @include mq($until: desktop) {
+        padding-inline-start: var(--G3);
+    }
+
+    @include mq($from: desktop) {
+        position: relative;
+        gap: var(--G3);
+    }
+}
+
+.pso-w-userbar__user {
+    display: flex;
+    align-items: center;
+
+    @include mq($from: desktop) {
+        align-items: stretch;
+        gap: var(--G1);
+    }
+}
+
+.pso-w-userbar-user__dropdown {
+    display: flex;
+    align-items: stretch;
+    gap: var(--G1);
+
+    @include mq($until: desktop) {
+        position: static;
+
+        .pso-dropdown__menu {
+            width: 100%;
+        }
+    }
+}
+
+.pso-w-userbar-user__link {
+    display: flex;
+    align-items: center;
+    flex-direction: row-reverse;
+    gap: var(--G1);
+    color: var(--c-contrast-light);
+    transition: var(--TRANS);
+
+    > span {
+        font-size: var(--F-S);
+        font-weight: 500;
+        white-space: nowrap;
+    }
+
+    &:hover {
+        color: var(--c-contrast);
+    }
+}
+
+.pso-w-userbar-user__toggle {
+    position: relative;
+    display: flex;
+    align-items: center;
+    flex-direction: row-reverse;
+    gap: var(--G1);
+    padding-inline: calc(var(--G1) / 2);
+    border-radius: var(--R-S);
+    transition: var(--TRANS);
+
+    > i {
+        color: color-mix(in srgb, currentColor 70%, transparent);
+        transition: var(--TRANS);
+    }
+
+    @include mq($until: desktop) {
+        > i {
+            position: absolute;
+            right: 0;
+            bottom: 0;
+            width: 16px;
+            height: 16px;
+            font-size: 16px;
+            line-height: 18px;
+            background-color: var(--PS-COLOR--APP);
+            border-radius: 50%;
+            box-shadow: var(--BOX-SHADOW--HARD);
+        }
+
+        > span {
+            display: none;
+        }
+    }
+
+    @include mq($from: desktop) {
+        padding-inline-start: var(--G2);
+        padding-inline-end: calc(var(--G1) / 2);
+
+        > span {
+            display: flex;
+            align-items: center;
+            gap: var(--G1);
+            font-size: var(--F-S);
+            font-weight: 500;
+            white-space: nowrap;
+
+            > span {
+                max-width: 100px;
+                white-space: nowrap;
+                text-overflow: ellipsis;
+                overflow: hidden;
+            }
+        }
+    }
+
+    &:hover {
+        > i {
+            color: color-mix(in srgb, currentColor 65%, transparent);
+        }
+
+        background-color: color-mix(in srgb, currentColor 8%, transparent);
+    }
+}
+
+.pso-w-userbar__avatar {}
+
+.pso-w-userbar__notifs {}
+
+.pso-w-userbar__notif {}
+
+.pso-w-userbar__logout {
+    display: flex;
+    align-items: center;
+    padding: var(--G2);
+    font-size: var(--F);
+    color: var(--c-contrast-slight);
+
+    @include mq($from: desktop) {
+        transition: var(--TRANS);
+
+        &:hover {
+            color: var(--c-contrast);
+        }
+    }
+}
+
+.pso-w-userbar__close {
+    display: none;
+    align-items: center;
+    padding: var(--G2) var(--G4);
+    font-size: var(--F);
+    color: var(--c-contrast-slight);
+
+    @include mq($from: desktop) {
+        padding: var(--G2);
+        transition: var(--TRANS);
+
+        &:hover {
+            color: var(--c-contrast);
+        }
+    }
+}
+
+.pso-w-userbar__toggle {
+    position: relative;
+    display: none;
+    cursor: pointer;
+}
+
+.pso-w-userbar--mobile {
+  @include mq($until: desktop) {
+    .pso-w-userbar__inner {
+      display: none;
+
+      + .pso-w-userbar__toggle {
+        display: flex;
+      }
+    }
+  }
+}
+
+.pso-w-userbar--desktop {
+  @include mq($from: desktop) {
+    .pso-w-userbar__inner {
+      display: none;
+
+      + .pso-w-userbar__toggle {
+        display: flex;
+      }
+    }
+  }
+}
+
+.pso-w-userbar--open,
+.psw-userbar--open {
+  .pso-w-userbar__inner {
+    display: flex;
+  }
+
+  .pso-w-userbar__toggle {
+    .pso-badge,
+    > .pso-avatar {
+        display: none;
+    }
+
+    > .pso-w-userbar__close {
+        display: flex;
+    }
+  }
+
+  .pso-notif__badge--all {
+    display: none;
+  }
+}
+
+.pso-w-userbar--left {
+    .pso-w-userbar__inner {
+        justify-content: flex-start;
+    }
+}
+
+.pso-w-userbar--center {
+    .pso-w-userbar__inner {
+        justify-content: center;
+    }
+}
+
+.pso-w-userbar--right {
+    .pso-w-userbar__inner {
+        justify-content: flex-end;
+    }
+}
+
+.pso-w-userbar--space {
+    .pso-w-userbar__inner {
+        justify-content: space-between;
+    }
+}

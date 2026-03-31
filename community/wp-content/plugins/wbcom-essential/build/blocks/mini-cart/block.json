@@ -1,0 +1,77 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "wbcom-essential/mini-cart",
+  "version": "1.0.0",
+  "title": "Mini Cart",
+  "category": "starter-woocommerce",
+  "icon": "cart",
+  "description": "Display a WooCommerce mini cart with item count and total.",
+  "keywords": [
+    "cart",
+    "woocommerce",
+    "shop",
+    "checkout",
+    "basket"
+  ],
+  "textdomain": "wbcom-essential",
+  "example": {},
+  "attributes": {
+    "useThemeColors": {
+      "type": "boolean",
+      "default": false
+    },
+    "showIcon": {
+      "type": "boolean",
+      "default": true
+    },
+    "showCount": {
+      "type": "boolean",
+      "default": true
+    },
+    "showTotal": {
+      "type": "boolean",
+      "default": true
+    },
+    "showDropdown": {
+      "type": "boolean",
+      "default": true
+    },
+    "iconSize": {
+      "type": "number",
+      "default": 24
+    },
+    "iconColor": {
+      "type": "string",
+      "default": ""
+    },
+    "countBgColor": {
+      "type": "string",
+      "default": "#e53935"
+    },
+    "countTextColor": {
+      "type": "string",
+      "default": "#ffffff"
+    },
+    "totalColor": {
+      "type": "string",
+      "default": ""
+    },
+    "dropdownBgColor": {
+      "type": "string",
+      "default": "#ffffff"
+    }
+  },
+  "supports": {
+    "html": false,
+    "spacing": {
+      "margin": true,
+      "padding": true
+    }
+  },
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css",
+  "viewScript": "file:./view.js",
+  "render": "file:./render.php"
+}

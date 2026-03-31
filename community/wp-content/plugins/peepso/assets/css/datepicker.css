@@ -1,0 +1,176 @@
+body .peepso-datepicker {
+	font-size: 16px !important;
+	z-index: 200005 !important;
+}
+
+body .peepso-datepicker * {
+	font-size: 16px !important;
+}
+
+body .peepso-datepicker .ui-widget-content {
+	background: var(--COLOR--APP) !important;
+	box-shadow: var(--BOX-SHADOW--XL) !important;
+	border-color: var(--DIVIDER) !important;
+}
+
+body .peepso-datepicker .ui-widget-header {
+	background: none !important;
+	border: none !important;
+}
+
+body .peepso-datepicker .ui-datepicker .ui-datepicker-header {
+	padding-top: 0 !important;
+}
+
+body .peepso-datepicker .ui-datepicker th {
+	color: var(--PS-COLOR--TEXT--LIGHT) !important;
+	background-color: var(--COLOR--APP--LIGHTGRAY) !important;
+}
+
+body .peepso-datepicker .ui-datepicker-prev,
+body .peepso-datepicker .ui-datepicker-next {
+	display: flex !important;
+	align-items: center !important;
+	justify-content: center !important;
+	width: 33px !important;
+	height: 33px !important;
+	top: 1px !important;
+	cursor: pointer !important;
+	color: var(--PS-COLOR--TEXT) !important;
+	text-decoration: none !important;
+	background: var(--COLOR--APP) !important;
+	border: 1px solid var(--DIVIDER--DARK) !important;
+}
+
+body .peepso-datepicker .ui-datepicker-prev:hover,
+body .peepso-datepicker .ui-datepicker-next:hover {
+	color: var(--PS-COLOR--PRIMARY) !important;
+	background: var(--PS-COLOR--PRIMARY--SHADE) !important;
+	border-color: var(--PS-COLOR--PRIMARY) !important;
+}
+
+body .peepso-datepicker .ui-datepicker-prev:before,
+body .peepso-datepicker .ui-datepicker-next:before {
+	color: var(--PS-COLOR--TEXT) !important;
+}
+
+body .peepso-datepicker .ui-datepicker-prev:hover:before,
+body .peepso-datepicker .ui-datepicker-next:hover:before {
+	color: var(--PS-COLOR--TEXT) !important;
+}
+
+body .peepso-datepicker .ui-datepicker-prev:before {
+	font-family: "Font Awesome 6 Free" !important;
+	font-weight: 900 !important;
+	content: "\f060" !important;
+}
+
+body .peepso-datepicker .ui-datepicker-prev {
+	left: 2px !important;
+}
+
+body .peepso-datepicker .ui-datepicker-next {
+	right: 2px !important;
+}
+
+body .peepso-datepicker .ui-datepicker-prev:hover {
+	left: 2px !important;
+}
+
+body .peepso-datepicker .ui-datepicker-next:hover {
+	right: 2px !important;
+}
+
+body .peepso-datepicker .ui-datepicker-next:before {
+	font-family: "Font Awesome 6 Free" !important;
+	font-weight: 900 !important;
+	content: "\f061" !important;
+}
+
+body .peepso-datepicker .ui-datepicker-prev span,
+body .peepso-datepicker .ui-datepicker-next span {
+	display: none !important;
+}
+
+body .peepso-datepicker .ui-datepicker-month,
+body .peepso-datepicker .ui-datepicker-year {
+	height: 35px !important;
+	padding: 5px !important;
+	margin: 0 !important;
+	border-radius: 4px !important;
+	border: 1px solid var(--DIVIDER--DARK) !important;
+	width: auto !important;
+	padding-right: 0 !important;
+	background-position: initial !important;
+}
+
+body .peepso-datepicker .ui-state-default,
+body .peepso-datepicker .ui-widget-content .ui-state-default,
+body .peepso-datepicker .ui-widget-header .ui-state-default {
+	color: var(--PS-COLOR--TEXT) !important;
+	background: rgba(0, 0, 0, .025) !important;
+	border-color: var(--DIVIDER--DARK) !important;
+	text-align: center !important;
+	border-radius: 4px !important;
+}
+
+body .peepso-datepicker .ui-state-default:hover {
+	background-color: rgba(0, 0, 0, .05) !important;
+	color: var(--PS-COLOR--TEXT) !important;
+}
+
+body .peepso-datepicker .ui-state-highlight,
+body .peepso-datepicker .ui-widget-content .ui-state-highlight,
+body .peepso-datepicker .ui-widget-header .ui-state-highlight {
+	color: var(--PS-COLOR--PRIMARY) !important;
+	border-color: var(--PS-COLOR--PRIMARY) !important;
+	background: none !important;
+}
+
+body .peepso-datepicker .ui-state-active,
+body .peepso-datepicker .ui-widget-content .ui-state-active,
+body .peepso-datepicker .ui-widget-header .ui-state-active {
+	color: var(--c-ps-btn-action-color) !important;
+	background: var(--PS-COLOR--PRIMARY) !important;
+	border-color: var(--PS-COLOR--PRIMARY) !important;
+}
+
+body .peepso-datepicker .ui-state-active:hover {
+	background-color: var(--PS-COLOR--PRIMARY) !important;
+	color: var(--c-ps-btn-action-color) !important;
+}
+
+body .peepso-datepicker .ui-datepicker .ui-datepicker-buttonpane button {
+	margin-inline: 0 !important;
+	height: 35px !important;
+}
+
+body .peepso-datepicker .ui-datepicker .ui-datepicker-buttonpane button:hover {
+	border-color: var(--PS-COLOR--PRIMARY) !important;
+}
+
+body .peepso-datepicker .ui-datepicker .ui-datepicker-buttonpane .ui-priority-primary {
+	font-weight: 500 !important;
+	color: var(--c-ps-btn-action-color) !important;
+	background-color: var(--PS-COLOR--PRIMARY) !important;
+	border-color: var(--PS-COLOR--PRIMARY) !important;
+}
+
+body .peepso-datepicker .ui-datepicker .ui-datepicker-buttonpane .ui-priority-primary:hover {
+	background-color: var(--PS-COLOR--PRIMARY--DARK) !important;
+}
+
+body .peepso-datepicker .ui-datepicker-title {
+	display: block !important;
+	gap: 0 !important;
+	justify-content: initial !important;
+}
+
+body .peepso-datepicker.ui-widget.ui-widget-content {
+	border-radius: 0 !important;
+	border: 1px solid var(--DIVIDER--DARK) !important;
+}
+
+body .peepso-datepicker .ui-datepicker table {
+	border: initial !important;
+}

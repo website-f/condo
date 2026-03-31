@@ -1,0 +1,356 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "wbcom-essential/login-form",
+  "version": "1.0.0",
+  "title": "Login Form",
+  "category": "starter-header",
+  "icon": "admin-users",
+  "description": "Display a customizable login form with AJAX support.",
+  "keywords": [
+    "login",
+    "form",
+    "user",
+    "authentication",
+    "sign in"
+  ],
+  "supports": {
+    "html": false,
+    "align": [
+      "wide",
+      "full"
+    ],
+    "spacing": {
+      "margin": true,
+      "padding": true
+    }
+  },
+  "attributes": {
+    "useThemeColors": {
+      "type": "boolean",
+      "default": false
+    },
+    "showLogo": {
+      "type": "boolean",
+      "default": true
+    },
+    "logoUrl": {
+      "type": "string",
+      "default": ""
+    },
+    "logoId": {
+      "type": "number",
+      "default": 0
+    },
+    "logoWidth": {
+      "type": "number",
+      "default": 150
+    },
+    "logoAlign": {
+      "type": "string",
+      "default": "center"
+    },
+    "logoBorderRadius": {
+      "type": "number",
+      "default": 0
+    },
+    "logoMarginBottom": {
+      "type": "number",
+      "default": 24
+    },
+    "showTitle": {
+      "type": "boolean",
+      "default": true
+    },
+    "title": {
+      "type": "string",
+      "default": "Welcome Back"
+    },
+    "titleTag": {
+      "type": "string",
+      "default": "h2"
+    },
+    "titleAlign": {
+      "type": "string",
+      "default": "center"
+    },
+    "titleMarginBottom": {
+      "type": "number",
+      "default": 8
+    },
+    "showSubtitle": {
+      "type": "boolean",
+      "default": true
+    },
+    "subtitle": {
+      "type": "string",
+      "default": "Please login to your account"
+    },
+    "subtitleTag": {
+      "type": "string",
+      "default": "p"
+    },
+    "subtitleAlign": {
+      "type": "string",
+      "default": "center"
+    },
+    "subtitleMarginBottom": {
+      "type": "number",
+      "default": 24
+    },
+    "usernameLabel": {
+      "type": "string",
+      "default": "Username or Email Address"
+    },
+    "usernamePlaceholder": {
+      "type": "string",
+      "default": "Enter your username or email"
+    },
+    "passwordLabel": {
+      "type": "string",
+      "default": "Password"
+    },
+    "passwordPlaceholder": {
+      "type": "string",
+      "default": "Enter your password"
+    },
+    "showLabels": {
+      "type": "boolean",
+      "default": true
+    },
+    "showRememberMe": {
+      "type": "boolean",
+      "default": true
+    },
+    "rememberMeLabel": {
+      "type": "string",
+      "default": "Remember Me"
+    },
+    "buttonText": {
+      "type": "string",
+      "default": "Log In"
+    },
+    "showLostPassword": {
+      "type": "boolean",
+      "default": true
+    },
+    "lostPasswordText": {
+      "type": "string",
+      "default": "Lost Password"
+    },
+    "showRegister": {
+      "type": "boolean",
+      "default": false
+    },
+    "registerText": {
+      "type": "string",
+      "default": "Register"
+    },
+    "linkSeparator": {
+      "type": "string",
+      "default": "|"
+    },
+    "redirectEnabled": {
+      "type": "boolean",
+      "default": false
+    },
+    "redirectUrl": {
+      "type": "string",
+      "default": ""
+    },
+    "showLoggedInMessage": {
+      "type": "boolean",
+      "default": true
+    },
+    "loggedInMessage": {
+      "type": "string",
+      "default": "You are logged in as "
+    },
+    "testMode": {
+      "type": "boolean",
+      "default": false
+    },
+    "formWidth": {
+      "type": "number",
+      "default": 100
+    },
+    "formWidthUnit": {
+      "type": "string",
+      "default": "%"
+    },
+    "formAlign": {
+      "type": "string",
+      "default": "center"
+    },
+    "rowsGap": {
+      "type": "number",
+      "default": 20
+    },
+    "formBgColor": {
+      "type": "string",
+      "default": ""
+    },
+    "formPadding": {
+      "type": "number",
+      "default": 30
+    },
+    "formBorderRadius": {
+      "type": "number",
+      "default": 8
+    },
+    "formBorderColor": {
+      "type": "string",
+      "default": ""
+    },
+    "formBorderWidth": {
+      "type": "number",
+      "default": 0
+    },
+    "formBoxShadow": {
+      "type": "boolean",
+      "default": true
+    },
+    "titleColor": {
+      "type": "string",
+      "default": ""
+    },
+    "subtitleColor": {
+      "type": "string",
+      "default": ""
+    },
+    "labelColor": {
+      "type": "string",
+      "default": ""
+    },
+    "labelAlign": {
+      "type": "string",
+      "default": "left"
+    },
+    "inputBgColor": {
+      "type": "string",
+      "default": ""
+    },
+    "inputBorderColor": {
+      "type": "string",
+      "default": ""
+    },
+    "inputTextColor": {
+      "type": "string",
+      "default": ""
+    },
+    "inputPlaceholderColor": {
+      "type": "string",
+      "default": ""
+    },
+    "inputFocusBorderColor": {
+      "type": "string",
+      "default": ""
+    },
+    "inputFocusBgColor": {
+      "type": "string",
+      "default": ""
+    },
+    "inputBorderRadius": {
+      "type": "number",
+      "default": 6
+    },
+    "inputPaddingV": {
+      "type": "number",
+      "default": 12
+    },
+    "inputPaddingH": {
+      "type": "number",
+      "default": 16
+    },
+    "inputWidth": {
+      "type": "number",
+      "default": 100
+    },
+    "inputAlign": {
+      "type": "string",
+      "default": "left"
+    },
+    "buttonBgColor": {
+      "type": "string",
+      "default": ""
+    },
+    "buttonTextColor": {
+      "type": "string",
+      "default": ""
+    },
+    "buttonHoverBgColor": {
+      "type": "string",
+      "default": ""
+    },
+    "buttonHoverTextColor": {
+      "type": "string",
+      "default": ""
+    },
+    "buttonBorderColor": {
+      "type": "string",
+      "default": ""
+    },
+    "buttonHoverBorderColor": {
+      "type": "string",
+      "default": ""
+    },
+    "buttonBorderRadius": {
+      "type": "number",
+      "default": 6
+    },
+    "buttonBorderWidth": {
+      "type": "number",
+      "default": 0
+    },
+    "buttonPaddingV": {
+      "type": "number",
+      "default": 14
+    },
+    "buttonPaddingH": {
+      "type": "number",
+      "default": 24
+    },
+    "buttonWidth": {
+      "type": "number",
+      "default": 100
+    },
+    "buttonAlign": {
+      "type": "string",
+      "default": "center"
+    },
+    "linkColor": {
+      "type": "string",
+      "default": ""
+    },
+    "linkHoverColor": {
+      "type": "string",
+      "default": ""
+    },
+    "linksAlign": {
+      "type": "string",
+      "default": "flex-end"
+    },
+    "linksMarginTop": {
+      "type": "number",
+      "default": 0
+    },
+    "checkboxColor": {
+      "type": "string",
+      "default": ""
+    },
+    "loggedInMsgColor": {
+      "type": "string",
+      "default": ""
+    },
+    "loggedInMsgAlign": {
+      "type": "string",
+      "default": "left"
+    }
+  },
+  "textdomain": "wbcom-essential",
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css",
+  "render": "file:./render.php",
+  "viewScript": "file:./view.js"
+}

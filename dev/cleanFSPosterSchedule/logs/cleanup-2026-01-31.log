@@ -1,0 +1,87 @@
+================================================================================
+SCHEDULE CLEANUP - 2026-01-31 14:49:22
+================================================================================
+
+[14:49:22] [INFO] Nightly cleanup cron job started
+[14:49:22] [INFO] Configuration:
+[14:49:22] [INFO]   - Keep Latest: 300 schedules
+[14:49:22] [INFO]   - Dry Run: Yes
+
+--------------------------------------------------------------------------------
+PRE-CLEANUP STATISTICS
+--------------------------------------------------------------------------------
+  Total Schedules                : 9716
+  Not Sent                       : 0
+  Sending                        : 13
+  Success                        : 6941
+  Error                          : 2762
+  Draft                          : 0
+  Oldest Schedule ID             : 724
+  Newest Schedule ID             : 10566
+
+--------------------------------------------------------------------------------
+COUNTING SCHEDULES
+--------------------------------------------------------------------------------
+[14:49:22] [INFO] Total Schedules: 9716
+[14:49:22] [INFO] To Delete: 9416
+
+--------------------------------------------------------------------------------
+FINDING THRESHOLD
+--------------------------------------------------------------------------------
+[14:49:22] [INFO] Threshold ID: 10266
+[14:49:22] [INFO] Will delete all schedules with ID < 10266
+
+--------------------------------------------------------------------------------
+RETRIEVING SCHEDULES TO DELETE
+--------------------------------------------------------------------------------
+[14:49:22] [INFO] Found 9402 schedules to delete (excluding 'sending' status)
+
+--------------------------------------------------------------------------------
+ANALYSIS
+--------------------------------------------------------------------------------
+[14:49:23] [INFO] By Status:
+[14:49:23] [INFO]   - success: 6670
+[14:49:23] [INFO]   - error: 2732
+[14:49:23] [INFO] Affected WordPress Posts: 1526
+[14:49:23] [INFO] Affected FSP Posts: 0
+[14:49:23] [INFO] NOTE: Posts will NOT be deleted, only schedule records
+
+--------------------------------------------------------------------------------
+DRY RUN - NO DELETIONS PERFORMED
+--------------------------------------------------------------------------------
+[14:49:23] [WARNING] Would delete 9402 schedules
+[14:49:23] [WARNING] Would check 0 FSP posts for orphans
+
+--------------------------------------------------------------------------------
+EXECUTION SUMMARY
+--------------------------------------------------------------------------------
+  Status                         : ✅ SUCCESS
+  Mode                           : DRY RUN (No Deletions)
+  Keep Limit                     : 300
+  Initial Count                  : 9716
+  Final Count                    : 9716
+  Deleted Count                  : 0
+  Orphaned Posts Removed         : 0
+  Execution Time                 : 0.37 seconds
+
+[14:49:23] [INFO] Deletion Analysis:
+  By Status:
+    - success: 6670
+    - error: 2732
+  Affected WordPress Posts: 1526
+  Affected FSP Posts: 0
+
+================================================================================
+
+
+--------------------------------------------------------------------------------
+POST-CLEANUP STATISTICS
+--------------------------------------------------------------------------------
+  Total Schedules                : 9716
+  Not Sent                       : 0
+  Sending                        : 13
+  Success                        : 6941
+  Error                          : 2762
+  Draft                          : 0
+[14:49:23] [SUCCESS] Nightly cleanup completed successfully
+[14:49:23] [INFO] Log file: /home/property/domains/condo.com.my/public_html/dev/cleanFSPosterSchedule/logs/cleanup-2026-01-31.log

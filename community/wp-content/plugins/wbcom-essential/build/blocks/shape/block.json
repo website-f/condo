@@ -1,0 +1,193 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "wbcom-essential/shape",
+  "version": "1.0.0",
+  "title": "Shape",
+  "category": "starter-design",
+  "icon": "marker",
+  "description": "Create custom blob shapes with 8-point border-radius control.",
+  "keywords": [
+    "shape",
+    "blob",
+    "circle",
+    "decorative",
+    "organic",
+    "icon"
+  ],
+  "textdomain": "wbcom-essential",
+  "example": {},
+  "attributes": {
+    "useThemeColors": {
+      "type": "boolean",
+      "default": false
+    },
+    "shapePreset": {
+      "type": "string",
+      "default": "blob-1"
+    },
+    "point1": {
+      "type": "number",
+      "default": 30
+    },
+    "point2": {
+      "type": "number",
+      "default": 70
+    },
+    "point3": {
+      "type": "number",
+      "default": 70
+    },
+    "point4": {
+      "type": "number",
+      "default": 30
+    },
+    "point5": {
+      "type": "number",
+      "default": 30
+    },
+    "point6": {
+      "type": "number",
+      "default": 30
+    },
+    "point7": {
+      "type": "number",
+      "default": 70
+    },
+    "point8": {
+      "type": "number",
+      "default": 70
+    },
+    "rotation": {
+      "type": "number",
+      "default": 0
+    },
+    "width": {
+      "type": "number",
+      "default": 200
+    },
+    "height": {
+      "type": "number",
+      "default": 200
+    },
+    "backgroundColor": {
+      "type": "string",
+      "default": "#3182ce"
+    },
+    "gradientFrom": {
+      "type": "string",
+      "default": ""
+    },
+    "gradientTo": {
+      "type": "string",
+      "default": ""
+    },
+    "gradientAngle": {
+      "type": "number",
+      "default": 135
+    },
+    "icon": {
+      "type": "string",
+      "default": ""
+    },
+    "iconColor": {
+      "type": "string",
+      "default": "#ffffff"
+    },
+    "iconSize": {
+      "type": "number",
+      "default": 48
+    },
+    "iconRotation": {
+      "type": "number",
+      "default": 0
+    },
+    "svgWidth": {
+      "type": "number",
+      "default": 0
+    },
+    "svgHeight": {
+      "type": "number",
+      "default": 0
+    },
+    "iconBackgroundColor": {
+      "type": "string",
+      "default": ""
+    },
+    "iconBackgroundSize": {
+      "type": "number",
+      "default": 80
+    },
+    "iconBackgroundRadius": {
+      "type": "number",
+      "default": 50
+    },
+    "linkUrl": {
+      "type": "string",
+      "default": ""
+    },
+    "linkNewTab": {
+      "type": "boolean",
+      "default": false
+    },
+    "alignment": {
+      "type": "string",
+      "default": "center"
+    },
+    "hoverAnimation": {
+      "type": "string",
+      "default": ""
+    },
+    "borderWidth": {
+      "type": "number",
+      "default": 0
+    },
+    "borderStyle": {
+      "type": "string",
+      "default": "solid"
+    },
+    "borderColor": {
+      "type": "string",
+      "default": ""
+    },
+    "boxShadowEnabled": {
+      "type": "boolean",
+      "default": false
+    },
+    "boxShadowHorizontal": {
+      "type": "number",
+      "default": 0
+    },
+    "boxShadowVertical": {
+      "type": "number",
+      "default": 10
+    },
+    "boxShadowBlur": {
+      "type": "number",
+      "default": 20
+    },
+    "boxShadowSpread": {
+      "type": "number",
+      "default": 0
+    },
+    "boxShadowColor": {
+      "type": "string",
+      "default": "rgba(0,0,0,0.15)"
+    }
+  },
+  "supports": {
+    "html": false,
+    "align": [
+      "wide",
+      "full"
+    ],
+    "spacing": {
+      "margin": true,
+      "padding": true
+    }
+  },
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css",
+  "render": "file:./render.php"
+}

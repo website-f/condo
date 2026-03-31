@@ -1,0 +1,120 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "wbcom-essential/groups-grid",
+  "version": "1.0.0",
+  "title": "Groups Grid",
+  "category": "starter-buddypress",
+  "icon": "grid-view",
+  "description": "Display BuddyPress groups in a responsive grid layout.",
+  "keywords": [
+    "groups",
+    "buddypress",
+    "grid",
+    "community",
+    "social"
+  ],
+  "textdomain": "wbcom-essential",
+  "example": {},
+  "attributes": {
+    "useThemeColors": {
+      "type": "boolean",
+      "default": false
+    },
+    "sortType": {
+      "type": "string",
+      "default": "active"
+    },
+    "totalGroups": {
+      "type": "number",
+      "default": 12
+    },
+    "columns": {
+      "type": "number",
+      "default": 3
+    },
+    "columnsTablet": {
+      "type": "number",
+      "default": 2
+    },
+    "columnsMobile": {
+      "type": "number",
+      "default": 1
+    },
+    "gap": {
+      "type": "number",
+      "default": 30
+    },
+    "showAvatar": {
+      "type": "boolean",
+      "default": true
+    },
+    "showName": {
+      "type": "boolean",
+      "default": true
+    },
+    "showDescription": {
+      "type": "boolean",
+      "default": false
+    },
+    "showMeta": {
+      "type": "boolean",
+      "default": true
+    },
+    "showMemberCount": {
+      "type": "boolean",
+      "default": true
+    },
+    "showJoinButton": {
+      "type": "boolean",
+      "default": true
+    },
+    "cardBgColor": {
+      "type": "string",
+      "default": "#ffffff"
+    },
+    "cardBorderRadius": {
+      "type": "number",
+      "default": 8
+    },
+    "cardShadow": {
+      "type": "boolean",
+      "default": true
+    },
+    "cardPadding": {
+      "type": "number",
+      "default": 20
+    },
+    "nameColor": {
+      "type": "string",
+      "default": "#122B46"
+    },
+    "metaColor": {
+      "type": "string",
+      "default": "#A3A5A9"
+    },
+    "buttonBgColor": {
+      "type": "string",
+      "default": "#1d76da"
+    },
+    "buttonTextColor": {
+      "type": "string",
+      "default": "#ffffff"
+    }
+  },
+  "supports": {
+    "html": false,
+    "align": [
+      "wide",
+      "full"
+    ],
+    "spacing": {
+      "margin": true,
+      "padding": true
+    }
+  },
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css",
+  "render": "file:./render.php"
+}

@@ -1,0 +1,125 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "wbcom-essential/posts-ticker",
+  "version": "1.0.0",
+  "title": "Posts Ticker",
+  "category": "starter-blog",
+  "icon": "slides",
+  "description": "Display posts in a scrolling news ticker format.",
+  "keywords": [
+    "posts",
+    "ticker",
+    "news",
+    "scroll",
+    "marquee",
+    "headlines"
+  ],
+  "supports": {
+    "html": false,
+    "align": [
+      "wide",
+      "full"
+    ],
+    "spacing": {
+      "margin": true,
+      "padding": true
+    }
+  },
+  "attributes": {
+    "useThemeColors": {
+      "type": "boolean",
+      "default": false
+    },
+    "tickerType": {
+      "type": "string",
+      "default": "horizontal"
+    },
+    "tickerLabel": {
+      "type": "string",
+      "default": "Latest News"
+    },
+    "showLabel": {
+      "type": "boolean",
+      "default": true
+    },
+    "speed": {
+      "type": "number",
+      "default": 50
+    },
+    "pauseOnHover": {
+      "type": "boolean",
+      "default": true
+    },
+    "showControls": {
+      "type": "boolean",
+      "default": true
+    },
+    "showThumbnail": {
+      "type": "boolean",
+      "default": false
+    },
+    "showDate": {
+      "type": "boolean",
+      "default": false
+    },
+    "dateFormat": {
+      "type": "string",
+      "default": "M j, Y"
+    },
+    "postType": {
+      "type": "string",
+      "default": "post"
+    },
+    "categories": {
+      "type": "array",
+      "default": []
+    },
+    "postsPerPage": {
+      "type": "number",
+      "default": 10
+    },
+    "orderBy": {
+      "type": "string",
+      "default": "date"
+    },
+    "order": {
+      "type": "string",
+      "default": "DESC"
+    },
+    "labelBgColor": {
+      "type": "string",
+      "default": "#1d76da"
+    },
+    "labelTextColor": {
+      "type": "string",
+      "default": "#ffffff"
+    },
+    "tickerBgColor": {
+      "type": "string",
+      "default": "#f8f9fa"
+    },
+    "textColor": {
+      "type": "string",
+      "default": "#122B46"
+    },
+    "hoverColor": {
+      "type": "string",
+      "default": "#1d76da"
+    },
+    "borderColor": {
+      "type": "string",
+      "default": "#e3e3e3"
+    },
+    "height": {
+      "type": "number",
+      "default": 50
+    }
+  },
+  "textdomain": "wbcom-essential",
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css",
+  "render": "file:./render.php",
+  "viewScript": "file:./view.js"
+}

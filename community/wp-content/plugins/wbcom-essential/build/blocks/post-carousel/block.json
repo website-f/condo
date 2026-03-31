@@ -1,0 +1,711 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "wbcom-essential/post-carousel",
+  "version": "1.0.0",
+  "title": "Post Carousel",
+  "category": "starter-blog",
+  "description": "Display posts in a carousel with customizable layout and styling options",
+  "keywords": [
+    "posts",
+    "carousel",
+    "slider",
+    "blog",
+    "articles"
+  ],
+  "icon": "slides",
+  "textdomain": "wbcom-essential",
+  "attributes": {
+    "useThemeColors": {
+      "type": "boolean",
+      "default": false
+    },
+    "postType": {
+      "type": "string",
+      "default": "post"
+    },
+    "order": {
+      "type": "string",
+      "default": "DESC"
+    },
+    "orderby": {
+      "type": "string",
+      "default": "post_date"
+    },
+    "taxonomy": {
+      "type": "array",
+      "default": []
+    },
+    "tags": {
+      "type": "array",
+      "default": []
+    },
+    "authors": {
+      "type": "array",
+      "default": []
+    },
+    "maxPosts": {
+      "type": "number",
+      "default": 6
+    },
+    "includePosts": {
+      "type": "string",
+      "default": ""
+    },
+    "excludePosts": {
+      "type": "string",
+      "default": ""
+    },
+    "excerptLength": {
+      "type": "number",
+      "default": 140
+    },
+    "displayOnlyThumbnail": {
+      "type": "boolean",
+      "default": false
+    },
+    "displayThumbnail": {
+      "type": "boolean",
+      "default": true
+    },
+    "displayCategory": {
+      "type": "boolean",
+      "default": false
+    },
+    "displayDate": {
+      "type": "boolean",
+      "default": false
+    },
+    "displayAuthorName": {
+      "type": "boolean",
+      "default": false
+    },
+    "displayAuthorAvatar": {
+      "type": "boolean",
+      "default": false
+    },
+    "displayAuthorUrl": {
+      "type": "boolean",
+      "default": false
+    },
+    "addClasses": {
+      "type": "boolean",
+      "default": false
+    },
+    "columns": {
+      "type": "string",
+      "default": "three"
+    },
+    "imgSize": {
+      "type": "string",
+      "default": "large"
+    },
+    "displayNav": {
+      "type": "boolean",
+      "default": false
+    },
+    "displayDots": {
+      "type": "boolean",
+      "default": true
+    },
+    "infinite": {
+      "type": "boolean",
+      "default": false
+    },
+    "autoplay": {
+      "type": "boolean",
+      "default": false
+    },
+    "autoplayDuration": {
+      "type": "number",
+      "default": 5
+    },
+    "adaptiveHeight": {
+      "type": "boolean",
+      "default": false
+    },
+    "navArrowsDesktop": {
+      "type": "boolean",
+      "default": false
+    },
+    "navArrowsTablet": {
+      "type": "boolean",
+      "default": false
+    },
+    "navArrowsMobile": {
+      "type": "boolean",
+      "default": false
+    },
+    "navDotsDesktop": {
+      "type": "boolean",
+      "default": false
+    },
+    "navDotsTablet": {
+      "type": "boolean",
+      "default": false
+    },
+    "navDotsMobile": {
+      "type": "boolean",
+      "default": false
+    },
+    "catsDesktop": {
+      "type": "boolean",
+      "default": false
+    },
+    "catsTablet": {
+      "type": "boolean",
+      "default": false
+    },
+    "catsMobile": {
+      "type": "boolean",
+      "default": false
+    },
+    "excerptDesktop": {
+      "type": "boolean",
+      "default": false
+    },
+    "excerptTablet": {
+      "type": "boolean",
+      "default": false
+    },
+    "excerptMobile": {
+      "type": "boolean",
+      "default": false
+    },
+    "footerDesktop": {
+      "type": "boolean",
+      "default": false
+    },
+    "footerTablet": {
+      "type": "boolean",
+      "default": false
+    },
+    "footerMobile": {
+      "type": "boolean",
+      "default": false
+    },
+    "cardLayout": {
+      "type": "string",
+      "default": "vertical"
+    },
+    "cardImgWidth": {
+      "type": "object",
+      "default": {
+        "size": 40,
+        "unit": "%"
+      }
+    },
+    "cardAlign": {
+      "type": "string",
+      "default": "flex-start"
+    },
+    "cardValign": {
+      "type": "string",
+      "default": "center"
+    },
+    "cardTextAlign": {
+      "type": "string",
+      "default": "left"
+    },
+    "cardBgColor": {
+      "type": "string",
+      "default": ""
+    },
+    "cardHoverBgColor": {
+      "type": "string",
+      "default": ""
+    },
+    "cardBorder": {
+      "type": "object",
+      "default": {}
+    },
+    "cardRadius": {
+      "type": "object",
+      "default": {
+        "top": 0,
+        "right": 0,
+        "bottom": 0,
+        "left": 0,
+        "unit": "px"
+      }
+    },
+    "cardShadow": {
+      "type": "object",
+      "default": {}
+    },
+    "overflowHidden": {
+      "type": "boolean",
+      "default": false
+    },
+    "cardSpacing": {
+      "type": "object",
+      "default": {
+        "top": 0,
+        "right": 0,
+        "bottom": 0,
+        "left": 0,
+        "unit": "px"
+      }
+    },
+    "cardImgOverflow": {
+      "type": "boolean",
+      "default": false
+    },
+    "cardImgAnimation": {
+      "type": "string",
+      "default": ""
+    },
+    "cardImgHoverEffect": {
+      "type": "string",
+      "default": "zoom"
+    },
+    "thumbnailOpacity": {
+      "type": "number",
+      "default": 1
+    },
+    "thumbnailHoverOpacity": {
+      "type": "number",
+      "default": 1
+    },
+    "cardImgBgColor": {
+      "type": "string",
+      "default": ""
+    },
+    "cardImgBorder": {
+      "type": "object",
+      "default": {}
+    },
+    "cardImgRadius": {
+      "type": "object",
+      "default": {
+        "top": 0,
+        "right": 0,
+        "bottom": 0,
+        "left": 0,
+        "unit": "px"
+      }
+    },
+    "cardImgShadow": {
+      "type": "object",
+      "default": {}
+    },
+    "cardImgPadding": {
+      "type": "object",
+      "default": {
+        "top": 0,
+        "right": 0,
+        "bottom": 0,
+        "left": 0,
+        "unit": "px"
+      }
+    },
+    "cardImgMargin": {
+      "type": "object",
+      "default": {
+        "top": 0,
+        "right": 0,
+        "bottom": 0,
+        "left": 0,
+        "unit": "px"
+      }
+    },
+    "cardBodyBgColor": {
+      "type": "object",
+      "default": {}
+    },
+    "cardBodyInnerBgColor": {
+      "type": "string",
+      "default": ""
+    },
+    "cardBodyBgColorHover": {
+      "type": "object",
+      "default": {}
+    },
+    "cardBodyInnerBgColorHover": {
+      "type": "string",
+      "default": ""
+    },
+    "cardBodyBorder": {
+      "type": "object",
+      "default": {}
+    },
+    "cardBodyPadding": {
+      "type": "object",
+      "default": {
+        "top": 0,
+        "right": 0,
+        "bottom": 0,
+        "left": 0,
+        "unit": "px"
+      }
+    },
+    "cardBodyMargin": {
+      "type": "object",
+      "default": {
+        "top": 0,
+        "right": 0,
+        "bottom": 0,
+        "left": 0,
+        "unit": "px"
+      }
+    },
+    "cardFooterLayout": {
+      "type": "string",
+      "default": "card-footer-block"
+    },
+    "cardBodyFooterColor": {
+      "type": "string",
+      "default": ""
+    },
+    "cardFooterBgColor": {
+      "type": "string",
+      "default": ""
+    },
+    "cardFooterBorder": {
+      "type": "object",
+      "default": {}
+    },
+    "cardFooterPadding": {
+      "type": "object",
+      "default": {
+        "top": 0,
+        "right": 0,
+        "bottom": 0,
+        "left": 0,
+        "unit": "px"
+      }
+    },
+    "cardCategoryStyle": {
+      "type": "string",
+      "default": "list"
+    },
+    "cardCategoryPosition": {
+      "type": "string",
+      "default": "top"
+    },
+    "cardCategoryPadding": {
+      "type": "object",
+      "default": {
+        "top": 0,
+        "right": 0,
+        "bottom": 0,
+        "left": 0,
+        "unit": "px"
+      }
+    },
+    "cardCategoryMargin": {
+      "type": "object",
+      "default": {
+        "top": 0,
+        "right": 0,
+        "bottom": 0,
+        "left": 0,
+        "unit": "px"
+      }
+    },
+    "cardCategoryColor": {
+      "type": "string",
+      "default": ""
+    },
+    "cardCategoryHoverColor": {
+      "type": "string",
+      "default": ""
+    },
+    "cardCategoryTypography": {
+      "type": "object",
+      "default": {}
+    },
+    "cardBadgeColor": {
+      "type": "string",
+      "default": ""
+    },
+    "cardBadgeBgColor": {
+      "type": "string",
+      "default": ""
+    },
+    "cardBadgeHoverBgColor": {
+      "type": "string",
+      "default": ""
+    },
+    "cardBadgeBorder": {
+      "type": "object",
+      "default": {}
+    },
+    "cardBadgeRadius": {
+      "type": "object",
+      "default": {
+        "top": 0,
+        "right": 0,
+        "bottom": 0,
+        "left": 0,
+        "unit": "px"
+      }
+    },
+    "cardBadgePadding": {
+      "type": "object",
+      "default": {
+        "top": 0,
+        "right": 0,
+        "bottom": 0,
+        "left": 0,
+        "unit": "px"
+      }
+    },
+    "cardBadgeMargin": {
+      "type": "object",
+      "default": {
+        "top": 0,
+        "right": 0,
+        "bottom": 0,
+        "left": 0,
+        "unit": "px"
+      }
+    },
+    "cardTitleHtml": {
+      "type": "string",
+      "default": "h3"
+    },
+    "cardTitleEllipsis": {
+      "type": "boolean",
+      "default": false
+    },
+    "cardTitleColor": {
+      "type": "string",
+      "default": ""
+    },
+    "cardTitleHoverColor": {
+      "type": "string",
+      "default": ""
+    },
+    "cardTitleTypography": {
+      "type": "object",
+      "default": {}
+    },
+    "cardTitlePadding": {
+      "type": "object",
+      "default": {
+        "top": 0,
+        "right": 0,
+        "bottom": 0,
+        "left": 0,
+        "unit": "px"
+      }
+    },
+    "cardTitleMargin": {
+      "type": "object",
+      "default": {
+        "top": 0,
+        "right": 0,
+        "bottom": 0,
+        "left": 0,
+        "unit": "px"
+      }
+    },
+    "cardExcerptColor": {
+      "type": "string",
+      "default": ""
+    },
+    "cardExcerptTypography": {
+      "type": "object",
+      "default": {}
+    },
+    "cardExcerptPadding": {
+      "type": "object",
+      "default": {
+        "top": 0,
+        "right": 0,
+        "bottom": 0,
+        "left": 0,
+        "unit": "px"
+      }
+    },
+    "cardExcerptMargin": {
+      "type": "object",
+      "default": {
+        "top": 0,
+        "right": 0,
+        "bottom": 0,
+        "left": 0,
+        "unit": "px"
+      }
+    },
+    "avatarSize": {
+      "type": "number",
+      "default": 40
+    },
+    "avatarRadius": {
+      "type": "object",
+      "default": {
+        "top": 0,
+        "right": 0,
+        "bottom": 0,
+        "left": 0,
+        "unit": "px"
+      }
+    },
+    "avatarShadow": {
+      "type": "object",
+      "default": {}
+    },
+    "cardAuthorColor": {
+      "type": "string",
+      "default": ""
+    },
+    "cardAuthorHoverColor": {
+      "type": "string",
+      "default": ""
+    },
+    "cardAuthorTypography": {
+      "type": "object",
+      "default": {}
+    },
+    "cardAuthorPadding": {
+      "type": "object",
+      "default": {
+        "top": 0,
+        "right": 0,
+        "bottom": 0,
+        "left": 0,
+        "unit": "px"
+      }
+    },
+    "cardAuthorMargin": {
+      "type": "object",
+      "default": {
+        "top": 0,
+        "right": 0,
+        "bottom": 0,
+        "left": 0,
+        "unit": "px"
+      }
+    },
+    "cardAuthorIcon": {
+      "type": "object",
+      "default": {}
+    },
+    "cardAuthorIconPadding": {
+      "type": "object",
+      "default": {
+        "top": 0,
+        "right": 0,
+        "bottom": 0,
+        "left": 0,
+        "unit": "px"
+      }
+    },
+    "cardDateColor": {
+      "type": "string",
+      "default": ""
+    },
+    "cardDateHoverColor": {
+      "type": "string",
+      "default": ""
+    },
+    "cardDateTypography": {
+      "type": "object",
+      "default": {}
+    },
+    "cardDatePadding": {
+      "type": "object",
+      "default": {
+        "top": 0,
+        "right": 0,
+        "bottom": 0,
+        "left": 0,
+        "unit": "px"
+      }
+    },
+    "cardDateMargin": {
+      "type": "object",
+      "default": {
+        "top": 0,
+        "right": 0,
+        "bottom": 0,
+        "left": 0,
+        "unit": "px"
+      }
+    },
+    "cardDateIcon": {
+      "type": "object",
+      "default": {}
+    },
+    "cardDateIconSize": {
+      "type": "number",
+      "default": 16
+    },
+    "cardDateIconPadding": {
+      "type": "object",
+      "default": {
+        "top": 0,
+        "right": 0,
+        "bottom": 0,
+        "left": 0,
+        "unit": "px"
+      }
+    },
+    "navArrowNextIcon": {
+      "type": "object",
+      "default": {
+        "value": "fas fa-arrow-right",
+        "library": "solid"
+      }
+    },
+    "navArrowPrevIcon": {
+      "type": "object",
+      "default": {
+        "value": "fas fa-arrow-left",
+        "library": "solid"
+      }
+    },
+    "navArrowColor": {
+      "type": "string",
+      "default": "#ffffff"
+    },
+    "navArrowBgColor": {
+      "type": "string",
+      "default": "#333333"
+    },
+    "navArrowHoverColor": {
+      "type": "string",
+      "default": "#ffffff"
+    },
+    "navArrowBgHoverColor": {
+      "type": "string",
+      "default": "#007cba"
+    },
+    "navArrowSize": {
+      "type": "number",
+      "default": 30
+    },
+    "navArrowBoxSize": {
+      "type": "number",
+      "default": 50
+    },
+    "navDotsColor": {
+      "type": "string",
+      "default": "#000000"
+    }
+  },
+  "supports": {
+    "align": [
+      "left",
+      "center",
+      "right",
+      "wide",
+      "full"
+    ],
+    "color": {
+      "text": true,
+      "background": true
+    },
+    "spacing": {
+      "margin": true,
+      "padding": true
+    }
+  },
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css",
+  "viewScript": "file:./view.js",
+  "render": "file:./render.php"
+}

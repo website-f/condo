@@ -1,0 +1,134 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "wbcom-essential/post-timeline",
+  "version": "1.0.0",
+  "title": "Post Timeline",
+  "category": "starter-blog",
+  "icon": "backup",
+  "description": "Display WordPress posts in a vertical timeline layout.",
+  "keywords": [
+    "post",
+    "timeline",
+    "history",
+    "blog",
+    "articles",
+    "chronological"
+  ],
+  "textdomain": "wbcom-essential",
+  "example": {},
+  "attributes": {
+    "useThemeColors": {
+      "type": "boolean",
+      "default": false
+    },
+    "postType": {
+      "type": "string",
+      "default": "post"
+    },
+    "categories": {
+      "type": "array",
+      "default": []
+    },
+    "numberOfPosts": {
+      "type": "number",
+      "default": 6
+    },
+    "orderBy": {
+      "type": "string",
+      "default": "date"
+    },
+    "order": {
+      "type": "string",
+      "default": "DESC"
+    },
+    "showThumbnail": {
+      "type": "boolean",
+      "default": true
+    },
+    "showExcerpt": {
+      "type": "boolean",
+      "default": true
+    },
+    "excerptLength": {
+      "type": "number",
+      "default": 140
+    },
+    "showButton": {
+      "type": "boolean",
+      "default": true
+    },
+    "buttonText": {
+      "type": "string",
+      "default": "Read More"
+    },
+    "layout": {
+      "type": "string",
+      "default": "two-column"
+    },
+    "dateFormat": {
+      "type": "string",
+      "default": "M j, Y"
+    },
+    "barColor": {
+      "type": "string",
+      "default": "#e2e8f0"
+    },
+    "barWidth": {
+      "type": "number",
+      "default": 4
+    },
+    "dotColor": {
+      "type": "string",
+      "default": "#3182ce"
+    },
+    "dotSize": {
+      "type": "number",
+      "default": 16
+    },
+    "cardBackground": {
+      "type": "string",
+      "default": "#ffffff"
+    },
+    "cardBorderRadius": {
+      "type": "number",
+      "default": 8
+    },
+    "titleColor": {
+      "type": "string",
+      "default": "#1a202c"
+    },
+    "excerptColor": {
+      "type": "string",
+      "default": "#4a5568"
+    },
+    "dateColor": {
+      "type": "string",
+      "default": "#718096"
+    },
+    "buttonBgColor": {
+      "type": "string",
+      "default": "#3182ce"
+    },
+    "buttonTextColor": {
+      "type": "string",
+      "default": "#ffffff"
+    }
+  },
+  "supports": {
+    "html": false,
+    "align": [
+      "wide",
+      "full"
+    ],
+    "spacing": {
+      "margin": true,
+      "padding": true
+    }
+  },
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css",
+  "viewScript": "file:./view.js",
+  "render": "file:./render.php"
+}

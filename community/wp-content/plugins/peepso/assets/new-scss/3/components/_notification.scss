@@ -1,0 +1,101 @@
+.pso-notification {
+    padding-inline: var(--G3);
+    color:  var(--c-contrast-light);
+
+    a {
+        color: var(--c-contrast-light);
+
+        &:hover,
+        &:focus {
+            color: var(--c-contrast-light);
+        }
+    }
+}
+
+.pso-notification__wrap {
+    &:last-child {
+        .pso-notification__inner {
+            box-shadow: none;
+        }
+    }
+}
+
+.pso-notification--unread {
+    background-color: var(--c-ps-notification-unread-bg);
+}
+
+.pso-notification__inner {
+    display: flex;
+    align-items: center;
+    gap: var(--G2);
+    padding-block: var(--G2);
+    box-shadow: inset 0 -1px 0 var(--DV);
+    cursor: pointer;
+}
+
+.pso-notification__avatar {}
+
+.pso-notification__body {
+    flex-grow: 1;
+
+    .pso-notification & {
+        color:  var(--c-contrast-light);
+        
+        a {
+            color: var(--c-contrast-light);
+
+            &:hover,
+            &:focus {
+                color: var(--c-contrast-light);
+            }
+        }
+    }
+}
+
+.pso-notification__actions {
+    display: flex;
+    align-items: center;
+    gap: var(--G1);
+
+    .pso-i-check {
+        font-size: var(--F-XS);
+    }
+}
+
+.pso-notification__desc {
+    font-size: var(--F-S);
+}
+
+.pso-notification__quote {
+    font-size: calc(var(--F-S) - 1px);
+}
+
+.pso-notification__user {
+    font-weight: 600;
+}
+
+.pso-notification__meta {
+    display: flex;
+    font-size: var(--F-XS);
+    color: var(--c-contrast-slight);
+}
+
+.pso-notification__status {
+    margin-inline-start: auto;
+    color: var(--c-primary);
+    
+    .pso-i-circle {
+        opacity: 0;
+        transition: var(--TRANS-O);
+    }
+
+    .pso-notification:hover & {
+        .pso-i-circle {
+            opacity: 1;
+
+            &:before {
+                content: "\E80C";
+            }
+        }
+    }
+}

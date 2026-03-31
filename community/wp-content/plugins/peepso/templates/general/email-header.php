@@ -1,0 +1,3 @@
+<h1 style="margin: 0; color: #2f2f2f; direction: ltr; font-family: 'Montserrat', 'Trebuchet MS', 'Lucida Grande', 'Lucida Sans Unicode', 'Lucida Sans', Tahoma, sans-serif; font-size: 32px; font-weight: 500; letter-spacing: normal; line-height: 1.2; text-align: center; margin-top: 0; margin-bottom: 0; mso-line-height-alt: 38px;">
+    <span class="tinyMce-placeholder" style="word-break: break-word;">{sitename}</span>
+</h1>

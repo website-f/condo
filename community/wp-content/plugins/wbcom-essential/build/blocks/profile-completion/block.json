@@ -1,0 +1,203 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "wbcom-essential/profile-completion",
+  "version": "1.0.0",
+  "title": "Profile Completion",
+  "category": "starter-buddypress",
+  "icon": "chart-line",
+  "description": "Display BuddyPress member profile completion progress with customizable styles.",
+  "keywords": [
+    "buddypress",
+    "profile",
+    "completion",
+    "progress",
+    "percentage"
+  ],
+  "textdomain": "wbcom-essential",
+  "example": {},
+  "attributes": {
+    "useThemeColors": {
+      "type": "boolean",
+      "default": false
+    },
+    "skinStyle": {
+      "type": "string",
+      "default": "circle"
+    },
+    "alignment": {
+      "type": "string",
+      "default": "right"
+    },
+    "profilePhoto": {
+      "type": "boolean",
+      "default": true
+    },
+    "coverPhoto": {
+      "type": "boolean",
+      "default": true
+    },
+    "profileGroups": {
+      "type": "object",
+      "default": {}
+    },
+    "profileGroupsInitialized": {
+      "type": "boolean",
+      "default": false
+    },
+    "hideWidget": {
+      "type": "boolean",
+      "default": false
+    },
+    "showProfileBtn": {
+      "type": "boolean",
+      "default": true
+    },
+    "headingText": {
+      "type": "string",
+      "default": "Complete your profile"
+    },
+    "completionText": {
+      "type": "string",
+      "default": "Complete"
+    },
+    "completionButtonText": {
+      "type": "string",
+      "default": "Complete Profile"
+    },
+    "editButtonText": {
+      "type": "string",
+      "default": "Edit Profile"
+    },
+    "showHeading": {
+      "type": "boolean",
+      "default": true
+    },
+    "showCompletionIcon": {
+      "type": "boolean",
+      "default": true
+    },
+    "showCompletionStatus": {
+      "type": "boolean",
+      "default": true
+    },
+    "boxWidth": {
+      "type": "number",
+      "default": 100
+    },
+    "boxBgColor": {
+      "type": "string",
+      "default": "#fff"
+    },
+    "boxBorderStyle": {
+      "type": "string",
+      "default": "solid"
+    },
+    "boxBorderWidth": {
+      "type": "number",
+      "default": 1
+    },
+    "borderColor": {
+      "type": "string",
+      "default": "#E7E9EC"
+    },
+    "boxBorderRadius": {
+      "type": "number",
+      "default": 10
+    },
+    "progressSpacing": {
+      "type": "object",
+      "default": {
+        "top": "0",
+        "right": "10",
+        "bottom": "0",
+        "left": "10"
+      }
+    },
+    "progressBorderWidth": {
+      "type": "number",
+      "default": 6
+    },
+    "headingColor": {
+      "type": "string"
+    },
+    "completionColor": {
+      "type": "string",
+      "default": "#1CD991"
+    },
+    "incompleteColor": {
+      "type": "string",
+      "default": "#EF3E46"
+    },
+    "ringBorderColor": {
+      "type": "string",
+      "default": "#DEDFE2"
+    },
+    "ringNumColor": {
+      "type": "string"
+    },
+    "ringTextColor": {
+      "type": "string"
+    },
+    "detailsColor": {
+      "type": "string",
+      "default": "#fff"
+    },
+    "buttonColor": {
+      "type": "string"
+    },
+    "buttonBgColor": {
+      "type": "string"
+    },
+    "buttonBorderColor": {
+      "type": "string"
+    },
+    "buttonColorHover": {
+      "type": "string"
+    },
+    "buttonBgColorHover": {
+      "type": "string"
+    },
+    "buttonBorderColorHover": {
+      "type": "string"
+    },
+    "buttonPadding": {
+      "type": "object",
+      "default": {
+        "top": "2",
+        "right": "15",
+        "bottom": "2",
+        "left": "15"
+      }
+    },
+    "buttonBorderWidth": {
+      "type": "number",
+      "default": 1
+    },
+    "buttonBorderRadius": {
+      "type": "number",
+      "default": 100
+    },
+    "buttonSpacing": {
+      "type": "number",
+      "default": 10
+    }
+  },
+  "supports": {
+    "html": false,
+    "align": true,
+    "color": {
+      "background": true,
+      "text": true
+    },
+    "spacing": {
+      "padding": true,
+      "margin": true
+    }
+  },
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css",
+  "viewScript": "file:./view.js",
+  "render": "file:./render.php"
+}

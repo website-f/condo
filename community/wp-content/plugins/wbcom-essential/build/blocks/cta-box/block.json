@@ -1,0 +1,151 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "wbcom-essential/cta-box",
+  "version": "1.0.0",
+  "title": "CTA Box",
+  "category": "starter-marketing",
+  "icon": "megaphone",
+  "description": "Call-to-action box with title, description, and button.",
+  "keywords": [
+    "cta",
+    "call-to-action",
+    "button",
+    "banner",
+    "promo"
+  ],
+  "textdomain": "wbcom-essential",
+  "example": {
+    "attributes": {
+      "title": "Ready to Get Started?",
+      "description": "Join thousands of satisfied customers today.",
+      "buttonText": "Sign Up Now"
+    }
+  },
+  "attributes": {
+    "useThemeColors": {
+      "type": "boolean",
+      "default": false
+    },
+    "title": {
+      "type": "string",
+      "default": "Ready to Get Started?"
+    },
+    "titleTag": {
+      "type": "string",
+      "default": "h2"
+    },
+    "description": {
+      "type": "string",
+      "default": ""
+    },
+    "buttonText": {
+      "type": "string",
+      "default": "Get Started"
+    },
+    "buttonUrl": {
+      "type": "string",
+      "default": ""
+    },
+    "buttonTarget": {
+      "type": "boolean",
+      "default": false
+    },
+    "showSecondButton": {
+      "type": "boolean",
+      "default": false
+    },
+    "secondButtonText": {
+      "type": "string",
+      "default": "Learn More"
+    },
+    "secondButtonUrl": {
+      "type": "string",
+      "default": ""
+    },
+    "secondButtonTarget": {
+      "type": "boolean",
+      "default": false
+    },
+    "layout": {
+      "type": "string",
+      "default": "centered"
+    },
+    "titleColor": {
+      "type": "string",
+      "default": ""
+    },
+    "descriptionColor": {
+      "type": "string",
+      "default": ""
+    },
+    "buttonBgColor": {
+      "type": "string",
+      "default": ""
+    },
+    "buttonTextColor": {
+      "type": "string",
+      "default": ""
+    },
+    "buttonHoverBgColor": {
+      "type": "string",
+      "default": ""
+    },
+    "buttonHoverTextColor": {
+      "type": "string",
+      "default": ""
+    },
+    "secondButtonBgColor": {
+      "type": "string",
+      "default": ""
+    },
+    "secondButtonTextColor": {
+      "type": "string",
+      "default": ""
+    },
+    "buttonBorderRadius": {
+      "type": "number",
+      "default": 4
+    },
+    "buttonPadding": {
+      "type": "object",
+      "default": {
+        "top": 12,
+        "right": 24,
+        "bottom": 12,
+        "left": 24
+      }
+    },
+    "titleSize": {
+      "type": "number",
+      "default": 32
+    },
+    "descriptionSize": {
+      "type": "number",
+      "default": 16
+    },
+    "contentSpacing": {
+      "type": "number",
+      "default": 24
+    }
+  },
+  "supports": {
+    "html": false,
+    "align": [
+      "wide",
+      "full"
+    ],
+    "spacing": {
+      "margin": true,
+      "padding": true
+    },
+    "color": {
+      "background": true,
+      "gradients": true
+    }
+  },
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css",
+  "render": "file:./render.php"
+}

@@ -1,0 +1,151 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "wbcom-essential/counter",
+  "version": "1.0.0",
+  "title": "Counter",
+  "category": "starter-design",
+  "icon": "performance",
+  "description": "Display animated statistics and counters with customizable styling.",
+  "keywords": [
+    "counter",
+    "stats",
+    "number",
+    "statistics",
+    "count"
+  ],
+  "textdomain": "wbcom-essential",
+  "example": {
+    "attributes": {
+      "startNumber": 0,
+      "endNumber": 500,
+      "prefix": "",
+      "suffix": "+",
+      "title": "Happy Clients"
+    }
+  },
+  "attributes": {
+    "useThemeColors": {
+      "type": "boolean",
+      "default": false
+    },
+    "startNumber": {
+      "type": "number",
+      "default": 0
+    },
+    "endNumber": {
+      "type": "number",
+      "default": 100
+    },
+    "prefix": {
+      "type": "string",
+      "default": ""
+    },
+    "suffix": {
+      "type": "string",
+      "default": ""
+    },
+    "title": {
+      "type": "string",
+      "default": ""
+    },
+    "duration": {
+      "type": "number",
+      "default": 2000
+    },
+    "useGrouping": {
+      "type": "boolean",
+      "default": true
+    },
+    "layout": {
+      "type": "string",
+      "default": "vertical"
+    },
+    "alignment": {
+      "type": "string",
+      "default": "center"
+    },
+    "numberColor": {
+      "type": "string",
+      "default": ""
+    },
+    "titleColor": {
+      "type": "string",
+      "default": ""
+    },
+    "prefixSuffixColor": {
+      "type": "string",
+      "default": ""
+    },
+    "numberSize": {
+      "type": "number",
+      "default": 48
+    },
+    "titleSize": {
+      "type": "number",
+      "default": 16
+    },
+    "prefixSuffixSize": {
+      "type": "number",
+      "default": 24
+    },
+    "numberWeight": {
+      "type": "string",
+      "default": "700"
+    },
+    "titleSpacing": {
+      "type": "number",
+      "default": 12
+    },
+    "icon": {
+      "type": "string",
+      "default": ""
+    },
+    "iconType": {
+      "type": "string",
+      "default": "dashicon"
+    },
+    "customIconUrl": {
+      "type": "string",
+      "default": ""
+    },
+    "iconSize": {
+      "type": "number",
+      "default": 40
+    },
+    "iconColor": {
+      "type": "string",
+      "default": ""
+    },
+    "iconSpacing": {
+      "type": "number",
+      "default": 16
+    },
+    "showIcon": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "supports": {
+    "html": false,
+    "align": [
+      "left",
+      "center",
+      "right",
+      "wide"
+    ],
+    "spacing": {
+      "margin": true,
+      "padding": true
+    },
+    "color": {
+      "background": true,
+      "gradients": true
+    }
+  },
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css",
+  "viewScript": "file:./view.js",
+  "render": "file:./render.php"
+}

@@ -1,0 +1,138 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "wbcom-essential/countdown",
+  "version": "1.0.0",
+  "title": "Countdown",
+  "category": "starter-marketing",
+  "icon": "clock",
+  "description": "Display a countdown timer to a specific date and time",
+  "keywords": [
+    "countdown",
+    "timer",
+    "date",
+    "clock",
+    "event"
+  ],
+  "textdomain": "wbcom-essential",
+  "example": {
+    "attributes": {
+      "dueDate": "2025-12-31 23:59"
+    }
+  },
+  "attributes": {
+    "useThemeColors": {
+      "type": "boolean",
+      "default": false
+    },
+    "dueDate": {
+      "type": "string",
+      "default": ""
+    },
+    "showDays": {
+      "type": "boolean",
+      "default": true
+    },
+    "showHours": {
+      "type": "boolean",
+      "default": true
+    },
+    "showMinutes": {
+      "type": "boolean",
+      "default": true
+    },
+    "showSeconds": {
+      "type": "boolean",
+      "default": true
+    },
+    "daysLabel": {
+      "type": "string",
+      "default": "Days"
+    },
+    "hoursLabel": {
+      "type": "string",
+      "default": "Hours"
+    },
+    "minutesLabel": {
+      "type": "string",
+      "default": "Minutes"
+    },
+    "secondsLabel": {
+      "type": "string",
+      "default": "Seconds"
+    },
+    "expiryMessage": {
+      "type": "string",
+      "default": ""
+    },
+    "contentLayout": {
+      "type": "string",
+      "default": "v-layout"
+    },
+    "boxAlign": {
+      "type": "string",
+      "default": "center"
+    },
+    "boxBackground": {
+      "type": "string",
+      "default": ""
+    },
+    "boxBorderRadius": {
+      "type": "number",
+      "default": 0
+    },
+    "boxPadding": {
+      "type": "object",
+      "default": {
+        "top": "20px",
+        "right": "20px",
+        "bottom": "20px",
+        "left": "20px"
+      }
+    },
+    "boxGap": {
+      "type": "number",
+      "default": 10
+    },
+    "digitColor": {
+      "type": "string",
+      "default": ""
+    },
+    "digitFontSize": {
+      "type": "number",
+      "default": 60
+    },
+    "labelColor": {
+      "type": "string",
+      "default": ""
+    },
+    "labelFontSize": {
+      "type": "number",
+      "default": 16
+    },
+    "messageColor": {
+      "type": "string",
+      "default": ""
+    },
+    "messageFontSize": {
+      "type": "number",
+      "default": 24
+    }
+  },
+  "supports": {
+    "html": false,
+    "align": [
+      "wide",
+      "full"
+    ],
+    "spacing": {
+      "margin": true,
+      "padding": true
+    }
+  },
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css",
+  "viewScript": "file:./view.js",
+  "render": "file:./render.php"
+}

@@ -1,0 +1,107 @@
+// .ps-droppdown added for backward compatibility
+.ps-dropdown,
+.pso-dropdown {
+    --item-color: var(--PS-COLOR--TEXT);
+    --item-color-h: var(--PS-COLOR--TEXT);
+
+    position: relative;
+    color: var(--PS-COLOR--TEXT--LIGHT);
+}
+
+.pso-dropdown__toggle {
+    // TEMP
+    // &:hover {
+    //     + .pso-dropdown__menu {
+    //         display: block;
+    //     }
+    // }
+}
+
+.pso-dropdown__menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    z-index: 100;
+    display: none;
+    width: 200px;
+    padding: var(--G1);
+    background-color: var(--c-base);
+    border-radius: var(--R);
+    box-shadow: var(--SH);
+
+    // &:hover {
+    //     display: block;
+    // }
+}
+
+.pso-dropdown__label {
+    padding-top: var(--G2);
+    padding-bottom: var(--G1) ;
+    padding-inline: var(--G3);
+    font-size: var(--F-XS);
+    font-weight: 500;
+    letter-spacing: .025em;
+    text-transform: uppercase;
+    color: var(--c-contrast-slight);
+
+    &:not(:first-child) {
+        margin-top: var(--G1);
+        padding-top: var(--G3);
+        border-top: 1px solid var(--c-base-200);
+    }
+}
+
+.pso-dropdown__item {
+    display: flex;
+    align-items: center;
+    gap: var(--G3);
+    width: 100%;
+    padding: calc(var(--G3) / 2) var(--G3);
+    font-size: var(--F-S);
+    color: var(--item-color) !important;
+    border-radius: var(--R-S);
+    transition: var(--TRANS);
+
+    > i {
+        font-size: var(--F);
+        color: var(--item-color) !important;
+        opacity: .65;
+        transition: var(--TRANS);
+    }
+
+    &:hover {
+        > i {
+            color: var(--item-color-h) !important;
+        }
+
+        color: var(--item-color-h) !important;
+        background-color: var(--c-base-200);
+    }
+}
+
+.pso-dropdown__user {
+    display: none;
+
+    @include mq($until: desktop) {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--G1);
+        width: 100%;
+        margin-bottom: var(--G1);
+        padding: calc(var(--G3) / 2) var(--G3);
+        font-size: var(--F-S);
+        font-weight: 500;
+        color: var(--c-contrast-light);
+        background-color: var(--c-base-100);
+        border-radius: var(--R-S);
+    }
+}
+
+.pso-dropdown-user__label {
+    @include mq($until: desktop) {
+        width: 100%;
+        color: var(--PS-COLOR--TEXT--LIGHT);
+        font-size: var(--F-XS);
+        font-weight: 400;
+    }
+}

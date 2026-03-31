@@ -1,0 +1,393 @@
+// === Button Component === //
+%btn-reset {
+    --g: var(--G1);
+    --w: auto;
+    --h: 40px;
+    --p: var(--G2) var(--G3);
+    --fs: var(--F-S);
+    --is: var(--F-M);
+    --lh: 1;
+    --c: var(--c-ps-btn-color);
+    --ic: var(--c-ps-btn-color);
+    --bg: var(--c-ps-btn-bg);
+    --hv-c: var(--c-ps-btn-color-hover);
+    --hv-ic: var(--c-ps-btn-color-hover);
+    --hv-bg: var(--c-ps-btn-bg-hover);
+    --ac-c: var(--c-ps-btn-color-hover);
+    --ac-ic: var(--c-ps-btn-color-hover);
+    --ac-bg: var(--c-ps-btn-bg-hover);
+    --ds-c: var(--c-ps-btn-color);
+    --ds-ic: var(--c-ps-btn-color);
+    --ds-bg: var(--c-ps-btn-bg);
+    --b: 1px solid transparent;
+    --r: var(--R-S);
+
+    // Component styles
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--g);
+    width: var(--w);
+    height: auto;
+    min-height: var(--h);
+    max-height: var(--h);
+    padding: var(--p);
+    font-size: var(--fs);
+    font-weight: 500;
+    line-height: var(--lh);
+    color: var(--c);
+    background-color: var(--bg);
+    border: var(--b) !important;
+    border-radius: var(--r);
+    box-shadow: none;
+    outline: none;
+    cursor: pointer;
+    white-space: nowrap;
+
+    .elementor-page & {
+        height: auto;
+        min-height: var(--h);
+        padding: var(--p);
+        font-size: var(--fs);
+        font-weight: 500;
+        line-height: var(--lh);
+        color: var(--c);
+        background-color: var(--bg);
+        border: var(--b);
+        border-radius: var(--r);
+        box-shadow: none;
+        outline: none;
+    }
+
+    @include mq($from: desktop) {
+        transition: var(--TRANS);
+    }
+
+    // Icon inside button
+    > i {
+        margin: 0;
+        padding: 0;
+        font-size: var(--is);
+        font-style: normal;
+        line-height: var(--lh);
+        color: var(--ic);
+
+        @include mq($from: desktop) {
+            transition: var(--TRANS);
+        }
+    }
+
+    // Hover state
+    &:hover,
+    &[data-dev="hover"] {
+        color: var(--hv-c);
+        background-color: var(--hv-bg);
+
+        > i {
+            color: var(--hv-ic);
+        }
+
+        .elementor-page & {
+            height: auto;
+            min-height: var(--h);
+            padding: var(--p);
+            font-size: var(--fs);
+            font-weight: 500;
+            line-height: var(--lh);
+            color: var(--hv-c);
+            background-color: var(--hv-bg);
+            border: var(--b);
+            border-radius: var(--r);
+            box-shadow: none;
+            outline: none;
+        }
+    }
+
+    &:focus {
+        color: var(--c);
+        background-color: var(--bg);
+
+        // Hover state
+        &:hover,
+        &[data-dev="hover"] {
+            color: var(--hv-c);
+            background-color: var(--hv-bg);
+
+            > i {
+                color: var(--hv-ic);
+            }
+        }
+
+        .elementor-page & {
+            height: auto;
+            min-height: var(--h);
+            padding: var(--p);
+            font-size: var(--fs);
+            font-weight: 500;
+            line-height: var(--lh);
+            color: var(--c);
+            background-color: var(--bg);
+            border: var(--b);
+            border-radius: var(--r);
+            box-shadow: none;
+            outline: none;
+
+            // Hover state
+            &:hover,
+            &[data-dev="hover"] {
+                color: var(--hv-c);
+                background-color: var(--hv-bg);
+
+                > i {
+                    color: var(--hv-ic);
+                }
+            }
+        }
+    }
+
+    // Focus state
+    &:focus-visible {
+        box-shadow: 0 0 0 3px rgba(0,0,0, .05), inset 0 0 0 2px rgba(0,0,0, .15) !important;
+    }
+
+    // Active state
+    &:active,
+    &.active,
+    &.pso-active {
+        color: var(--ac-c);
+        background-color: var(--ac-bg);
+
+        > i {
+            color: var(--ac-ic);
+        }
+
+        &:hover {
+            color: var(--ac-c);
+            background-color: var(--ac-bg);
+
+            > i {
+                color: var(--ac-ic);
+            }
+        }
+    }
+
+    // Disabled & read-only state
+    &:disabled {
+        color: var(--ds-c);
+        background-color: var(--ds-bg);
+        cursor: not-allowed;
+        opacity: .35;
+
+        > i {
+            color: var(--ds-ic);
+        }
+    }
+}
+
+.pso-btn {
+    @extend %btn-reset;
+}
+
+// Loading modifier
+.pso-btn--loading {
+    pointer-events: none;
+
+    &:before {
+        content: ' ';
+        position: absolute;
+        z-index: 1;
+        top: var(--G1);
+        left: var(--G1);
+        right: var(--G1);
+        bottom: var(--G1);
+        background-color: var(--bg);
+        opacity: .75;
+    }
+
+    &:after {
+        content: '\e817';
+        position: absolute;
+        z-index: 5;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: "peepsoui";
+        font-size: 150%;
+        font-style: normal;
+        text-align: center;
+        animation: spin 2s infinite linear;
+    }
+}
+
+// Button UI
+.pso-btn--ui {
+    --h: 30px;
+    --p: 0;
+    --is: var(--F-S);
+    --c: #fff;
+    --ic: #fff;
+    --bg: var(--c-base-950);
+    --hv-c: #fff;
+    --hv-ic: #fff;
+    --hv-bg: var(--c-base-950);
+    --ac-c: #fff;
+    --ac-ic: #fff;
+    --ac-bg: var(--c-base-900);
+    --ds-c: var(--c-base-700);
+    --ds-ic: var(--c-base-700);
+    --ds-bg: var(--c-base-900);
+
+    width: var(--h);
+    box-shadow: 0 0 0 2px transparent;
+
+    &:hover {
+        box-shadow: 0 0 0 2px rgba(255,255,255, .25);
+    }
+
+    // Focus state
+    &:focus-visible {
+        box-shadow: 0 0 0 2px rgba(255,255,255, .05), inset 0 0 0 2px rgba(255,255,255, .15);
+    }
+}
+
+// Neutral modifier
+.pso-btn--neutral {
+    --c: var(--c-ps-btn-color);
+    --ic: var(--c-ps-btn-color);
+    --bg: var(--c-ps-btn-bg);
+    --hv-c: var(--c-ps-btn-color-hover);
+    --hv-ic: var(--c-ps-btn-color-hover);
+    --hv-bg: var(--c-ps-btn-bg-hover);
+    --ac-c: var(--c-ps-btn-color-hover);
+    --ac-ic: var(--c-ps-btn-color-hover);
+    --ac-bg: var(--c-ps-btn-bg-hover);
+    --ds-c: var(--c-ps-btn-color);
+    --ds-ic: var(--c-ps-btn-color);
+    --ds-bg: var(--c-ps-btn-bg);
+}
+
+// Link modifier
+.pso-btn--link {
+    --c: var(--c-ps-btn-color);
+    --ic: var(--c-ps-btn-color);
+    --bg: transparent;
+    --hv-c: var(--c-ps-btn-color-hover);
+    --hv-ic: var(--c-ps-btn-color-hover);
+    --hv-bg: var(--c-ps-btn-bg-hover);
+    --ac-c: var(--c-ps-btn-color-hover);
+    --ac-ic: var(--c-ps-btn-color-hover);
+    --ac-bg: var(--c-ps-btn-bg-hover);
+    --ds-c: var(--c-ps-btn-color);
+    --ds-ic: var(--c-ps-btn-color);
+    --ds-bg: transparent;
+
+    &.pso-btn--loading {
+        color: var(--ds-c);
+
+        > i {
+            color: var(--ds-ic);
+        }
+
+        &:after {
+            color: var(--hv-c);
+        }
+    }
+}
+
+.pso-btn--bordered {
+    --c: var(--c-ps-btn-color);
+    --ic: var(--c-ps-btn-color);
+    --bg: transparent;
+    --hv-c: var(--c-ps-btn-color-hover);
+    --hv-ic: var(--c-ps-btn-color-hover);
+    --hv-bg: var(--c-ps-btn-bg-hover);
+    --ac-c: var(--c-ps-btn-color-hover);
+    --ac-ic: var(--c-ps-btn-color-hover);
+    --ac-bg: var(--c-ps-btn-bg-hover);
+    --ds-c: var(--c-ps-btn-color);
+    --ds-ic: var(--c-ps-btn-color);
+    --ds-bg: transparent;
+    --b: 1px solid color-mix(in srgb, currentColor 10%, transparent);
+
+    &.pso-btn--loading {
+        color: var(--ds-c);
+
+        > i {
+            color: var(--ds-ic);
+        }
+
+        &:after {
+            color: var(--hv-c);
+        }
+    }
+}
+
+// Primary modifier
+.pso-btn--primary {
+    --c: var(--c-ps-btn-action-color);
+    --ic: var(--c-ps-btn-action-color);
+    --bg: var(--c-ps-btn-action-bg);
+    --hv-c: var(--c-ps-btn-action-color);
+    --hv-ic: var(--c-ps-btn-action-color);
+    --hv-bg: var(--c-ps-btn-action-bg-hover);
+    --ac-c: var(--c-ps-btn-action-color);
+    --ac-ic: var(--c-ps-btn-action-color);
+    --ac-bg: var(--c-ps-btn-action-bg-hover);
+    --ds-c: var(--c-ps-btn-action-color);
+    --ds-ic: var(--c-ps-btn-action-color);
+    --ds-bg: var(--c-ps-btn-action-bg-hover);
+}
+
+.pso-btn--abort {
+    --c: var(--c-ps-btn-action-color);
+    --ic: var(--c-ps-btn-action-color);
+    --bg: var(--PS-COLOR--ABORT);
+    --hv-c: var(--c-ps-btn-action-color);
+    --hv-ic: var(--c-ps-btn-action-color);
+    --hv-bg: color-mix(in srgb, var(--PS-COLOR--ABORT) 90%, #000 10%);
+    --ac-c: var(--c-ps-btn-action-color);
+    --ac-ic: var(--c-ps-btn-action-color);
+    --ac-bg: color-mix(in srgb, var(--PS-COLOR--ABORT) 90%, #000 10%);
+    --ds-c: var(--c-ps-btn-action-color);
+    --ds-ic: var(--c-ps-btn-action-color);
+    --ds-bg: color-mix(in srgb, var(--PS-COLOR--ABORT) 90%, #000 10%);
+}
+
+// Primary light modifier
+.pso-btn--primary-l {
+    --c: var(--c-primary-dark);
+    --ic: var(--c-primary-dark);
+    --bg: var(--c-primary-ulight);
+    --hv-c: var(--c-primary-dark);
+    --hv-ic: var(--c-primary-dark);
+    --hv-bg: var(--c-primary-elight);
+    --ac-c: var(--c-primary-sdark);
+    --ac-ic: var(--c-primary-sdark);
+    --ac-bg: var(--c-primary-slight);
+    --ds-c: var(--c-primary-slight);
+    --ds-ic: var(--c-primary-slight);
+    --ds-bg: var(--c-primary-ulight);
+}
+
+// Small button modifier
+.pso-btn--sm {
+    --g: var(--G1);
+    --h: 30px;
+    --p: var(--G1) var(--G2);
+    --fs: var(--F-XS);
+    --is: var(--F-M);
+}
+
+// X-Small button modifier
+.pso-btn--xs {
+    --g: var(--G1);
+    --h: 22px;
+    --p: 0 var(--G1);
+    --fs: var(--F-XS);
+    --is: var(--F-XS);
+}

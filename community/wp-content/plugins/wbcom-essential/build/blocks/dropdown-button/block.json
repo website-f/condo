@@ -1,0 +1,203 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "wbcom-essential/dropdown-button",
+  "version": "1.0.0",
+  "title": "Dropdown Button",
+  "category": "starter-header",
+  "description": "A customizable dropdown button with menu items",
+  "keywords": [
+    "button",
+    "dropdown",
+    "menu",
+    "action"
+  ],
+  "icon": "button",
+  "textdomain": "wbcom-essential",
+  "example": {},
+  "attributes": {
+    "useThemeColors": {
+      "type": "boolean",
+      "default": false
+    },
+    "text": {
+      "type": "string",
+      "default": "Click Here"
+    },
+    "size": {
+      "type": "string",
+      "default": "medium"
+    },
+    "buttonIcon": {
+      "type": "object",
+      "default": {
+        "icon": "arrow-down-alt2"
+      }
+    },
+    "iconPosition": {
+      "type": "string",
+      "default": "after"
+    },
+    "buttonId": {
+      "type": "string",
+      "default": ""
+    },
+    "dropdownItems": {
+      "type": "array",
+      "default": [
+        {
+          "title": "Menu Item #1",
+          "url": "",
+          "icon": {},
+          "iconPosition": "before"
+        },
+        {
+          "title": "Menu Item #2",
+          "url": "",
+          "icon": {},
+          "iconPosition": "before"
+        }
+      ]
+    },
+    "buttonSkin": {
+      "type": "string",
+      "default": "none"
+    },
+    "animationStyle": {
+      "type": "string",
+      "default": "none"
+    },
+    "dropdownPosition": {
+      "type": "string",
+      "default": "bottom"
+    },
+    "buttonTextColor": {
+      "type": "string"
+    },
+    "buttonBgColor": {
+      "type": "string"
+    },
+    "enableGradient": {
+      "type": "boolean",
+      "default": false
+    },
+    "gradientType": {
+      "type": "string",
+      "default": "linear"
+    },
+    "gradientAngle": {
+      "type": "number",
+      "default": 180
+    },
+    "gradientColorStart": {
+      "type": "string",
+      "default": "#2271b1"
+    },
+    "gradientColorEnd": {
+      "type": "string",
+      "default": "#135e96"
+    },
+    "gradientStartPosition": {
+      "type": "number",
+      "default": 0
+    },
+    "gradientEndPosition": {
+      "type": "number",
+      "default": 100
+    },
+    "buttonHoverTextColor": {
+      "type": "string"
+    },
+    "buttonHoverBgColor": {
+      "type": "string"
+    },
+    "enableHoverGradient": {
+      "type": "boolean",
+      "default": false
+    },
+    "hoverGradientType": {
+      "type": "string",
+      "default": "linear"
+    },
+    "hoverGradientAngle": {
+      "type": "number",
+      "default": 180
+    },
+    "hoverGradientColorStart": {
+      "type": "string",
+      "default": "#135e96"
+    },
+    "hoverGradientColorEnd": {
+      "type": "string",
+      "default": "#0a3d5f"
+    },
+    "hoverGradientStartPosition": {
+      "type": "number",
+      "default": 0
+    },
+    "hoverGradientEndPosition": {
+      "type": "number",
+      "default": 100
+    },
+    "animationColor": {
+      "type": "string"
+    },
+    "borderStyle": {
+      "type": "string",
+      "default": "none"
+    },
+    "borderWidth": {
+      "type": "number",
+      "default": 1
+    },
+    "borderColor": {
+      "type": "string"
+    },
+    "borderStyleHover": {
+      "type": "string"
+    },
+    "borderWidthHover": {
+      "type": "number"
+    },
+    "borderColorHover": {
+      "type": "string"
+    },
+    "iconBgColor": {
+      "type": "string"
+    },
+    "dropdownTextColor": {
+      "type": "string"
+    },
+    "dropdownBgColor": {
+      "type": "string"
+    },
+    "dropdownHoverTextColor": {
+      "type": "string"
+    },
+    "dropdownHoverBgColor": {
+      "type": "string"
+    },
+    "dropdownShadow": {
+      "type": "string"
+    },
+    "separatorColor": {
+      "type": "string"
+    }
+  },
+  "supports": {
+    "html": false,
+    "align": true,
+    "typography": {
+      "fontSize": true,
+      "lineHeight": true
+    },
+    "spacing": {
+      "margin": true,
+      "padding": true
+    }
+  },
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css",
+  "viewScript": "file:./view.js"
+}

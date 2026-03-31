@@ -1,0 +1,60 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "wbcom-essential/edd-order-success",
+  "version": "1.0.0",
+  "title": "EDD Order Success",
+  "category": "starter-woocommerce",
+  "icon": "yes-alt",
+  "description": "Display a purchase confirmation page with a success header, order receipt, and next steps for customers.",
+  "keywords": [
+    "edd",
+    "order",
+    "success",
+    "purchase",
+    "receipt",
+    "download",
+    "confirmation"
+  ],
+  "textdomain": "wbcom-essential",
+  "example": {
+    "attributes": {
+      "showSuccessHeader": true,
+      "successMessage": "Thank you for your purchase!",
+      "showNextSteps": true
+    }
+  },
+  "attributes": {
+    "showSuccessHeader": {
+      "type": "boolean",
+      "default": true
+    },
+    "successMessage": {
+      "type": "string",
+      "default": "Thank you for your purchase!"
+    },
+    "showNextSteps": {
+      "type": "boolean",
+      "default": true
+    },
+    "accountPageUrl": {
+      "type": "string",
+      "default": ""
+    }
+  },
+  "supports": {
+    "html": false,
+    "align": [
+      "wide",
+      "full"
+    ],
+    "spacing": {
+      "margin": true,
+      "padding": true
+    }
+  },
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css",
+  "render": "file:./render.php"
+}

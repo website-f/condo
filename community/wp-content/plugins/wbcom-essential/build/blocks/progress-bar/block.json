@@ -1,0 +1,110 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "wbcom-essential/progress-bar",
+  "version": "1.0.0",
+  "title": "Progress Bar",
+  "category": "starter-marketing",
+  "icon": "chart-bar",
+  "description": "Display an animated progress bar with customizable styling.",
+  "keywords": [
+    "progress",
+    "bar",
+    "percentage",
+    "loading",
+    "chart",
+    "stats"
+  ],
+  "supports": {
+    "html": false,
+    "align": [
+      "wide",
+      "full"
+    ]
+  },
+  "attributes": {
+    "useThemeColors": {
+      "type": "boolean",
+      "default": false
+    },
+    "title": {
+      "type": "string",
+      "default": "Progress"
+    },
+    "percent": {
+      "type": "number",
+      "default": 75
+    },
+    "displayPercent": {
+      "type": "string",
+      "default": "in",
+      "enum": [
+        "in",
+        "out",
+        "hidden"
+      ]
+    },
+    "showStripes": {
+      "type": "boolean",
+      "default": false
+    },
+    "animateStripes": {
+      "type": "boolean",
+      "default": true
+    },
+    "animationDuration": {
+      "type": "number",
+      "default": 1500
+    },
+    "scrollAnimation": {
+      "type": "boolean",
+      "default": true
+    },
+    "barHeight": {
+      "type": "number",
+      "default": 20
+    },
+    "borderRadius": {
+      "type": "number",
+      "default": 10
+    },
+    "barColor": {
+      "type": "string",
+      "default": "#3182ce"
+    },
+    "barBackground": {
+      "type": "string",
+      "default": "#e2e8f0"
+    },
+    "titleColor": {
+      "type": "string",
+      "default": "#1a202c"
+    },
+    "percentColor": {
+      "type": "string",
+      "default": "#ffffff"
+    },
+    "percentOutColor": {
+      "type": "string",
+      "default": "#1a202c"
+    },
+    "innerBorderRadius": {
+      "type": "number",
+      "default": 10
+    },
+    "boxShadow": {
+      "type": "boolean",
+      "default": false
+    },
+    "backgroundHeight": {
+      "type": "number",
+      "default": 20
+    }
+  },
+  "textdomain": "wbcom-essential",
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css",
+  "viewScript": "file:./view.js",
+  "render": "file:./render.php"
+}

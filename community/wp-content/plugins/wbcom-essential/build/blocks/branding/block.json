@@ -1,0 +1,147 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "wbcom-essential/branding",
+  "version": "1.0.0",
+  "title": "Branding",
+  "category": "starter-header",
+  "description": "Display site branding with title or logo",
+  "keywords": [
+    "branding",
+    "logo",
+    "site title",
+    "identity"
+  ],
+  "icon": "admin-site",
+  "textdomain": "wbcom-essential",
+  "attributes": {
+    "useThemeColors": {
+      "type": "boolean",
+      "default": false
+    },
+    "brandingType": {
+      "type": "string",
+      "default": "title"
+    },
+    "alignment": {
+      "type": "string",
+      "default": ""
+    },
+    "titleColor": {
+      "type": "string",
+      "default": "#333333"
+    },
+    "titleHoverColor": {
+      "type": "string",
+      "default": "#333333"
+    },
+    "descriptionColor": {
+      "type": "string",
+      "default": "#333333"
+    },
+    "titlePadding": {
+      "type": "object",
+      "default": {
+        "top": "0",
+        "right": "0",
+        "bottom": "0",
+        "left": "0"
+      }
+    },
+    "descriptionPadding": {
+      "type": "object",
+      "default": {
+        "top": "0",
+        "right": "0",
+        "bottom": "0",
+        "left": "0"
+      }
+    },
+    "logoPadding": {
+      "type": "object",
+      "default": {
+        "top": "0",
+        "right": "0",
+        "bottom": "0",
+        "left": "0"
+      }
+    },
+    "logoWidth": {
+      "type": "string",
+      "default": "auto"
+    },
+    "logoHeight": {
+      "type": "string",
+      "default": "auto"
+    },
+    "titleTypography": {
+      "type": "object",
+      "default": {
+        "fontFamily": "",
+        "fontSize": "",
+        "fontWeight": "",
+        "lineHeight": "",
+        "letterSpacing": "",
+        "textTransform": "",
+        "textDecoration": ""
+      }
+    },
+    "descriptionTypography": {
+      "type": "object",
+      "default": {
+        "fontFamily": "",
+        "fontSize": "",
+        "fontWeight": "",
+        "lineHeight": "",
+        "letterSpacing": "",
+        "textTransform": "",
+        "textDecoration": ""
+      }
+    },
+    "titleLinkUrl": {
+      "type": "string",
+      "default": ""
+    },
+    "titleLinkTarget": {
+      "type": "string",
+      "default": "_self"
+    },
+    "border": {
+      "type": "object",
+      "default": {
+        "width": "0px",
+        "style": "none",
+        "color": "#000000"
+      }
+    },
+    "borderRadius": {
+      "type": "object",
+      "default": {
+        "top": "0px",
+        "right": "0px",
+        "bottom": "0px",
+        "left": "0px"
+      }
+    }
+  },
+  "supports": {
+    "align": [
+      "left",
+      "center",
+      "right"
+    ],
+    "color": {
+      "text": true,
+      "background": true
+    },
+    "spacing": {
+      "margin": true,
+      "padding": true
+    }
+  },
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css",
+  "viewScript": "file:./view.js",
+  "render": "file:./render.php"
+}

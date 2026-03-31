@@ -1,0 +1,25 @@
+/**
+ * Global Reset for Wbcom Essential Blocks
+ *
+ * Prevents theme styles from adding unwanted borders, outlines,
+ * and shadows to block wrappers. This is necessary because themes
+ * like BuddyX apply default styles to container elements.
+ *
+ * @package WBCOM_Essential
+ */
+
+/* Reset borders on all wbcom-essential block wrappers */
+[class*="wp-block-wbcom-essential-"] {
+	border: 0;
+	border-width: 0;
+	outline: none;
+	box-shadow: none;
+}
+
+/* Higher specificity for div wrappers */
+div[class*="wp-block-wbcom-essential-"] {
+	border: 0;
+	border-width: 0;
+	outline: none;
+	box-shadow: none;
+}

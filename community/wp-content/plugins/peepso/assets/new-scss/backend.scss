@@ -1,0 +1,204 @@
+// CSS Compatibility mode
+$comp_mode: false;
+
+// RTL SETTINGS
+$rtl: false;
+
+@import 'vars';
+@import 'helpers/mq';
+@import 'components/modal';
+@import 'admin/theme';
+
+@mixin avatar() {
+  --radius: var(--c-ps-avatar-style);
+  --small: 32px;
+  --medium: 48px;
+  --normal: 64px;
+  --large: 100px;
+  --xlarge: 160px;
+  --width: var(--small);
+  --box-shadow: 0 0 0 1px var(--DIVIDER);
+  --border: 2px solid transparent;
+}
+
+@import '3/vars';
+
+#wp-toolbar #wp-admin-bar-top-secondary {
+  box-sizing: border-box;
+
+  * {
+    box-sizing: border-box;
+  }
+
+  @import '3/components/button';
+  @import '3/components/dropdown';
+  @import '3/components/tip';
+  @import '3/components/badge';
+  @import '3/components/tabs';
+  @import '3/components/notification';
+  @import '3/collections/notifications';
+  @import '3/collections/notifs';
+  @import '3/components/modal';
+  @import '3/components/avatar';
+  @import '3/components/notif';
+  @import '3/components/notifbox';
+
+  .pso-badge--float {
+    top: 0;
+    right: 0;
+    height: 14px;
+  }
+
+
+  .pso-notifbox {
+    a {
+      height: inherit;
+      padding-inline: 0;
+    }
+
+    * {
+      line-height: 1.2;
+    }
+  }
+}
+
+.wp-admin {
+  #peepso_dashboard_most_recent {
+    .ps-vip__icon {
+      width: 12px;
+      height: 12px;
+    }
+  }
+
+  .ps-vip__icon {
+    --vip-icon-size: 16px;
+  
+    display: inline-block;
+    height: 100%;
+    min-width: var(--vip-icon-size);
+    max-height: var(--vip-icon-size);
+    transform: translateY(-2px);
+    vertical-align: middle;
+  }
+
+  .ps-hovercard {
+    width: 100px;
+    min-height: 100px;
+    background-color: #fff;
+    box-shadow: 0 20px 30px rgba(70, 77, 87, 0.1);
+    box-sizing: border-box;
+    padding: 10px 10px;
+  }
+}
+
+//
+// Modal pop-up
+//
+.ps-modal__disabler {
+  background: rgba(0,0,0,.6);
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+.ps-modal__wrapper {
+  --modal-width: 600px;
+  --modal-header-text-color: #fff;
+  --modal-header-bg: #333;
+}
+
+.ps-modal__actions {
+  .ps-btn,
+  .pa-btn {
+    white-space: nowrap;
+  }
+}
+
+.ps-modal__container {
+  position: relative;
+}
+
+.ps-modal__title {
+  padding-block: var(--PADD);
+  font-size: 125%;
+  font-weight: bold;
+}
+
+.ps-modal {
+  .pa-btn {
+    @include mq($until: desktop) {
+      --padd: var(--PADD);
+    }
+  }
+}
+
+// peepsoajax_debug
+.peepso_page_peepso-installer .peepsoajax_debug {
+  display: none;
+
+  > a:first-child {
+    display: inline-block;
+    margin-top: 17px;
+  }
+
+  > code {
+    white-space: break-spaces;
+  }
+ }
+
+// override list option
+.color-option {
+  width: 32%;
+}
+
+#adminmenu .toplevel_page_peepso {
+  > .wp-submenu > li:nth-child(7) > a {  
+    &:hover,
+    &:focus {   
+      box-shadow: none;
+    }
+  }
+
+  .wp-submenu_upgrade-peepso {
+    display: block;
+    background: linear-gradient(-45deg, #1c1c1c, #d24842, #d24842);
+    padding: 9px 12px;
+    color: #fff;
+    font-weight: bold;
+    margin-left: -5px;
+    margin-right: -5px;
+    border-radius: 5px;
+    border: 1px solid #fff;
+    text-align: center;
+    transition: all 0.3s ease-in;
+    animation: btn-animation 5s ease infinite;
+    background-size: 200% 200%;
+
+    &:hover,
+    &:focus {
+      border: 1px solid #1c1c1c;
+    }
+  }
+
+  @keyframes btn-animation {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
+  }
+}
+
+.ps-dialog__title {
+  box-sizing: border-box;
+}
+
+.peepso_developer_tools-wrap .welcome-panel {
+  background-color: transparent;
+}

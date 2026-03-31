@@ -1,0 +1,116 @@
+================================================================================
+SCHEDULE CLEANUP - 2026-02-06 20:23:33
+================================================================================
+
+[20:23:33] [INFO] Nightly cleanup cron job started
+[20:23:33] [INFO] Configuration:
+[20:23:33] [INFO]   - Keep Latest: 300 schedules
+[20:23:33] [INFO]   - Dry Run: No
+
+--------------------------------------------------------------------------------
+PRE-CLEANUP STATISTICS
+--------------------------------------------------------------------------------
+  Total Schedules                : 2239
+  Not Sent                       : 0
+  Sending                        : 4
+  Success                        : 1878
+  Error                          : 357
+  Draft                          : 0
+  Oldest Schedule ID             : 10980
+  Newest Schedule ID             : 13218
+
+--------------------------------------------------------------------------------
+COUNTING SCHEDULES
+--------------------------------------------------------------------------------
+[20:23:33] [INFO] Total Schedules: 2239
+[20:23:33] [INFO] To Delete: 1939
+
+--------------------------------------------------------------------------------
+FINDING THRESHOLD
+--------------------------------------------------------------------------------
+[20:23:33] [INFO] Threshold ID: 12918
+[20:23:33] [INFO] Will delete all schedules with ID < 12918
+
+--------------------------------------------------------------------------------
+RETRIEVING SCHEDULES TO DELETE
+--------------------------------------------------------------------------------
+[20:23:33] [INFO] Found 1934 schedules to delete (excluding 'sending' status)
+
+--------------------------------------------------------------------------------
+ANALYSIS
+--------------------------------------------------------------------------------
+[20:23:33] [INFO] By Status:
+[20:23:33] [INFO]   - success: 1629
+[20:23:33] [INFO]   - error: 305
+[20:23:33] [INFO] Affected WordPress Posts: 324
+[20:23:33] [INFO] Affected FSP Posts: 0
+[20:23:33] [INFO] NOTE: Posts will NOT be deleted, only schedule records
+
+--------------------------------------------------------------------------------
+STARTING DELETION
+--------------------------------------------------------------------------------
+[20:23:33] [INFO] Batch 1/20: Deleted 100 schedules (Total: 100)
+[20:23:33] [INFO] Batch 2/20: Deleted 100 schedules (Total: 200)
+[20:23:33] [INFO] Batch 3/20: Deleted 100 schedules (Total: 300)
+[20:23:33] [INFO] Batch 4/20: Deleted 100 schedules (Total: 400)
+[20:23:33] [INFO] Batch 5/20: Deleted 100 schedules (Total: 500)
+[20:23:33] [INFO] Batch 6/20: Deleted 100 schedules (Total: 600)
+[20:23:33] [INFO] Batch 7/20: Deleted 100 schedules (Total: 700)
+[20:23:33] [INFO] Batch 8/20: Deleted 100 schedules (Total: 800)
+[20:23:33] [INFO] Batch 9/20: Deleted 100 schedules (Total: 900)
+[20:23:33] [INFO] Batch 10/20: Deleted 100 schedules (Total: 1000)
+[20:23:33] [INFO] Batch 11/20: Deleted 100 schedules (Total: 1100)
+[20:23:33] [INFO] Batch 12/20: Deleted 100 schedules (Total: 1200)
+[20:23:33] [INFO] Batch 13/20: Deleted 100 schedules (Total: 1300)
+[20:23:33] [INFO] Batch 14/20: Deleted 100 schedules (Total: 1400)
+[20:23:33] [INFO] Batch 15/20: Deleted 100 schedules (Total: 1500)
+[20:23:33] [INFO] Batch 16/20: Deleted 100 schedules (Total: 1600)
+[20:23:33] [INFO] Batch 17/20: Deleted 100 schedules (Total: 1700)
+[20:23:33] [INFO] Batch 18/20: Deleted 100 schedules (Total: 1800)
+[20:23:33] [INFO] Batch 19/20: Deleted 100 schedules (Total: 1900)
+[20:23:33] [INFO] Batch 20/20: Deleted 34 schedules (Total: 1934)
+[20:23:33] [SUCCESS] Deleted 1934 schedule records
+[20:23:33] [INFO] Skipping post cleanup - only schedule records deleted
+
+--------------------------------------------------------------------------------
+VERIFICATION
+--------------------------------------------------------------------------------
+[20:23:33] [INFO] Before: 2239
+[20:23:33] [INFO] After: 305
+[20:23:33] [INFO] Deleted: 1934
+[20:23:33] [WARNING] Final count (305) still exceeds target (300)
+[20:23:33] [INFO] This may be due to 'sending' status schedules being excluded
+
+--------------------------------------------------------------------------------
+EXECUTION SUMMARY
+--------------------------------------------------------------------------------
+  Status                         : ✅ SUCCESS
+  Mode                           : LIVE (Actual Deletions)
+  Keep Limit                     : 300
+  Initial Count                  : 2239
+  Final Count                    : 305
+  Deleted Count                  : 1934
+  Orphaned Posts Removed         : 0
+  Execution Time                 : 0.69 seconds
+
+[20:23:33] [INFO] Deletion Analysis:
+  By Status:
+    - success: 1629
+    - error: 305
+  Affected WordPress Posts: 324
+  Affected FSP Posts: 0
+
+================================================================================
+
+
+--------------------------------------------------------------------------------
+POST-CLEANUP STATISTICS
+--------------------------------------------------------------------------------
+  Total Schedules                : 305
+  Not Sent                       : 0
+  Sending                        : 4
+  Success                        : 249
+  Error                          : 52
+  Draft                          : 0
+[20:23:33] [SUCCESS] Nightly cleanup completed successfully
+[20:23:33] [INFO] Log file: /home/property/domains/condo.com.my/public_html/dev/cleanFSPosterSchedule/logs/cleanup-2026-02-06.log

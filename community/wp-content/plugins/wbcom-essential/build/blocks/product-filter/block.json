@@ -1,0 +1,80 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "wbcom-essential/product-filter",
+  "version": "1.0.0",
+  "title": "Product Filter",
+  "category": "widgets",
+  "icon": "filter",
+  "description": "A sticky filter bar that shows/hides product sections on a page by their anchor IDs.",
+  "keywords": [
+    "filter",
+    "products",
+    "categories",
+    "navigation"
+  ],
+  "supports": {
+    "html": false,
+    "align": [
+      "wide",
+      "full"
+    ],
+    "multiple": false
+  },
+  "textdomain": "wbcom-essential",
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css",
+  "viewScript": "file:./view.js",
+  "attributes": {
+    "filters": {
+      "type": "array",
+      "default": [
+        {
+          "label": "All Products",
+          "target": "all"
+        },
+        {
+          "label": "Bundles",
+          "target": "bundles"
+        },
+        {
+          "label": "BuddyPress",
+          "target": "buddypress"
+        },
+        {
+          "label": "Reign Add-ons",
+          "target": "reign-addons"
+        },
+        {
+          "label": "WooCommerce",
+          "target": "woocommerce"
+        },
+        {
+          "label": "PeepSo",
+          "target": "peepso"
+        },
+        {
+          "label": "LearnDash",
+          "target": "learndash"
+        },
+        {
+          "label": "Themes",
+          "target": "themes"
+        },
+        {
+          "label": "Free",
+          "target": "free"
+        }
+      ]
+    },
+    "sticky": {
+      "type": "boolean",
+      "default": true
+    },
+    "stopAtCover": {
+      "type": "boolean",
+      "default": true
+    }
+  }
+}

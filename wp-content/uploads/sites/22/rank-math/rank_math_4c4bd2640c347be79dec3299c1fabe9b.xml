@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?><?xml-stylesheet type="text/xsl" href="//demo.condo.com.my/main-sitemap.xsl"?>
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+	<sitemap>
+		<loc>https://demo.condo.com.my/post-sitemap.xml</loc>
+		<lastmod>2025-11-26T22:23:11+00:00</lastmod>
+	</sitemap>
+	<sitemap>
+		<loc>https://demo.condo.com.my/page-sitemap.xml</loc>
+		<lastmod>2025-11-26T20:51:19+00:00</lastmod>
+	</sitemap>
+	<sitemap>
+		<loc>https://demo.condo.com.my/category-sitemap.xml</loc>
+		<lastmod>2025-11-26T22:23:11+00:00</lastmod>
+	</sitemap>
+</sitemapindex>

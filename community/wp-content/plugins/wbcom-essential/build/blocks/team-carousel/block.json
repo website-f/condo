@@ -1,0 +1,198 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "wbcom-essential/team-carousel",
+  "version": "1.0.0",
+  "title": "Team Carousel",
+  "category": "starter-marketing",
+  "icon": "groups",
+  "description": "Display team members in an interactive carousel.",
+  "keywords": [
+    "team",
+    "carousel",
+    "members",
+    "staff",
+    "people",
+    "slider"
+  ],
+  "supports": {
+    "html": false,
+    "align": [
+      "wide",
+      "full"
+    ]
+  },
+  "attributes": {
+    "useThemeColors": {
+      "type": "boolean",
+      "default": false
+    },
+    "members": {
+      "type": "array",
+      "default": [
+        {
+          "id": 1,
+          "imageId": 0,
+          "imageUrl": "",
+          "name": "John Doe",
+          "role": "CEO & Founder",
+          "linkUrl": ""
+        },
+        {
+          "id": 2,
+          "imageId": 0,
+          "imageUrl": "",
+          "name": "Jane Smith",
+          "role": "Lead Designer",
+          "linkUrl": ""
+        },
+        {
+          "id": 3,
+          "imageId": 0,
+          "imageUrl": "",
+          "name": "Mike Johnson",
+          "role": "Developer",
+          "linkUrl": ""
+        }
+      ]
+    },
+    "slidesPerView": {
+      "type": "number",
+      "default": 3
+    },
+    "slidesPerViewTablet": {
+      "type": "number",
+      "default": 2
+    },
+    "slidesPerViewMobile": {
+      "type": "number",
+      "default": 1
+    },
+    "spaceBetween": {
+      "type": "number",
+      "default": 30
+    },
+    "showNavigation": {
+      "type": "boolean",
+      "default": true
+    },
+    "showPagination": {
+      "type": "boolean",
+      "default": true
+    },
+    "loop": {
+      "type": "boolean",
+      "default": true
+    },
+    "autoplay": {
+      "type": "boolean",
+      "default": false
+    },
+    "autoplayDelay": {
+      "type": "number",
+      "default": 5000
+    },
+    "cardBackground": {
+      "type": "string",
+      "default": "#ffffff"
+    },
+    "cardBorderRadius": {
+      "type": "number",
+      "default": 8
+    },
+    "nameColor": {
+      "type": "string",
+      "default": "#1a202c"
+    },
+    "roleColor": {
+      "type": "string",
+      "default": "#718096"
+    },
+    "navColor": {
+      "type": "string",
+      "default": "#3182ce"
+    },
+    "cardPadding": {
+      "type": "number",
+      "default": 20
+    },
+    "cardBoxShadow": {
+      "type": "boolean",
+      "default": true
+    },
+    "imageBorderRadius": {
+      "type": "number",
+      "default": 8
+    },
+    "nameFontSize": {
+      "type": "number",
+      "default": 18
+    },
+    "roleFontSize": {
+      "type": "number",
+      "default": 14
+    },
+    "imageAspectRatio": {
+      "type": "string",
+      "default": "1/1"
+    },
+    "imageOverlayColor": {
+      "type": "string",
+      "default": "rgba(0, 0, 0, 0)"
+    },
+    "imageOverlayHoverColor": {
+      "type": "string",
+      "default": "rgba(0, 0, 0, 0.5)"
+    },
+    "cardHoverScale": {
+      "type": "number",
+      "default": 1.05
+    },
+    "cardHoverShadow": {
+      "type": "string",
+      "default": "0 10px 30px rgba(0, 0, 0, 0.15)"
+    },
+    "cardBorderWidth": {
+      "type": "number",
+      "default": 0
+    },
+    "cardBorderColor": {
+      "type": "string",
+      "default": "#e2e8f0"
+    },
+    "dotsColor": {
+      "type": "string",
+      "default": "#718096"
+    },
+    "dotsActiveColor": {
+      "type": "string",
+      "default": "#3182ce"
+    },
+    "dotsSize": {
+      "type": "number",
+      "default": 10
+    },
+    "arrowColor": {
+      "type": "string",
+      "default": "#3182ce"
+    },
+    "arrowBgColor": {
+      "type": "string",
+      "default": "#ffffff"
+    },
+    "arrowSize": {
+      "type": "number",
+      "default": 40
+    },
+    "arrowBorderRadius": {
+      "type": "number",
+      "default": 50
+    }
+  },
+  "textdomain": "wbcom-essential",
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css",
+  "viewScript": "file:./view.js",
+  "render": "file:./render.php"
+}

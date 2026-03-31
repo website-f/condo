@@ -1,0 +1,92 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "wbcom-essential/star-rating",
+  "version": "1.0.0",
+  "title": "Star Rating",
+  "category": "starter-design",
+  "icon": "star-filled",
+  "description": "Display star ratings with customizable styles.",
+  "keywords": [
+    "star",
+    "rating",
+    "review",
+    "score"
+  ],
+  "textdomain": "wbcom-essential",
+  "example": {
+    "attributes": {
+      "rating": 4.5,
+      "maxRating": 5
+    }
+  },
+  "attributes": {
+    "useThemeColors": {
+      "type": "boolean",
+      "default": false
+    },
+    "rating": {
+      "type": "number",
+      "default": 4
+    },
+    "maxRating": {
+      "type": "number",
+      "default": 5
+    },
+    "starSize": {
+      "type": "number",
+      "default": 24
+    },
+    "starGap": {
+      "type": "number",
+      "default": 4
+    },
+    "filledColor": {
+      "type": "string",
+      "default": "#ffc107"
+    },
+    "emptyColor": {
+      "type": "string",
+      "default": "#e0e0e0"
+    },
+    "alignment": {
+      "type": "string",
+      "default": "left"
+    },
+    "showLabel": {
+      "type": "boolean",
+      "default": false
+    },
+    "label": {
+      "type": "string",
+      "default": ""
+    },
+    "labelPosition": {
+      "type": "string",
+      "default": "after"
+    },
+    "labelColor": {
+      "type": "string",
+      "default": ""
+    },
+    "labelSize": {
+      "type": "number",
+      "default": 14
+    }
+  },
+  "supports": {
+    "html": false,
+    "align": [
+      "left",
+      "center",
+      "right"
+    ],
+    "spacing": {
+      "margin": true
+    }
+  },
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css",
+  "render": "file:./render.php"
+}
