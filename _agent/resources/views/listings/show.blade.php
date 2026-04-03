@@ -2,17 +2,22 @@
 @section('title', $listing->propertyname)
 @section('page-title', 'Listing Details')
 @section('topbar-actions')
-    <a href="{{ route('listings.edit', $listing->id) }}" class="btn btn-secondary btn-sm">Edit</a>
-    <form method="POST" action="{{ route('listings.destroy', $listing->id) }}" onsubmit="return confirm('Delete this listing? This action cannot be undone.');" style="margin:0;">
-        @csrf
-        @method('DELETE')
-        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
-    </form>
-    <a href="{{ route('listings.index') }}" class="btn btn-secondary btn-sm">Back</a>
+    @if($canManageListing)
+        <a href="{{ route('listings.edit', $listing->id) }}" class="btn btn-secondary btn-sm">Edit</a>
+        <form method="POST" action="{{ route('listings.destroy', $listing->id) }}" onsubmit="return confirm('Delete this listing? This action cannot be undone.');" style="margin:0;">
+            @csrf
+            @method('DELETE')
+            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+        </form>
+    @else
+        <span class="badge badge-default">ICP Read Only</span>
+    @endif
+    <a href="{{ route('listings.index', ['source' => $returnSource]) }}" class="btn btn-secondary btn-sm">Back</a>
 @endsection
 
 @section('content')
 @php
+    $listingSource = $listing->source_key ?? 'ipp';
     $gallery = $listing->gallery_images;
     $generalDetails = $listing->general_details;
     $description = $listing->description_text;
@@ -81,6 +86,12 @@
         fn ($detail) => in_array($detail->meta_key, ['Photos', 'Descriptions', 'General'], true)
     );
 @endphp
+
+@if(! $canManageListing)
+    <div class="alert" style="background: var(--accent-light); color: var(--text); border: 1px solid var(--border-light);">
+        This {{ strtoupper($listingSource) }} listing is synced in read-only mode for now.
+    </div>
+@endif
 
 <style>
     .listing-detail-page {
@@ -735,7 +746,7 @@
 
             <div class="listing-summary-panel">
                 <div>
-                    <div class="listing-eyebrow">Property Listing</div>
+                    <div class="listing-eyebrow">{{ strtoupper($listingSource) }} Property Listing</div>
                     <h3 class="listing-title">{{ $listing->propertyname }}</h3>
 
                     <div class="listing-location">
@@ -881,8 +892,10 @@
                 </div>
 
                 <div class="listing-actions">
-                    <a href="{{ route('listings.edit', $listing->id) }}" class="btn btn-primary">Edit Listing</a>
-                    <a href="{{ route('listings.index') }}" class="btn btn-secondary">Back to Listings</a>
+                    @if($canManageListing)
+                        <a href="{{ route('listings.edit', $listing->id) }}" class="btn btn-primary">Edit Listing</a>
+                    @endif
+                    <a href="{{ route('listings.index', ['source' => $returnSource]) }}" class="btn btn-secondary">Back to Listings</a>
                 </div>
             </section>
 

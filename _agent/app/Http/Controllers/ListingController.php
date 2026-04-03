@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\IcpListing;
 use App\Models\Listing;
 use App\Models\State;
 use App\Support\ListingEditor;
 use Carbon\Carbon;
-use Illuminate\Http\UploadedFile;
 use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -17,49 +20,36 @@ use Throwable;
 
 class ListingController extends Controller
 {
+    private const INDEX_SOURCES = [
+        'all' => 'All',
+        'ipp' => 'IPP',
+        'icp' => 'ICP',
+        'condo' => 'Condo',
+    ];
+
+    private const INDEX_PER_PAGE = 12;
+
     public function index(Request $request)
     {
         $username = Auth::guard('agent')->user()->username;
-        $query = $this->ownedListingsQuery($username);
+        $activeSource = $this->resolveListingSource($request->query('source'));
+        [$sortBy, $sortDir] = $this->resolveSortOptions($request);
 
-        if ($request->filled('listingtype')) {
-            $query->where('listingtype', $request->listingtype);
-        }
-        if ($request->filled('propertytype')) {
-            $query->where('propertytype', $request->propertytype);
-        }
-        if ($request->filled('state')) {
-            $query->where('state', $request->state);
-        }
-        if ($request->filled('min_price')) {
-            $query->where('price', '>=', $request->min_price);
-        }
-        if ($request->filled('max_price')) {
-            $query->where('price', '<=', $request->max_price);
-        }
-        if ($request->filled('search')) {
-            $query->where(function ($q) use ($request) {
-                $q->where('propertyname', 'like', '%' . $request->search . '%')
-                  ->orWhere('area', 'like', '%' . $request->search . '%');
-            });
-        }
+        $listings = $this->resolveIndexListings($username, $request, $activeSource, $sortBy, $sortDir);
+        [$listingTypes, $propertyTypes, $states] = $this->resolveIndexFilters($username, $activeSource);
 
-        $allowedSorts = ['createddate', 'updateddate', 'price', 'propertyname', 'listingtype', 'propertytype', 'state', 'area'];
-        $sortBy = $request->get('sort', 'createddate');
-        $sortBy = in_array($sortBy, $allowedSorts, true) ? $sortBy : 'createddate';
+        $sourceTabs = collect(self::INDEX_SOURCES)
+            ->map(fn (string $label, string $key) => ['key' => $key, 'label' => $label])
+            ->values();
 
-        $sortDir = strtolower($request->get('dir', 'desc'));
-        $sortDir = in_array($sortDir, ['asc', 'desc'], true) ? $sortDir : 'desc';
-
-        $query->orderBy($sortBy, $sortDir);
-
-        $listings = $query->paginate(12);
-
-        $listingTypes = $this->ownedListingsQuery($username)->distinct()->pluck('listingtype')->filter();
-        $propertyTypes = $this->ownedListingsQuery($username)->distinct()->pluck('propertytype')->filter();
-        $states = $this->resolveStates($username);
-
-        return view('listings.index', compact('listings', 'listingTypes', 'propertyTypes', 'states'));
+        return view('listings.index', compact(
+            'listings',
+            'listingTypes',
+            'propertyTypes',
+            'states',
+            'activeSource',
+            'sourceTabs'
+        ));
     }
 
     public function create()
@@ -96,11 +86,17 @@ class ListingController extends Controller
             ->with('success', 'Listing created successfully.');
     }
 
-    public function show($id)
+    public function show(Request $request, $id)
     {
-        $listing = $this->findOwnedListingOrFail($id, true);
+        $source = $this->resolveDetailSource($request->query('source'));
+        $returnSource = $this->resolveListingSource($request->query('return_source', $source));
+        $listing = $this->findOwnedListingOrFail($id, true, $source);
 
-        return view('listings.show', compact('listing'));
+        return view('listings.show', [
+            'listing' => $listing,
+            'canManageListing' => $this->canManageSource($source),
+            'returnSource' => $returnSource,
+        ]);
     }
 
     public function edit($id)
@@ -191,9 +187,16 @@ class ListingController extends Controller
             ->where('username', $username);
     }
 
-    private function findOwnedListingOrFail(int|string $id, bool $withRelations = false): Listing
+    private function ownedIcpListingsQuery(string $username)
     {
-        $query = Listing::query()->active();
+        return IcpListing::query()
+            ->active()
+            ->where('username', $username);
+    }
+
+    private function findOwnedListingOrFail(int|string $id, bool $withRelations = false, string $source = 'ipp'): Listing
+    {
+        $query = $this->queryForSource($source)->active();
 
         if ($withRelations) {
             $query->with(['details', 'agent.detail']);
@@ -205,7 +208,223 @@ class ListingController extends Controller
             abort(403);
         }
 
+        return $this->decorateListing($listing, $source, $this->canManageSource($source), $source);
+    }
+
+    private function queryForSource(string $source)
+    {
+        return match ($source) {
+            'icp' => IcpListing::query(),
+            default => Listing::query(),
+        };
+    }
+
+    private function resolveIndexListings(
+        string $username,
+        Request $request,
+        string $source,
+        string $sortBy,
+        string $sortDir
+    ): LengthAwarePaginator {
+        if ($source === 'condo') {
+            return $this->emptyIndexPaginator($request);
+        }
+
+        if ($source === 'all') {
+            $ippListings = $this->applyListingFilters($this->ownedListingsQuery($username), $request)
+                ->get()
+                ->map(fn (Listing $listing) => $this->decorateListing($listing, 'ipp', true, 'all'));
+
+            $icpListings = $this->applyListingFilters($this->ownedIcpListingsQuery($username), $request)
+                ->get()
+                ->map(fn (Listing $listing) => $this->decorateListing($listing, 'icp', false, 'all'));
+
+            return $this->paginateCollection(
+                $this->sortListings($ippListings->concat($icpListings), $sortBy, $sortDir),
+                $request
+            );
+        }
+
+        $query = $source === 'icp'
+            ? $this->ownedIcpListingsQuery($username)
+            : $this->ownedListingsQuery($username);
+
+        $paginator = $this->applyListingFilters($query, $request)
+            ->orderBy($sortBy, $sortDir)
+            ->paginate(self::INDEX_PER_PAGE)
+            ->withQueryString();
+
+        $paginator->setCollection(
+            $paginator->getCollection()->map(
+                fn (Listing $listing) => $this->decorateListing(
+                    $listing,
+                    $source,
+                    $this->canManageSource($source),
+                    $source
+                )
+            )
+        );
+
+        return $paginator;
+    }
+
+    private function resolveIndexFilters(string $username, string $source): array
+    {
+        $queries = match ($source) {
+            'ipp' => [$this->ownedListingsQuery($username)],
+            'icp' => [$this->ownedIcpListingsQuery($username)],
+            'all' => [$this->ownedListingsQuery($username), $this->ownedIcpListingsQuery($username)],
+            default => [],
+        };
+
+        return [
+            $this->distinctListingValues($queries, 'listingtype'),
+            $this->distinctListingValues($queries, 'propertytype'),
+            $this->distinctListingValues($queries, 'state'),
+        ];
+    }
+
+    private function distinctListingValues(array $queries, string $column): Collection
+    {
+        return collect($queries)
+            ->flatMap(function ($query) use ($column) {
+                $sourceQuery = clone $query;
+
+                return $sourceQuery
+                    ->whereNotNull($column)
+                    ->where($column, '!=', '')
+                    ->distinct()
+                    ->pluck($column);
+            })
+            ->map(fn (mixed $value) => trim((string) $value))
+            ->filter()
+            ->unique(fn (string $value) => Str::lower($value))
+            ->sortBy(fn (string $value) => Str::lower($value))
+            ->values();
+    }
+
+    private function applyListingFilters($query, Request $request)
+    {
+        if ($request->filled('listingtype')) {
+            $query->where('listingtype', $request->listingtype);
+        }
+        if ($request->filled('propertytype')) {
+            $query->where('propertytype', $request->propertytype);
+        }
+        if ($request->filled('state')) {
+            $query->where('state', $request->state);
+        }
+        if ($request->filled('min_price')) {
+            $query->where('price', '>=', $request->min_price);
+        }
+        if ($request->filled('max_price')) {
+            $query->where('price', '<=', $request->max_price);
+        }
+        if ($request->filled('search')) {
+            $query->where(function ($nestedQuery) use ($request) {
+                $nestedQuery->where('propertyname', 'like', '%' . $request->search . '%')
+                    ->orWhere('area', 'like', '%' . $request->search . '%');
+            });
+        }
+
+        return $query;
+    }
+
+    private function resolveSortOptions(Request $request): array
+    {
+        $allowedSorts = ['createddate', 'updateddate', 'price', 'propertyname', 'listingtype', 'propertytype', 'state', 'area'];
+        $sortBy = $request->get('sort', 'createddate');
+        $sortBy = in_array($sortBy, $allowedSorts, true) ? $sortBy : 'createddate';
+
+        $sortDir = strtolower($request->get('dir', 'desc'));
+        $sortDir = in_array($sortDir, ['asc', 'desc'], true) ? $sortDir : 'desc';
+
+        return [$sortBy, $sortDir];
+    }
+
+    private function resolveListingSource(?string $source): string
+    {
+        $source = strtolower(trim((string) $source));
+
+        return array_key_exists($source, self::INDEX_SOURCES) ? $source : 'all';
+    }
+
+    private function resolveDetailSource(?string $source): string
+    {
+        return strtolower(trim((string) $source)) === 'icp' ? 'icp' : 'ipp';
+    }
+
+    private function canManageSource(string $source): bool
+    {
+        return $source === 'ipp';
+    }
+
+    private function decorateListing(Listing $listing, string $source, bool $canManage, string $returnSource): Listing
+    {
+        $listing->setAttribute('source_key', $source);
+        $listing->setAttribute('source_label', strtoupper($source));
+        $listing->setAttribute('can_manage', $canManage);
+        $listing->setAttribute('return_source', $returnSource);
+
         return $listing;
+    }
+
+    private function sortListings(Collection $listings, string $sortBy, string $sortDir): Collection
+    {
+        return $listings
+            ->sortBy(
+                fn (Listing $listing) => $this->normalizedSortValue($listing, $sortBy),
+                SORT_NATURAL,
+                $sortDir === 'desc'
+            )
+            ->values();
+    }
+
+    private function normalizedSortValue(Listing $listing, string $sortBy): string|float
+    {
+        $value = $listing->getAttribute($sortBy);
+
+        if ($sortBy === 'price') {
+            return (float) $value;
+        }
+
+        if (in_array($sortBy, ['createddate', 'updateddate'], true)) {
+            $numericValue = preg_replace('/\D+/', '', (string) $value);
+            return str_pad((string) $numericValue, 14, '0', STR_PAD_LEFT);
+        }
+
+        return Str::lower(trim((string) $value));
+    }
+
+    private function paginateCollection(Collection $listings, Request $request): LengthAwarePaginator
+    {
+        $currentPage = max(1, (int) $request->query('page', 1));
+        $items = $listings->forPage($currentPage, self::INDEX_PER_PAGE)->values();
+
+        return new LengthAwarePaginator(
+            $items,
+            $listings->count(),
+            self::INDEX_PER_PAGE,
+            $currentPage,
+            [
+                'path' => $request->url(),
+                'query' => $request->except('page'),
+            ]
+        );
+    }
+
+    private function emptyIndexPaginator(Request $request): LengthAwarePaginator
+    {
+        return new LengthAwarePaginator(
+            collect(),
+            0,
+            self::INDEX_PER_PAGE,
+            max(1, (int) $request->query('page', 1)),
+            [
+                'path' => $request->url(),
+                'query' => $request->except('page'),
+            ]
+        );
     }
 
     private function validateListing(Request $request): array
@@ -289,8 +508,7 @@ class ListingController extends Controller
         bool $creating,
         string $propertyId,
         array $uploadedPhotoPaths = []
-    ): array
-    {
+    ): array {
         $timestamp = Carbon::now()->format('YmdHis');
         $currentPhotoPaths = $creating ? [] : ListingEditor::photoPaths($listing);
         $retainedPhotoPaths = $creating
