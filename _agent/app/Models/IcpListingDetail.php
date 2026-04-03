@@ -8,6 +8,11 @@ class IcpListingDetail extends ListingDetail
 {
     protected $table = 'mobilepostdetails';
 
+    public function getConnectionName()
+    {
+        return IcpListing::resolvedConnectionName();
+    }
+
     public function listing(): BelongsTo
     {
         return $this->belongsTo(IcpListing::class, 'postid', 'id');

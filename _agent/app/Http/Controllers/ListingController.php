@@ -13,6 +13,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -196,6 +197,10 @@ class ListingController extends Controller
 
     private function findOwnedListingOrFail(int|string $id, bool $withRelations = false, string $source = 'ipp'): Listing
     {
+        if ($source === 'icp' && ! $this->icpSourceAvailable()) {
+            abort(404);
+        }
+
         $query = $this->queryForSource($source)->active();
 
         if ($withRelations) {
@@ -230,19 +235,27 @@ class ListingController extends Controller
             return $this->emptyIndexPaginator($request);
         }
 
+        $icpAvailable = $this->icpSourceAvailable();
+
         if ($source === 'all') {
             $ippListings = $this->applyListingFilters($this->ownedListingsQuery($username), $request)
                 ->get()
                 ->map(fn (Listing $listing) => $this->decorateListing($listing, 'ipp', true, 'all'));
 
-            $icpListings = $this->applyListingFilters($this->ownedIcpListingsQuery($username), $request)
-                ->get()
-                ->map(fn (Listing $listing) => $this->decorateListing($listing, 'icp', false, 'all'));
+            $icpListings = $icpAvailable
+                ? $this->applyListingFilters($this->ownedIcpListingsQuery($username), $request)
+                    ->get()
+                    ->map(fn (Listing $listing) => $this->decorateListing($listing, 'icp', false, 'all'))
+                : collect();
 
             return $this->paginateCollection(
                 $this->sortListings($ippListings->concat($icpListings), $sortBy, $sortDir),
                 $request
             );
+        }
+
+        if ($source === 'icp' && ! $icpAvailable) {
+            return $this->emptyIndexPaginator($request);
         }
 
         $query = $source === 'icp'
@@ -270,10 +283,14 @@ class ListingController extends Controller
 
     private function resolveIndexFilters(string $username, string $source): array
     {
+        $icpAvailable = $this->icpSourceAvailable();
+
         $queries = match ($source) {
             'ipp' => [$this->ownedListingsQuery($username)],
-            'icp' => [$this->ownedIcpListingsQuery($username)],
-            'all' => [$this->ownedListingsQuery($username), $this->ownedIcpListingsQuery($username)],
+            'icp' => $icpAvailable ? [$this->ownedIcpListingsQuery($username)] : [],
+            'all' => $icpAvailable
+                ? [$this->ownedListingsQuery($username), $this->ownedIcpListingsQuery($username)]
+                : [$this->ownedListingsQuery($username)],
             default => [],
         };
 
@@ -352,6 +369,24 @@ class ListingController extends Controller
     private function resolveDetailSource(?string $source): string
     {
         return strtolower(trim((string) $source)) === 'icp' ? 'icp' : 'ipp';
+    }
+
+    private function icpSourceAvailable(): bool
+    {
+        static $available = null;
+
+        if ($available !== null) {
+            return $available;
+        }
+
+        $connection = IcpListing::resolvedConnectionName();
+
+        try {
+            return $available = Schema::connection($connection)->hasTable('mobileposts')
+                && Schema::connection($connection)->hasTable('mobilepostdetails');
+        } catch (Throwable) {
+            return $available = false;
+        }
     }
 
     private function canManageSource(string $source): bool
