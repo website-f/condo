@@ -380,10 +380,12 @@ class ListingController extends Controller
         }
 
         $connection = IcpListing::resolvedConnectionName();
+        $listingTable = IcpListing::resolvedTableName();
+        $detailTable = IcpListing::resolvedDetailTableName();
 
         try {
-            return $available = Schema::connection($connection)->hasTable('mobileposts')
-                && Schema::connection($connection)->hasTable('mobilepostdetails');
+            return $available = Schema::connection($connection)->hasTable($listingTable)
+                && Schema::connection($connection)->hasTable($detailTable);
         } catch (Throwable) {
             return $available = false;
         }
