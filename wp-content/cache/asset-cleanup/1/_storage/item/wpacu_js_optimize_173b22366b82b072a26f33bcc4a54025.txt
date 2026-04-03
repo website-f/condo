@@ -1,3 +1,0 @@
-/wp-content/plugins/metronet-profile-picture/js/mpp-frontend.js
-/wp-content/cache/asset-cleanup/1/js/item/metronet-profile-picture__js__mpp-frontend-js-vdef84cdb943198d25e494fffd2aedb8e99f127fb.js
-1745723700

@@ -127,6 +127,13 @@ RewriteEngine On
 RewriteCond %{HTTPS} off
 RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
+# Serve the embedded Laravel agent portal before WordPress rewrites
+RewriteRule ^agent$ agent/index.php [L]
+RewriteCond %{REQUEST_URI} ^/agent/
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^agent/ agent/index.php [L]
+
 # BEGIN WordPress Multisite
 RewriteBase /
 RewriteRule ^index\.php$ - [L]

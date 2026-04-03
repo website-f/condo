@@ -1,0 +1,7 @@
+/wp-config.php
+/wp-content/cache/
+/wp-content/sunrise.php
+/wp-content/wflogs/
+/wp-content/mu-plugins/local-disable-problem-plugins.php
+/wp_condo_backup.sql
+/wp_condo_backup.no-locks.sql
