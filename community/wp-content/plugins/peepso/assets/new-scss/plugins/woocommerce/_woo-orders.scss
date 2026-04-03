@@ -1,7 +1,0 @@
-.ps-woocommerce {
-    @if $comp_mode {
-        table {
-          @include table;
-        }
-    }
-}
