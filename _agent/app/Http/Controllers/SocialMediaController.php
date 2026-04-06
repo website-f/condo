@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 class SocialMediaController extends Controller
@@ -26,6 +27,9 @@ class SocialMediaController extends Controller
         $channels = $this->fsPosterBridge->availableChannels();
         $schedules = $this->fsPosterBridge->scheduleGroupsForAgent($username);
         $listings = $this->fsPosterBridge->availableListings($username);
+        $viewMode = in_array($request->query('view'), ['calendar', 'table'], true)
+            ? (string) $request->query('view')
+            : 'calendar';
 
         $statusFilter = trim((string) $request->query('status', ''));
         $networkFilter = trim((string) $request->query('network', ''));
@@ -54,20 +58,59 @@ class SocialMediaController extends Controller
 
         $posts = $this->paginateCollection($filtered, $request, 10);
         $calendarEvents = $filtered
-            ->map(fn (array $schedule) => [
-                'id' => $schedule['group_id'],
-                'title' => $schedule['listing_title'],
-                'start' => $schedule['scheduled_at']->toIso8601String(),
-                'url' => $schedule['is_mutable'] ? route('social.edit', $schedule['group_id']) : null,
-                'backgroundColor' => $schedule['status_color'],
-                'borderColor' => $schedule['status_color'],
-                'extendedProps' => [
-                    'status' => $schedule['status_label'],
-                    'networks' => $schedule['social_networks'],
-                    'channels' => $schedule['total_channels'],
-                    'message' => $schedule['message'],
-                ],
-            ])
+            ->map(function (array $schedule) {
+                $start = $schedule['scheduled_at']->copy();
+                $end = $start->copy()->addMinutes(45);
+
+                return [
+                    'id' => $schedule['group_id'],
+                    'title' => $schedule['listing_title'],
+                    'start' => $start->toIso8601String(),
+                    'end' => $end->toIso8601String(),
+                    'url' => $schedule['is_mutable']
+                        ? route('social.edit', $schedule['group_id'])
+                        : route('listings.show', [
+                            'id' => $schedule['listing_id'],
+                            'source' => 'condo',
+                            'return_source' => 'condo',
+                        ]),
+                    'backgroundColor' => $schedule['status_color'],
+                    'borderColor' => $schedule['status_color'],
+                    'classNames' => ['schedule-status-' . $schedule['status']],
+                    'extendedProps' => [
+                        'status' => $schedule['status'],
+                        'status_label' => $schedule['status_label'],
+                        'networks' => collect($schedule['social_networks'])->map(fn (string $network) => strtoupper($network))->values()->all(),
+                        'channels' => $schedule['total_channels'],
+                        'channel_names' => collect($schedule['channels'])->pluck('name')->values()->all(),
+                        'message' => Str::limit($schedule['message'] !== '' ? $schedule['message'] : 'Using the WordPress FS Poster template for this channel set.', 160),
+                        'time_label' => $schedule['scheduled_at']->format('D, d M Y h:i A'),
+                        'action_label' => $schedule['is_mutable'] ? 'Edit Schedule' : 'View Listing',
+                    ],
+                ];
+            })
+            ->values();
+
+        $upcomingSchedules = $filtered
+            ->filter(fn (array $schedule) => $schedule['scheduled_at']->isFuture())
+            ->sortBy(fn (array $schedule) => $schedule['scheduled_at']->timestamp)
+            ->take(6)
+            ->values();
+
+        $networkSummary = $channels
+            ->groupBy('social_network')
+            ->map(function (Collection $group, string $network) {
+                return [
+                    'key' => $network,
+                    'label' => match ($network) {
+                        'google_b' => 'Google Business',
+                        'fb' => 'Facebook',
+                        default => Str::headline(str_replace('_', ' ', $network)),
+                    },
+                    'count' => $group->count(),
+                ];
+            })
+            ->sortByDesc('count')
             ->values();
 
         $stats = [
@@ -83,6 +126,9 @@ class SocialMediaController extends Controller
             'stats',
             'calendarEvents',
             'listings',
+            'viewMode',
+            'upcomingSchedules',
+            'networkSummary',
             'statusFilter',
             'networkFilter',
             'search'
