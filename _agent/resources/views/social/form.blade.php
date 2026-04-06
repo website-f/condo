@@ -39,6 +39,8 @@
     .social-sidebar-row span{color:var(--text-secondary)}
     .social-sidebar-row strong{color:var(--text);text-align:right}
     .social-actions{display:flex;gap:12px;flex-wrap:wrap}
+    .social-inline-badge{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;background:#eef2ff;color:#3730a3;font-size:11px;font-weight:700;letter-spacing:.02em;text-transform:uppercase;margin-top:8px}
+    .social-callout{padding:14px 16px;border:1px solid #d6dae8;border-radius:16px;background:#f6f7fb;color:var(--text-secondary);font-size:13px;line-height:1.6}
     @media (max-width:980px){.social-form-grid,.social-channel-grid{grid-template-columns:1fr}}
 </style>
 
@@ -46,7 +48,7 @@
     <section class="social-form-hero">
         <div class="social-kicker">FS Poster Composer</div>
         <h3>{{ $existingGroup ? 'Update the queued social schedule without leaving the agent portal.' : 'Queue a condo listing into WordPress FS Poster from Laravel.' }}</h3>
-        <p>{{ $existingGroup ? 'This editor updates the existing FS Poster group and keeps the linked WordPress property post in sync.' : 'Choose a condo listing, select the WordPress channels you want, and the portal will create a real FS Poster schedule group for you.' }}</p>
+        <p>{{ $existingGroup ? 'This editor updates the same FS Poster group used by the WordPress property metabox, so Laravel and WordPress stay aligned.' : 'Choose a condo listing, select the WordPress channels you want, and the portal will create or update the live FS Poster schedule group for that property.' }}</p>
     </section>
 
     <form method="POST" action="{{ $formAction }}">
@@ -73,6 +75,9 @@
                                 <div>
                                     <div class="social-listing-title">{{ $listing['title'] }}</div>
                                     <div class="social-listing-meta">{{ $listing['formatted_price'] }}</div>
+                                    @if(!empty($listing['has_active_schedule']))
+                                        <div class="social-inline-badge">Live WP schedule linked</div>
+                                    @endif
                                 </div>
                             </label>
                         @endforeach
@@ -81,14 +86,14 @@
 
                 <section class="social-form-card">
                     <div class="social-form-title">Pick Channels</div>
-                    <div class="social-help" style="margin-bottom:16px;">Each selected channel uses its existing FS Poster defaults from WordPress, then applies your schedule time and custom message below.</div>
+                    <div class="social-help" style="margin-bottom:16px;">Each selected channel keeps its current FS Poster configuration from WordPress. Laravel updates the schedule time and only replaces the message when you explicitly type one below.</div>
                     <div class="social-channel-grid">
                         @foreach($channels as $channel)
                             <label class="social-channel">
                                 <input type="checkbox" name="channel_ids[]" value="{{ $channel['id'] }}" @checked(in_array($channel['id'], array_map('intval', (array) $schedule['channel_ids']), true))>
                                 <div>
                                     <div class="social-channel-name">{{ $channel['name'] }}</div>
-                                    <div class="social-channel-meta">{{ strtoupper($channel['social_network']) }} · {{ $channel['session_name'] }} · {{ str_replace('_', ' ', $channel['channel_type']) }}</div>
+                                    <div class="social-channel-meta">{{ strtoupper($channel['social_network']) }} - {{ $channel['session_name'] }} - {{ str_replace('_', ' ', $channel['channel_type']) }}</div>
                                 </div>
                             </label>
                         @endforeach
@@ -97,14 +102,31 @@
 
                 <section class="social-form-card">
                     <div class="social-form-title">Schedule Details</div>
+                    @if($existingGroup && $existingGroup['has_mixed_messages'])
+                        <div class="social-callout" style="margin-bottom:18px;">
+                            WordPress currently has channel-specific copy for this schedule group. Leave the message box empty to preserve those per-channel settings. If you type a new message here, Laravel will replace the post text across all selected channels.
+                        </div>
+                    @elseif($existingGroup)
+                        <div class="social-callout" style="margin-bottom:18px;">
+                            This form edits the same FS Poster group used in WordPress. Leaving the message blank keeps the current WordPress and FS Poster copy intact.
+                        </div>
+                    @endif
                     <div class="form-group">
                         <label class="form-label" for="scheduled_at">Post Date & Time</label>
                         <input id="scheduled_at" name="scheduled_at" type="datetime-local" class="form-input" value="{{ $schedule['scheduled_at_form'] }}" required>
                     </div>
                     <div class="form-group" style="margin-bottom:0;">
                         <label class="form-label" for="message">Custom Social Message</label>
-                        <textarea id="message" name="message" rows="8" class="form-textarea" maxlength="4000" placeholder="Write the post text you want FS Poster to use. Leave blank to keep the WordPress default template.">{{ $schedule['message'] }}</textarea>
-                        <div class="form-hint">Leave this empty if you want FS Poster to use the current WordPress template for each selected channel.</div>
+                        <textarea id="message" name="message" rows="8" class="form-textarea" maxlength="4000" placeholder="Write the post text you want FS Poster to use. Leave blank to keep the current WordPress content.">{{ $schedule['message'] }}</textarea>
+                        <div class="form-hint">
+                            @if($existingGroup && $existingGroup['has_mixed_messages'])
+                                Leave this empty to preserve the current channel-specific WordPress copy. Enter text only if you want to replace it on every selected channel.
+                            @elseif($existingGroup)
+                                Leave this empty to keep the current WordPress and FS Poster copy for this schedule group.
+                            @else
+                                Leave this empty if you want FS Poster to use the current WordPress template for each selected channel.
+                            @endif
+                        </div>
                     </div>
                 </section>
             </div>
@@ -125,6 +147,7 @@
                             <div class="social-sidebar-row"><span>Group ID</span><strong>{{ $existingGroup['group_id'] }}</strong></div>
                             <div class="social-sidebar-row"><span>Status</span><strong>{{ $existingGroup['status_label'] }}</strong></div>
                             <div class="social-sidebar-row"><span>Queued for</span><strong>{{ $existingGroup['scheduled_at']->format('d M Y h:i A') }}</strong></div>
+                            <div class="social-sidebar-row"><span>WordPress link</span><strong>{{ $existingGroup['is_primary_group'] ? 'Primary group' : 'Secondary group' }}</strong></div>
                         </div>
                     @endif
 

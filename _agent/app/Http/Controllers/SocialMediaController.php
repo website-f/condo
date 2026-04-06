@@ -61,6 +61,9 @@ class SocialMediaController extends Controller
             ->map(function (array $schedule) {
                 $start = $schedule['scheduled_at']->copy();
                 $end = $start->copy()->addMinutes(45);
+                $messagePreview = $schedule['message_preview'] !== ''
+                    ? $schedule['message_preview']
+                    : 'Using the WordPress FS Poster template for this channel set.';
 
                 return [
                     'id' => $schedule['group_id'],
@@ -69,11 +72,7 @@ class SocialMediaController extends Controller
                     'end' => $end->toIso8601String(),
                     'url' => $schedule['is_mutable']
                         ? route('social.edit', $schedule['group_id'])
-                        : route('listings.show', [
-                            'id' => $schedule['listing_id'],
-                            'source' => 'condo',
-                            'return_source' => 'condo',
-                        ]),
+                        : $schedule['view_url'],
                     'backgroundColor' => $schedule['status_color'],
                     'borderColor' => $schedule['status_color'],
                     'classNames' => ['schedule-status-' . $schedule['status']],
@@ -83,9 +82,9 @@ class SocialMediaController extends Controller
                         'networks' => collect($schedule['social_networks'])->map(fn (string $network) => strtoupper($network))->values()->all(),
                         'channels' => $schedule['total_channels'],
                         'channel_names' => collect($schedule['channels'])->pluck('name')->values()->all(),
-                        'message' => Str::limit($schedule['message'] !== '' ? $schedule['message'] : 'Using the WordPress FS Poster template for this channel set.', 160),
+                        'message' => Str::limit($messagePreview, 160),
                         'time_label' => $schedule['scheduled_at']->format('D, d M Y h:i A'),
-                        'action_label' => $schedule['is_mutable'] ? 'Edit Schedule' : 'View Listing',
+                        'action_label' => $schedule['is_mutable'] ? 'Edit Schedule' : 'View ' . $schedule['content_type_label'],
                     ],
                 ];
             })
@@ -142,6 +141,14 @@ class SocialMediaController extends Controller
         $listings = $this->fsPosterBridge->availableListings($username);
         $selectedListingId = (int) $request->query('listing', 0);
         $selectedListingId = $listings->firstWhere('id', $selectedListingId)['id'] ?? ($listings->first()['id'] ?? 0);
+        $selectedListing = $listings->firstWhere('id', $selectedListingId);
+
+        if ($request->filled('listing') && is_array($selectedListing) && ! empty($selectedListing['current_group_id'])) {
+            return redirect()
+                ->route('social.edit', $selectedListing['current_group_id'])
+                ->with('success', 'This condo listing already has a live FS Poster schedule. Editing it here keeps Laravel and WordPress in sync.');
+        }
+
         $defaultScheduledAt = now()->addMinutes(15)->format('Y-m-d\TH:i');
 
         return view('social.form', [
@@ -177,6 +184,11 @@ class SocialMediaController extends Controller
     {
         $username = Auth::guard('agent')->user()->username;
         $group = $this->fsPosterBridge->findScheduleGroupForAgent($username, $groupId);
+
+        if (! $group['can_manage_in_laravel']) {
+            abort(403);
+        }
+
         $channels = $this->fsPosterBridge->availableChannels();
         $listings = $this->fsPosterBridge->availableListings($username);
 
@@ -201,6 +213,10 @@ class SocialMediaController extends Controller
     {
         $username = Auth::guard('agent')->user()->username;
         $group = $this->fsPosterBridge->findScheduleGroupForAgent($username, $groupId);
+
+        if (! $group['can_manage_in_laravel']) {
+            abort(403);
+        }
 
         if (! $group['is_mutable']) {
             throw ValidationException::withMessages([
@@ -230,6 +246,10 @@ class SocialMediaController extends Controller
         }
 
         $group = $this->fsPosterBridge->findScheduleGroupForAgent($username, $groupId);
+
+        if (! $group['can_manage_in_laravel']) {
+            abort(403);
+        }
 
         $this->recentlyDeletedService->rememberSocialSchedule($username, $group);
         $this->fsPosterBridge->deleteScheduleGroup($username, $groupId);

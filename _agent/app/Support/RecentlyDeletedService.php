@@ -156,6 +156,9 @@ class RecentlyDeletedService
                     'channel_ids' => collect($group['channel_ids'] ?? [])->map(fn (mixed $id) => (int) $id)->values()->all(),
                     'scheduled_at' => $scheduledAt,
                     'message' => (string) ($group['message'] ?? ''),
+                    'channel_customizations' => collect($group['channel_customizations'] ?? [])
+                        ->mapWithKeys(fn (mixed $value, mixed $key) => is_numeric($key) && is_array($value) ? [(int) $key => $value] : [])
+                        ->all(),
                 ],
             ],
         ]);
@@ -735,6 +738,9 @@ class RecentlyDeletedService
                 ->all(),
             'scheduled_at' => (string) Arr::get($group, 'scheduled_at', now()->addMinutes(15)->format('Y-m-d H:i:s')),
             'message' => (string) Arr::get($group, 'message', ''),
+            'channel_customizations' => collect(Arr::get($group, 'channel_customizations', []))
+                ->mapWithKeys(fn (mixed $value, mixed $key) => is_numeric($key) && is_array($value) ? [(int) $key => $value] : [])
+                ->all(),
         ], $groupId);
 
         $this->forget(self::TYPE_SOCIAL_SCHEDULE, $groupId);

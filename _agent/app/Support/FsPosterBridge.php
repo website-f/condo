@@ -2,6 +2,7 @@
 
 namespace App\Support;
 
+use App\Models\Agent;
 use App\Models\CondoListing;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
@@ -53,15 +54,21 @@ class FsPosterBridge
      */
     public function availableListings(string $username): Collection
     {
-        return $this->ownedListings($username)
+        $listings = $this->ownedListings($username)
             ->sortByDesc(fn (CondoListing $listing) => (string) $listing->updateddate)
-            ->values()
-            ->map(fn (CondoListing $listing) => [
+            ->values();
+        $currentGroupIds = $this->currentScheduleGroupIdsForPosts(
+            $listings->map(fn (CondoListing $listing) => (int) $listing->getKey())->all()
+        );
+
+        return $listings->map(fn (CondoListing $listing) => [
                 'id' => (int) $listing->getKey(),
                 'title' => (string) $listing->propertyname,
                 'formatted_price' => (string) $listing->formatted_price,
                 'source_key' => 'condo',
                 'image_url' => $listing->image_url,
+                'current_group_id' => $currentGroupIds[(int) $listing->getKey()] ?? null,
+                'has_active_schedule' => isset($currentGroupIds[(int) $listing->getKey()]),
             ]);
     }
 
@@ -87,18 +94,42 @@ class FsPosterBridge
      */
     public function scheduleGroupsForAgent(string $username): Collection
     {
+        $wordpressUserIds = $this->wordpressUserIdsForAgent($username);
         $rows = collect(DB::connection('condo')
             ->table('fsp_schedules')
             ->join('posts', 'posts.ID', '=', 'fsp_schedules.wp_post_id')
-            ->join('postmeta', function ($join) {
-                $join->on('postmeta.post_id', '=', 'posts.ID')
-                    ->where('postmeta.meta_key', '=', CondoWordpressBridge::META_USERNAME);
+            ->leftJoin('postmeta as agent_username_meta', function ($join) {
+                $join->on('agent_username_meta.post_id', '=', 'posts.ID')
+                    ->where('agent_username_meta.meta_key', '=', CondoWordpressBridge::META_USERNAME);
             })
             ->join('fsp_channels', 'fsp_channels.id', '=', 'fsp_schedules.channel_id')
             ->join('fsp_channel_sessions', 'fsp_channel_sessions.id', '=', 'fsp_channels.channel_session_id')
-            ->where('posts.post_type', 'properties')
-            ->where('postmeta.meta_value', $username)
+            ->leftJoin('postmeta as schedule_group_meta', function ($join) {
+                $join->on('schedule_group_meta.post_id', '=', 'posts.ID')
+                    ->where('schedule_group_meta.meta_key', '=', 'fsp_schedule_group_id');
+            })
+            ->leftJoin('postmeta as auto_share_meta', function ($join) {
+                $join->on('auto_share_meta.post_id', '=', 'posts.ID')
+                    ->where('auto_share_meta.meta_key', '=', 'fsp_enable_auto_share');
+            })
+            ->leftJoin('postmeta as manual_meta', function ($join) {
+                $join->on('manual_meta.post_id', '=', 'posts.ID')
+                    ->where('manual_meta.meta_key', '=', 'fsp_schedule_created_manually');
+            })
+            ->leftJoin('postmeta as cached_meta', function ($join) {
+                $join->on('cached_meta.post_id', '=', 'posts.ID')
+                    ->where('cached_meta.meta_key', '=', 'fsp_cache_schedules_data');
+            })
+            ->whereIn('posts.post_type', ['properties', 'post'])
+            ->where(function ($query) use ($username, $wordpressUserIds) {
+                $query->where('agent_username_meta.meta_value', $username);
+
+                if ($wordpressUserIds !== []) {
+                    $query->orWhereIn('posts.post_author', $wordpressUserIds);
+                }
+            })
             ->orderByDesc('fsp_schedules.send_time')
+            ->orderByDesc('fsp_schedules.id')
             ->get([
                 'fsp_schedules.id',
                 'fsp_schedules.group_id',
@@ -108,13 +139,20 @@ class FsPosterBridge
                 'fsp_schedules.status',
                 'fsp_schedules.error_msg',
                 'fsp_schedules.send_time',
+                'fsp_schedules.data',
                 'fsp_schedules.customization_data',
                 'posts.post_title',
+                'posts.post_status',
+                'posts.post_type',
                 'posts.guid',
                 'fsp_channels.name',
                 'fsp_channels.picture',
                 'fsp_channels.channel_type',
                 'fsp_channel_sessions.social_network',
+                'schedule_group_meta.meta_value as linked_group_id',
+                'auto_share_meta.meta_value as auto_share_flag',
+                'manual_meta.meta_value as manual_flag',
+                'cached_meta.meta_value as cached_schedules',
             ]));
 
         return $rows
@@ -122,6 +160,46 @@ class FsPosterBridge
             ->map(fn (Collection $groupRows) => $this->hydrateScheduleGroup($groupRows))
             ->sortByDesc(fn (array $group) => $group['scheduled_at']->timestamp)
             ->values();
+    }
+
+    /**
+     * @return array{
+     *     group_id:string,
+     *     listing_id:int,
+     *     listing_title:string,
+     *     listing_url:string,
+     *     scheduled_at:Carbon,
+     *     scheduled_at_form:string,
+     *     status:string,
+     *     status_label:string,
+     *     status_color:string,
+     *     message:string,
+     *     message_preview:string,
+     *     has_mixed_messages:bool,
+     *     auto_share_enabled:bool,
+     *     schedule_created_manually:bool,
+     *     is_primary_group:bool,
+     *     has_cached_schedule_data:bool,
+     *     channel_ids:array<int, int>,
+     *     social_networks:array<int, string>,
+     *     channels:array<int, array{id:int,name:string,social_network:string,channel_type:string,picture:string}>,
+     *     channel_customizations:array<int, array<string, mixed>>,
+     *     error_messages:array<int, string>,
+     *     is_mutable:bool,
+     *     total_channels:int
+     * }|null
+     */
+    public function currentScheduleGroupForListing(string $username, int $listingId): ?array
+    {
+        $currentGroupId = $this->currentScheduleGroupIdForListing($listingId);
+
+        if ($currentGroupId === null) {
+            return null;
+        }
+
+        $group = $this->scheduleGroupsForAgent($username)->firstWhere('group_id', $currentGroupId);
+
+        return is_array($group) ? $group : null;
     }
 
     /**
@@ -157,17 +235,26 @@ class FsPosterBridge
 
     public function storeScheduleGroup(CondoListing $listing, string $username, array $validated, ?string $groupId = null): string
     {
-        $groupId = $groupId ?: (string) Str::uuid();
-        $scheduledAt = Carbon::parse((string) $validated['scheduled_at'], config('app.timezone'))->format('Y-m-d H:i:s');
+        $postId = (int) $listing->getKey();
+        $groupId = $this->resolveScheduleGroupId($username, $postId, $groupId);
+        $scheduledAt = Carbon::parse((string) $validated['scheduled_at'], config('app.timezone'));
         $channelIds = collect($validated['channel_ids'] ?? [])->map(fn (mixed $id) => (int) $id)->unique()->values();
         $channels = $this->availableChannels()->whereIn('id', $channelIds)->values();
-        $previousPostIds = DB::connection('condo')
-            ->table('fsp_schedules')
-            ->where('group_id', $groupId)
+        $existingRows = $this->scheduleRowsForGroup($groupId);
+        $existingRowsByChannel = $existingRows->keyBy(fn (object $row) => (int) $row->channel_id);
+        $previousPostIds = $existingRows
             ->pluck('wp_post_id')
             ->map(fn (mixed $id) => (int) $id)
             ->unique()
             ->values();
+        $messageOverride = trim((string) ($validated['message'] ?? ''));
+        $explicitCustomizations = collect((array) ($validated['channel_customizations'] ?? []))
+            ->mapWithKeys(function (mixed $value, mixed $key) {
+                return is_numeric($key) && is_array($value)
+                    ? [(int) $key => $value]
+                    : [];
+            })
+            ->all();
 
         if ($channels->count() !== $channelIds->count()) {
             throw ValidationException::withMessages([
@@ -175,34 +262,55 @@ class FsPosterBridge
             ]);
         }
 
-        $postId = (int) $listing->getKey();
-        $userId = $this->resolveWordpressUserId($username);
+        $userId = $this->scheduleUserId($existingRows, $username);
+        $sendTimes = $this->buildSendTimes($scheduledAt, $channels->count());
+        $scheduleStatus = $this->scheduleStatusForPostStatus((string) ($listing->post_status ?? 'publish'));
 
-        DB::connection('condo')->transaction(function () use ($groupId, $scheduledAt, $channels, $validated, $postId, $userId, $previousPostIds) {
+        DB::connection('condo')->transaction(function () use (
+            $groupId,
+            $sendTimes,
+            $channels,
+            $messageOverride,
+            $postId,
+            $userId,
+            $previousPostIds,
+            $existingRowsByChannel,
+            $explicitCustomizations,
+            $scheduleStatus
+        ) {
             DB::connection('condo')
                 ->table('fsp_schedules')
                 ->where('group_id', $groupId)
                 ->delete();
 
-            foreach ($channels as $channel) {
+            foreach ($channels->values() as $index => $channel) {
+                $existingRow = $existingRowsByChannel->get($channel['id']);
+                $customization = $explicitCustomizations[$channel['id']]
+                    ?? $this->decodeCustomizationData($existingRow?->customization_data);
+
+                if ($customization === []) {
+                    $customization = $this->customizationDataForChannel($channel, '');
+                }
+
+                if ($messageOverride !== '') {
+                    $customization['post_content'] = $messageOverride;
+                }
+
                 DB::connection('condo')->table('fsp_schedules')->insert([
                     'blog_id' => 1,
                     'wp_post_id' => $postId,
-                    'user_id' => $userId,
+                    'user_id' => $existingRow?->user_id !== null ? (int) $existingRow->user_id : $userId,
                     'channel_id' => $channel['id'],
-                    'status' => 'not_sent',
+                    'status' => $scheduleStatus,
                     'error_msg' => null,
-                    'send_time' => $scheduledAt,
+                    'send_time' => $sendTimes[$index],
                     'remote_post_id' => null,
                     'visit_count' => 0,
-                    'planner_id' => 0,
-                    'data' => json_encode([], JSON_UNESCAPED_SLASHES),
-                    'customization_data' => json_encode(
-                        $this->customizationDataForChannel($channel, (string) ($validated['message'] ?? '')),
-                        JSON_UNESCAPED_SLASHES
-                    ),
+                    'planner_id' => $existingRow?->planner_id ?: 0,
+                    'data' => $this->normalizeStoredJson($existingRow?->data),
+                    'customization_data' => json_encode($customization, JSON_UNESCAPED_SLASHES),
                     'group_id' => $groupId,
-                    'created_at' => now(),
+                    'created_at' => $existingRow?->created_at ?? now(),
                     'updated_at' => now(),
                 ]);
             }
@@ -227,6 +335,7 @@ class FsPosterBridge
                     $this->deleteMeta($previousPostId, 'fsp_schedule_group_id');
                     $this->deleteMeta($previousPostId, 'fsp_enable_auto_share');
                     $this->deleteMeta($previousPostId, 'fsp_schedule_created_manually');
+                    $this->deleteMeta($previousPostId, 'fsp_cache_schedules_data');
                 }
             }
         });
@@ -264,6 +373,7 @@ class FsPosterBridge
                     $this->deleteMeta($postId, 'fsp_schedule_group_id');
                     $this->deleteMeta($postId, 'fsp_enable_auto_share');
                     $this->deleteMeta($postId, 'fsp_schedule_created_manually');
+                    $this->deleteMeta($postId, 'fsp_cache_schedules_data');
                 }
             }
         });
@@ -321,24 +431,63 @@ class FsPosterBridge
      */
     private function hydrateScheduleGroup(Collection $rows): array
     {
-        $first = $rows->first();
-        $scheduledAt = Carbon::parse((string) $first->send_time, config('app.timezone'));
+        $sortedRows = $rows
+            ->sortBy(fn (object $row) => strtotime((string) $row->send_time) ?: 0)
+            ->values();
+        $first = $sortedRows->first();
+        $scheduledAt = Carbon::parse((string) $sortedRows->min('send_time'), config('app.timezone'));
         $statuses = $rows->pluck('status')->map(fn (mixed $status) => (string) $status)->unique()->values()->all();
         $status = $this->displayStatus($statuses);
-        $message = collect(json_decode((string) $first->customization_data, true) ?: [])
-            ->get('post_content', '');
+        $channelCustomizations = $sortedRows
+            ->mapWithKeys(fn (object $row) => [
+                (int) $row->channel_id => $this->decodeCustomizationData($row->customization_data),
+            ])
+            ->all();
+        $messages = collect($channelCustomizations)
+            ->map(fn (array $customization) => trim((string) ($customization['post_content'] ?? '')))
+            ->filter(fn (string $value) => $value !== '')
+            ->unique()
+            ->values();
+        $hasMixedMessages = $messages->count() > 1;
+        $message = $hasMixedMessages ? '' : (string) ($messages->first() ?? '');
+        $messagePreview = $message !== '' ? $message : ($hasMixedMessages
+            ? 'Channel-specific content is configured in WordPress FS Poster for this schedule group.'
+            : '');
+        $linkedGroupId = trim((string) ($first->linked_group_id ?? ''));
+        $autoShareEnabled = $this->metaFlag($first->auto_share_flag ?? null, false);
+        $scheduleCreatedManually = $this->metaFlag($first->manual_flag ?? null, false);
+        $hasCachedScheduleData = trim((string) ($first->cached_schedules ?? '')) !== '';
+        $contentType = (string) ($first->post_type ?? 'post');
+        $canManageInLaravel = $contentType === 'properties';
+        $viewUrl = $contentType === 'properties'
+            ? route('listings.show', [
+                'id' => (int) $first->wp_post_id,
+                'source' => 'condo',
+                'return_source' => 'condo',
+            ])
+            : route('news.show', (int) $first->wp_post_id);
 
         return [
             'group_id' => (string) $first->group_id,
             'listing_id' => (int) $first->wp_post_id,
             'listing_title' => trim((string) $first->post_title) !== '' ? trim((string) $first->post_title) : 'Untitled condo listing',
             'listing_url' => trim((string) $first->guid),
+            'content_type' => $contentType,
+            'content_type_label' => $contentType === 'properties' ? 'Listing' : 'News',
+            'view_url' => $viewUrl,
+            'can_manage_in_laravel' => $canManageInLaravel,
             'scheduled_at' => $scheduledAt,
             'scheduled_at_form' => $scheduledAt->format('Y-m-d\TH:i'),
             'status' => $status,
             'status_label' => $this->statusLabel($status),
             'status_color' => $this->statusColor($status),
             'message' => trim((string) $message),
+            'message_preview' => trim((string) $messagePreview),
+            'has_mixed_messages' => $hasMixedMessages,
+            'auto_share_enabled' => $autoShareEnabled,
+            'schedule_created_manually' => $scheduleCreatedManually,
+            'is_primary_group' => $linkedGroupId !== '' && $linkedGroupId === (string) $first->group_id,
+            'has_cached_schedule_data' => $hasCachedScheduleData,
             'channel_ids' => $rows->pluck('channel_id')->map(fn (mixed $id) => (int) $id)->unique()->values()->all(),
             'social_networks' => $rows->pluck('social_network')->map(fn (mixed $value) => (string) $value)->unique()->values()->all(),
             'channels' => $rows->map(fn (object $row) => [
@@ -348,8 +497,12 @@ class FsPosterBridge
                 'channel_type' => (string) $row->channel_type,
                 'picture' => (string) $row->picture,
             ])->unique('id')->values()->all(),
+            'channel_customizations' => $channelCustomizations,
             'error_messages' => $rows->pluck('error_msg')->map(fn (mixed $value) => trim((string) $value))->filter()->unique()->values()->all(),
-            'is_mutable' => $scheduledAt->isFuture() && collect($statuses)->every(fn (string $rowStatus) => in_array($rowStatus, ['not_sent', 'draft'], true)),
+            'is_mutable' => $canManageInLaravel && $sortedRows->every(
+                fn (object $row) => in_array((string) $row->status, ['not_sent', 'draft'], true)
+                    && Carbon::parse((string) $row->send_time, config('app.timezone'))->isFuture()
+            ),
             'total_channels' => $rows->pluck('channel_id')->unique()->count(),
         ];
     }
@@ -359,11 +512,14 @@ class FsPosterBridge
      */
     private function ownedListings(string $username): Collection
     {
+        $wordpressUserIds = $this->wordpressUserIdsForAgent($username);
+
         return CondoListing::query()
             ->active()
             ->with('details')
             ->get()
-            ->filter(fn (CondoListing $listing) => $listing->username === $username)
+            ->filter(fn (CondoListing $listing) => $listing->username === $username
+                || in_array((int) ($listing->getAttribute('post_author') ?? 0), $wordpressUserIds, true))
             ->values();
     }
 
@@ -582,6 +738,192 @@ class FsPosterBridge
         $value = $this->stringOption($optionName, $default ? '1' : '0');
 
         return in_array(strtolower(trim($value)), ['1', 'true', 'yes', 'on'], true);
+    }
+
+    /**
+     * @param  array<int, int>  $postIds
+     * @return array<int, string>
+     */
+    private function currentScheduleGroupIdsForPosts(array $postIds): array
+    {
+        $postIds = array_values(array_unique(array_filter(array_map('intval', $postIds), fn (int $id) => $id > 0)));
+
+        if ($postIds === []) {
+            return [];
+        }
+
+        return DB::connection('condo')
+            ->table('postmeta')
+            ->where('meta_key', 'fsp_schedule_group_id')
+            ->whereIn('post_id', $postIds)
+            ->pluck('meta_value', 'post_id')
+            ->filter(fn (mixed $value) => is_string($value) && trim($value) !== '')
+            ->map(fn (mixed $value) => trim((string) $value))
+            ->all();
+    }
+
+    /**
+     * @return array<int, int>
+     */
+    private function wordpressUserIdsForAgent(string $username): array
+    {
+        $agent = Agent::query()->with('detail')->where('username', $username)->first();
+        $email = trim(strtolower((string) ($agent?->detail?->email ?? '')));
+
+        return DB::connection('condo')
+            ->table('users')
+            ->where(function ($query) use ($username, $email) {
+                $query->where('user_login', $username);
+
+                if ($email !== '') {
+                    $query->orWhereRaw('LOWER(user_email) = ?', [$email]);
+                }
+            })
+            ->pluck('ID')
+            ->map(fn (mixed $value) => (int) $value)
+            ->filter(fn (int $value) => $value > 0)
+            ->unique()
+            ->values()
+            ->all();
+    }
+
+    private function currentScheduleGroupIdForListing(int $postId): ?string
+    {
+        $groupId = DB::connection('condo')
+            ->table('postmeta')
+            ->where('post_id', $postId)
+            ->where('meta_key', 'fsp_schedule_group_id')
+            ->value('meta_value');
+
+        return is_string($groupId) && trim($groupId) !== '' ? trim($groupId) : null;
+    }
+
+    private function resolveScheduleGroupId(string $username, int $postId, ?string $requestedGroupId = null): string
+    {
+        $requestedGroupId = is_string($requestedGroupId) && trim($requestedGroupId) !== ''
+            ? trim($requestedGroupId)
+            : null;
+
+        if ($requestedGroupId !== null) {
+            return $requestedGroupId;
+        }
+
+        $currentGroupId = $this->currentScheduleGroupIdForListing($postId);
+
+        if ($currentGroupId === null) {
+            return (string) Str::uuid();
+        }
+
+        $currentGroup = $this->scheduleGroupsForAgent($username)->firstWhere('group_id', $currentGroupId);
+
+        if (is_array($currentGroup) && ($currentGroup['is_mutable'] ?? false)) {
+            return $currentGroupId;
+        }
+
+        return (string) Str::uuid();
+    }
+
+    /**
+     * @return Collection<int, object>
+     */
+    private function scheduleRowsForGroup(string $groupId): Collection
+    {
+        return collect(DB::connection('condo')
+            ->table('fsp_schedules')
+            ->where('group_id', $groupId)
+            ->orderBy('send_time')
+            ->orderBy('id')
+            ->get([
+                'id',
+                'group_id',
+                'wp_post_id',
+                'channel_id',
+                'user_id',
+                'status',
+                'send_time',
+                'planner_id',
+                'data',
+                'customization_data',
+                'created_at',
+            ]));
+    }
+
+    private function scheduleUserId(Collection $existingRows, string $username): int
+    {
+        $existingUserId = $existingRows
+            ->pluck('user_id')
+            ->map(fn (mixed $value) => is_numeric($value) ? (int) $value : null)
+            ->first(fn (?int $value) => $value !== null);
+
+        if ($existingUserId !== null) {
+            return $existingUserId;
+        }
+
+        return $this->resolveWordpressUserId($username);
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function buildSendTimes(Carbon $scheduledAt, int $count): array
+    {
+        $sendTimes = [];
+        $intervalSeconds = $this->postIntervalSeconds();
+
+        for ($index = 0; $index < $count; $index++) {
+            $sendTimes[] = $scheduledAt->copy()->addSeconds($intervalSeconds * $index)->format('Y-m-d H:i:s');
+        }
+
+        return $sendTimes;
+    }
+
+    private function postIntervalSeconds(): int
+    {
+        return $this->boolOption('enable_post_interval', false)
+            ? max(0, (int) $this->stringOption('post_interval', '0'))
+            : 0;
+    }
+
+    private function scheduleStatusForPostStatus(string $postStatus): string
+    {
+        return match ($postStatus) {
+            'trash' => 'trash',
+            'auto-draft' => 'auto-draft',
+            'draft', 'pending' => 'draft',
+            default => 'not_sent',
+        };
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function decodeCustomizationData(mixed $customizationData): array
+    {
+        if (! is_string($customizationData) || trim($customizationData) === '') {
+            return [];
+        }
+
+        $decoded = json_decode($customizationData, true);
+
+        return is_array($decoded) ? $decoded : [];
+    }
+
+    private function normalizeStoredJson(mixed $value): string
+    {
+        if (is_string($value) && trim($value) !== '') {
+            return $value;
+        }
+
+        return json_encode([], JSON_UNESCAPED_SLASHES);
+    }
+
+    private function metaFlag(mixed $value, bool $default = false): bool
+    {
+        if ($value === null) {
+            return $default;
+        }
+
+        return in_array(strtolower(trim((string) $value)), ['1', 'true', 'yes', 'on'], true);
     }
 
     private function resolveWordpressUserId(string $username): int

@@ -566,8 +566,8 @@
         <aside class="planner-sidebar">
             <section class="planner-card planner-brand">
                 <div class="planner-chip">FS Poster Live Sync</div>
-                <h3>Schedule condo social posts from Laravel.</h3>
-                <p>Every create, update, and delete here is reading or writing the same WordPress FS Poster data used by the condo site. The queue stays aligned through `fsp_schedules` and related post meta.</p>
+                <h3>Review WordPress FS Poster schedules from Laravel.</h3>
+                <p>Laravel now reads the same FS Poster schedules, per-channel customization payloads, and WordPress post meta markers used by the condo site. Condo property schedules stay editable here, while WordPress post schedules appear read-only so you can still monitor the same queue from both sides.</p>
                 <div class="planner-brand-actions">
                     <a href="{{ route('social.create') }}" class="btn btn-primary">Add Schedule</a>
                     <a href="{{ rtrim(\App\Support\CondoWordpressBridge::siteBaseUrl(), '/') . '/wp-admin/admin.php?page=fs-poster#/calendar' }}" class="btn btn-secondary" target="_blank" rel="noreferrer">Open WP FS Poster</a>
@@ -578,7 +578,7 @@
                 <div class="planner-panel-head">
                     <div>
                         <h4>Queue Snapshot</h4>
-                        <div class="planner-subtle">Live totals from the current FS Poster schedules linked to your condo listings.</div>
+                        <div class="planner-subtle">Live totals from the current FS Poster schedules linked to your WordPress content and condo listings.</div>
                     </div>
                 </div>
                 <div class="planner-mini-grid">
@@ -663,7 +663,7 @@
                     <div>
                         <div class="planner-eyebrow">Social Planner</div>
                         <h3>Calendar and table views are reading the same FS Poster schedule groups from WordPress.</h3>
-                        <div class="planner-note">When you add or edit a schedule here, Laravel updates the WordPress `fsp_schedules` rows plus the schedule-related `postmeta` markers used by FS Poster.</div>
+                        <div class="planner-note">When you add or edit a condo schedule here, Laravel updates the WordPress `fsp_schedules` rows, preserves WordPress-authored channel settings where possible, and syncs the same `postmeta` markers FS Poster expects. Existing WordPress post schedules stay visible here as read-only references.</div>
                     </div>
                     <div class="planner-toggle">
                         <a href="{{ route('social.index', $calendarQuery) }}" class="{{ $viewMode === 'calendar' ? 'active' : '' }}">Calendar</a>
@@ -724,7 +724,7 @@
                             <table class="planner-table">
                                 <thead>
                                     <tr>
-                                        <th>Listing</th>
+                                        <th>Content</th>
                                         <th>Scheduled For</th>
                                         <th>Status</th>
                                         <th>Networks</th>
@@ -735,9 +735,9 @@
                                 <tbody>
                                     @foreach($posts as $schedule)
                                         <tr>
-                                            <td data-label="Listing">
+                                            <td data-label="Content">
                                                 <div class="planner-table-title">{{ $schedule['listing_title'] }}</div>
-                                                <div class="planner-table-note">Condo listing #{{ $schedule['listing_id'] }} - {{ $schedule['total_channels'] }} channel{{ $schedule['total_channels'] === 1 ? '' : 's' }}</div>
+                                                <div class="planner-table-note">{{ $schedule['content_type_label'] }} #{{ $schedule['listing_id'] }} - {{ $schedule['total_channels'] }} channel{{ $schedule['total_channels'] === 1 ? '' : 's' }}</div>
                                             </td>
                                             <td data-label="Scheduled For">
                                                 <div class="planner-table-title">{{ $schedule['scheduled_at']->format('D, d M Y') }}</div>
@@ -758,7 +758,7 @@
                                             </td>
                                             <td data-label="Message">
                                                 <div class="planner-message-box">
-                                                    {{ $schedule['message'] !== '' ? $schedule['message'] : 'Using the current WordPress FS Poster template for this schedule group.' }}
+                                                    {{ $schedule['message_preview'] !== '' ? $schedule['message_preview'] : 'Using the current WordPress FS Poster template for this schedule group.' }}
                                                 </div>
                                             </td>
                                             <td data-label="Actions">
@@ -766,12 +766,14 @@
                                                     @if($schedule['is_mutable'])
                                                         <a href="{{ route('social.edit', $schedule['group_id']) }}" class="btn btn-primary btn-sm">Edit</a>
                                                     @endif
-                                                    <a href="{{ route('listings.show', ['id' => $schedule['listing_id'], 'source' => 'condo', 'return_source' => 'condo']) }}" class="btn btn-secondary btn-sm">Listing</a>
-                                                    <form method="POST" action="{{ route('social.destroy', $schedule['group_id']) }}" onsubmit="return confirm('Remove this FS Poster schedule group?');">
-                                                        @csrf
-                                                        @method('DELETE')
-                                                        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
-                                                    </form>
+                                                    <a href="{{ $schedule['view_url'] }}" class="btn btn-secondary btn-sm">{{ $schedule['content_type_label'] }}</a>
+                                                    @if($schedule['can_manage_in_laravel'])
+                                                        <form method="POST" action="{{ route('social.destroy', $schedule['group_id']) }}" onsubmit="return confirm('Remove this FS Poster schedule group?');">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                                        </form>
+                                                    @endif
                                                 </div>
                                             </td>
                                         </tr>
