@@ -3,12 +3,17 @@
 namespace App\Http\Controllers;
 
 use App\Models\Article;
+use App\Support\RecentlyDeletedService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 
 class ArticleController extends Controller
 {
+    public function __construct(private readonly RecentlyDeletedService $recentlyDeletedService)
+    {
+    }
+
     public function index(Request $request)
     {
         $username = Auth::guard('agent')->user()->username;
@@ -120,8 +125,21 @@ class ArticleController extends Controller
     public function destroy(Article $article)
     {
         $this->authorizeAgent($article);
+
+        if (! $this->recentlyDeletedService->registryAvailable()) {
+            return redirect()
+                ->route('articles.index')
+                ->withErrors([
+                    'type' => 'Run php artisan migrate first. Article recovery needs the shared cms_deleted_items table.',
+                ]);
+        }
+
+        $this->recentlyDeletedService->rememberArticle($article, Auth::guard('agent')->user()->username);
         $article->delete();
-        return redirect()->route('articles.index')->with('success', 'Article deleted successfully.');
+
+        return redirect()
+            ->route('articles.index')
+            ->with('success', 'Article moved to Recently Deleted.');
     }
 
     private function authorizeAgent(Article $article): void

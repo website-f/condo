@@ -9,6 +9,7 @@ use App\Http\Controllers\SocialMediaController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\NewsController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\RecentlyDeletedController;
 use App\Http\Controllers\BillingController;
 use App\Http\Middleware\AgentAuth;
 use Illuminate\Support\Facades\Route;
@@ -36,16 +37,17 @@ Route::middleware(AgentAuth::class)->group(function () {
     Route::get('/listings/{id}', [ListingController::class, 'show'])->name('listings.show');
 
     // SEO
-    Route::resource('seo', SeoController::class);
+    Route::get('/seo', [SeoController::class, 'index'])->name('seo.index');
+    Route::get('/seo/{listing}/edit', [SeoController::class, 'edit'])->name('seo.edit');
+    Route::put('/seo/{listing}', [SeoController::class, 'update'])->name('seo.update');
 
     // Social Media
     Route::get('/social', [SocialMediaController::class, 'index'])->name('social.index');
-    Route::get('/social/account/create', [SocialMediaController::class, 'createAccount'])->name('social.account.create');
-    Route::post('/social/account', [SocialMediaController::class, 'storeAccount'])->name('social.account.store');
-    Route::delete('/social/account/{account}', [SocialMediaController::class, 'destroyAccount'])->name('social.account.destroy');
-    Route::get('/social/post/create', [SocialMediaController::class, 'createPost'])->name('social.post.create');
-    Route::post('/social/post', [SocialMediaController::class, 'storePost'])->name('social.post.store');
-    Route::delete('/social/post/{post}', [SocialMediaController::class, 'destroyPost'])->name('social.post.destroy');
+    Route::get('/social/create', [SocialMediaController::class, 'create'])->name('social.create');
+    Route::post('/social', [SocialMediaController::class, 'store'])->name('social.store');
+    Route::get('/social/{group}/edit', [SocialMediaController::class, 'edit'])->name('social.edit');
+    Route::put('/social/{group}', [SocialMediaController::class, 'update'])->name('social.update');
+    Route::delete('/social/{group}', [SocialMediaController::class, 'destroy'])->name('social.destroy');
 
     // Reports
     Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
@@ -58,6 +60,11 @@ Route::middleware(AgentAuth::class)->group(function () {
     Route::put('/news/{id}', [NewsController::class, 'update'])->name('news.update');
     Route::delete('/news/{id}', [NewsController::class, 'destroy'])->name('news.destroy');
     Route::get('/news/{id}', [NewsController::class, 'show'])->name('news.show');
+
+    // Recently Deleted
+    Route::get('/recently-deleted', [RecentlyDeletedController::class, 'index'])->name('recently-deleted.index');
+    Route::post('/recently-deleted/restore', [RecentlyDeletedController::class, 'restore'])->name('recently-deleted.restore');
+    Route::delete('/recently-deleted', [RecentlyDeletedController::class, 'destroy'])->name('recently-deleted.destroy');
 
     // Profile
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile.index');

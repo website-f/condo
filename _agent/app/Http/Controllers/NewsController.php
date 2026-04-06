@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\NewsUpdate;
+use App\Support\RecentlyDeletedService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -10,6 +11,10 @@ use Illuminate\Validation\Rule;
 
 class NewsController extends Controller
 {
+    public function __construct(private readonly RecentlyDeletedService $recentlyDeletedService)
+    {
+    }
+
     public function index(Request $request)
     {
         $query = NewsUpdate::manageable();
@@ -92,6 +97,8 @@ class NewsController extends Controller
         $article = NewsUpdate::manageable()->findOrFail($id);
         $modifiedAt = now();
 
+        $this->recentlyDeletedService->rememberNews($article);
+
         $article->post_status = 'trash';
         $article->post_modified = $modifiedAt->format('Y-m-d H:i:s');
         $article->post_modified_gmt = $modifiedAt->copy()->utc()->format('Y-m-d H:i:s');
@@ -99,7 +106,7 @@ class NewsController extends Controller
 
         return redirect()
             ->route('news.index')
-            ->with('success', 'News article moved to trash.');
+            ->with('success', 'News article moved to Recently Deleted.');
     }
 
     private function validateNews(Request $request): array

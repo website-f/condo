@@ -2,145 +2,236 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\SocialAccount;
-use App\Models\SocialPost;
+use App\Models\CondoListing;
+use App\Support\FsPosterBridge;
+use App\Support\RecentlyDeletedService;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Http;
+use Illuminate\Validation\ValidationException;
 
 class SocialMediaController extends Controller
 {
-    public function index()
+    public function __construct(
+        private readonly FsPosterBridge $fsPosterBridge,
+        private readonly RecentlyDeletedService $recentlyDeletedService,
+    )
+    {
+    }
+
+    public function index(Request $request)
     {
         $username = Auth::guard('agent')->user()->username;
+        $channels = $this->fsPosterBridge->availableChannels();
+        $schedules = $this->fsPosterBridge->scheduleGroupsForAgent($username);
+        $listings = $this->fsPosterBridge->availableListings($username);
 
-        $accounts = SocialAccount::where('agent_username', $username)->get();
-        $posts = SocialPost::where('agent_username', $username)
-            ->orderBy('created_at', 'desc')
-            ->paginate(12);
+        $statusFilter = trim((string) $request->query('status', ''));
+        $networkFilter = trim((string) $request->query('network', ''));
+        $search = trim((string) $request->query('search', ''));
 
-        $scheduled = SocialPost::where('agent_username', $username)
-            ->where('status', 'scheduled')
-            ->orderBy('scheduled_at', 'asc')
-            ->get();
+        $filtered = $schedules
+            ->filter(function (array $schedule) use ($statusFilter, $networkFilter, $search) {
+                if ($statusFilter !== '' && $schedule['status'] !== $statusFilter) {
+                    return false;
+                }
 
-        return view('social.index', compact('accounts', 'posts', 'scheduled'));
-    }
+                if ($networkFilter !== '' && ! in_array($networkFilter, $schedule['social_networks'], true)) {
+                    return false;
+                }
 
-    public function createAccount()
-    {
-        return view('social.create-account');
-    }
+                if ($search !== '') {
+                    $needle = mb_strtolower($search);
 
-    public function storeAccount(Request $request)
-    {
-        $request->validate([
-            'platform' => 'required|in:facebook,twitter,instagram,linkedin',
-            'account_name' => 'required|string|max:255',
-            'access_token' => 'nullable|string',
-            'page_id' => 'nullable|string|max:255',
-        ]);
+                    return str_contains(mb_strtolower($schedule['listing_title']), $needle)
+                        || str_contains(mb_strtolower($schedule['message']), $needle);
+                }
 
-        SocialAccount::create([
-            'agent_username' => Auth::guard('agent')->user()->username,
-            'platform' => $request->platform,
-            'account_name' => $request->account_name,
-            'access_token' => $request->access_token,
-            'page_id' => $request->page_id,
-        ]);
+                return true;
+            })
+            ->values();
 
-        return redirect()->route('social.index')->with('success', 'Social account connected.');
-    }
+        $posts = $this->paginateCollection($filtered, $request, 10);
+        $calendarEvents = $filtered
+            ->map(fn (array $schedule) => [
+                'id' => $schedule['group_id'],
+                'title' => $schedule['listing_title'],
+                'start' => $schedule['scheduled_at']->toIso8601String(),
+                'url' => $schedule['is_mutable'] ? route('social.edit', $schedule['group_id']) : null,
+                'backgroundColor' => $schedule['status_color'],
+                'borderColor' => $schedule['status_color'],
+                'extendedProps' => [
+                    'status' => $schedule['status_label'],
+                    'networks' => $schedule['social_networks'],
+                    'channels' => $schedule['total_channels'],
+                    'message' => $schedule['message'],
+                ],
+            ])
+            ->values();
 
-    public function destroyAccount(SocialAccount $account)
-    {
-        if ($account->agent_username !== Auth::guard('agent')->user()->username) {
-            abort(403);
-        }
-        $account->delete();
-        return redirect()->route('social.index')->with('success', 'Account removed.');
-    }
-
-    public function createPost()
-    {
-        $username = Auth::guard('agent')->user()->username;
-        $accounts = SocialAccount::where('agent_username', $username)->where('is_active', true)->get();
-        return view('social.create-post', compact('accounts'));
-    }
-
-    public function storePost(Request $request)
-    {
-        $request->validate([
-            'content' => 'required|string|max:2000',
-            'platform' => 'required|in:facebook,twitter,instagram,linkedin',
-            'social_account_id' => 'nullable|exists:cms_social_accounts,id',
-            'media' => 'nullable|image|max:5120',
-            'scheduled_at' => 'nullable|date|after:now',
-            'action' => 'required|in:draft,schedule,publish_now',
-        ]);
-
-        $data = [
-            'agent_username' => Auth::guard('agent')->user()->username,
-            'content' => $request->content,
-            'platform' => $request->platform,
-            'social_account_id' => $request->social_account_id,
+        $stats = [
+            'channels' => $channels->count(),
+            'scheduled' => $schedules->where('status', 'scheduled')->count(),
+            'sent' => $schedules->where('status', 'success')->count(),
+            'issues' => $schedules->whereIn('status', ['error', 'mixed'])->count(),
         ];
 
-        if ($request->hasFile('media')) {
-            $data['media_url'] = $request->file('media')->store('social-media', 'public');
-        }
-
-        switch ($request->action) {
-            case 'draft':
-                $data['status'] = 'draft';
-                break;
-            case 'schedule':
-                $data['status'] = 'scheduled';
-                $data['scheduled_at'] = $request->scheduled_at;
-                break;
-            case 'publish_now':
-                $data['status'] = 'published';
-                $data['published_at'] = now();
-                $this->publishToSocialMedia($data);
-                break;
-        }
-
-        SocialPost::create($data);
-
-        return redirect()->route('social.index')->with('success', 'Post created successfully.');
+        return view('social.index', compact(
+            'channels',
+            'posts',
+            'stats',
+            'calendarEvents',
+            'listings',
+            'statusFilter',
+            'networkFilter',
+            'search'
+        ));
     }
 
-    public function destroyPost(SocialPost $post)
+    public function create(Request $request)
     {
-        if ($post->agent_username !== Auth::guard('agent')->user()->username) {
+        $username = Auth::guard('agent')->user()->username;
+        $channels = $this->fsPosterBridge->availableChannels();
+        $listings = $this->fsPosterBridge->availableListings($username);
+        $selectedListingId = (int) $request->query('listing', 0);
+        $selectedListingId = $listings->firstWhere('id', $selectedListingId)['id'] ?? ($listings->first()['id'] ?? 0);
+        $defaultScheduledAt = now()->addMinutes(15)->format('Y-m-d\TH:i');
+
+        return view('social.form', [
+            'pageTitle' => 'Create Social Schedule',
+            'formAction' => route('social.store'),
+            'formMethod' => 'POST',
+            'submitLabel' => 'Queue Schedule',
+            'channels' => $channels,
+            'listings' => $listings,
+            'schedule' => [
+                'listing_id' => old('listing_id', $selectedListingId),
+                'channel_ids' => old('channel_ids', []),
+                'scheduled_at_form' => old('scheduled_at', $defaultScheduledAt),
+                'message' => old('message', ''),
+            ],
+            'existingGroup' => null,
+        ]);
+    }
+
+    public function store(Request $request)
+    {
+        $username = Auth::guard('agent')->user()->username;
+        $validated = $this->validateSchedule($request);
+        $listing = $this->findOwnedCondoListingOrFail((int) $validated['listing_id'], $username);
+        $groupId = $this->fsPosterBridge->storeScheduleGroup($listing, $username, $validated);
+
+        return redirect()
+            ->route('social.edit', $groupId)
+            ->with('success', 'FS Poster schedule queued for this condo listing.');
+    }
+
+    public function edit(string $groupId)
+    {
+        $username = Auth::guard('agent')->user()->username;
+        $group = $this->fsPosterBridge->findScheduleGroupForAgent($username, $groupId);
+        $channels = $this->fsPosterBridge->availableChannels();
+        $listings = $this->fsPosterBridge->availableListings($username);
+
+        return view('social.form', [
+            'pageTitle' => 'Edit Social Schedule',
+            'formAction' => route('social.update', $groupId),
+            'formMethod' => 'PUT',
+            'submitLabel' => 'Update Schedule',
+            'channels' => $channels,
+            'listings' => $listings,
+            'schedule' => [
+                'listing_id' => old('listing_id', $group['listing_id']),
+                'channel_ids' => old('channel_ids', $group['channel_ids']),
+                'scheduled_at_form' => old('scheduled_at', $group['scheduled_at_form']),
+                'message' => old('message', $group['message']),
+            ],
+            'existingGroup' => $group,
+        ]);
+    }
+
+    public function update(Request $request, string $groupId)
+    {
+        $username = Auth::guard('agent')->user()->username;
+        $group = $this->fsPosterBridge->findScheduleGroupForAgent($username, $groupId);
+
+        if (! $group['is_mutable']) {
+            throw ValidationException::withMessages([
+                'scheduled_at' => 'Only future queued schedules can be edited here. Past or completed schedules stay read-only.',
+            ]);
+        }
+
+        $validated = $this->validateSchedule($request);
+        $listing = $this->findOwnedCondoListingOrFail((int) $validated['listing_id'], $username);
+        $this->fsPosterBridge->storeScheduleGroup($listing, $username, $validated, $groupId);
+
+        return redirect()
+            ->route('social.edit', $groupId)
+            ->with('success', 'FS Poster schedule updated.');
+    }
+
+    public function destroy(string $groupId)
+    {
+        $username = Auth::guard('agent')->user()->username;
+
+        if (! $this->recentlyDeletedService->registryAvailable()) {
+            return redirect()
+                ->route('social.index')
+                ->withErrors([
+                    'type' => 'Run php artisan migrate first. FS Poster schedule recovery needs the shared cms_deleted_items table.',
+                ]);
+        }
+
+        $group = $this->fsPosterBridge->findScheduleGroupForAgent($username, $groupId);
+
+        $this->recentlyDeletedService->rememberSocialSchedule($username, $group);
+        $this->fsPosterBridge->deleteScheduleGroup($username, $groupId);
+
+        return redirect()
+            ->route('social.index')
+            ->with('success', 'FS Poster schedule moved to Recently Deleted.');
+    }
+
+    private function findOwnedCondoListingOrFail(int $listingId, string $username): CondoListing
+    {
+        $listing = CondoListing::query()
+            ->active()
+            ->with('details')
+            ->findOrFail($listingId);
+
+        if ($listing->username !== $username) {
             abort(403);
         }
-        $post->delete();
-        return redirect()->route('social.index')->with('success', 'Post deleted.');
+
+        return $listing;
     }
 
-    private function publishToSocialMedia(array &$data): void
+    private function validateSchedule(Request $request): array
     {
-        if ($data['platform'] === 'facebook' && !empty($data['social_account_id'])) {
-            $account = SocialAccount::find($data['social_account_id']);
-            if ($account && $account->access_token && $account->page_id) {
-                try {
-                    $response = Http::post("https://graph.facebook.com/v18.0/{$account->page_id}/feed", [
-                        'message' => $data['content'],
-                        'access_token' => $account->access_token,
-                    ]);
+        return $request->validate([
+            'listing_id' => ['required', 'integer'],
+            'channel_ids' => ['required', 'array', 'min:1'],
+            'channel_ids.*' => ['integer'],
+            'scheduled_at' => ['required', 'date', 'after:now'],
+            'message' => ['nullable', 'string', 'max:4000'],
+        ]);
+    }
 
-                    if ($response->successful()) {
-                        $data['external_post_id'] = $response->json('id');
-                    } else {
-                        $data['status'] = 'failed';
-                        $data['error_message'] = $response->json('error.message', 'Unknown error');
-                    }
-                } catch (\Exception $e) {
-                    $data['status'] = 'failed';
-                    $data['error_message'] = $e->getMessage();
-                }
-            }
-        }
+    private function paginateCollection(Collection $items, Request $request, int $perPage): LengthAwarePaginator
+    {
+        $currentPage = max(1, (int) $request->query('page', 1));
+        $currentItems = $items->forPage($currentPage, $perPage)->values();
+
+        return new LengthAwarePaginator(
+            $currentItems,
+            $items->count(),
+            $perPage,
+            $currentPage,
+            [
+                'path' => $request->url(),
+                'query' => $request->except('page'),
+            ]
+        );
     }
 }

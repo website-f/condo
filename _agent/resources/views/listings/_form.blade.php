@@ -2,82 +2,209 @@
     $existingPhotos = \App\Support\ListingEditor::normalizePhotoPaths(old('existing_photos', $form['existing_photos'] ?? []));
     $listingUsername = $listing?->getRawOriginal('username') ?? $listing?->username;
     $listingPropertyId = $listing?->getRawOriginal('propertyid') ?? $listing?->propertyid;
+    $selectedFormSource = old('source', $editingSource ?? $activeCreateSource ?? 'ipp');
+    $originalFormSource = old('original_source', $originalSource ?? $listing?->source_key ?? $selectedFormSource);
+    $formReturnSource = old('return_source', $returnSource ?? $listing?->return_source ?? $selectedFormSource);
+    $createSourceTabs = collect($createSourceTabs ?? []);
+    $selectedSourceMeta = $createSourceTabs->firstWhere('key', $selectedFormSource)
+        ?? ['key' => 'ipp', 'label' => 'IPP', 'enabled' => true, 'description' => ''];
+    $selectedSourceEnabled = (bool) ($selectedSourceMeta['enabled'] ?? false);
 @endphp
 
 <style>
-    .lf-page{display:grid;gap:24px}
-    .lf-hero,.lf-card{background:var(--card-bg);border:1px solid var(--border-light);border-radius:var(--radius-md);box-shadow:var(--shadow-sm);transition:box-shadow 0.3s ease}
-    .lf-hero{padding:32px;background:var(--card-bg)}
-    .lf-hero:hover,.lf-card:hover{box-shadow:var(--shadow-md)}
-    .lf-hero-grid,.lf-grid{display:grid;gap:24px}
-    .lf-hero-grid{grid-template-columns:minmax(0,1.2fr) minmax(280px,.8fr)}
-    .lf-grid{grid-template-columns:minmax(0,1.15fr) minmax(320px,.85fr);align-items:start}
+    /* Styling strictly minimal, clean, Apple-like */
+    :root {
+        --apple-bg: #fbfbfd;
+        --apple-card: #ffffff;
+        --apple-text: #1d1d1f;
+        --apple-text-secondary: #86868b;
+        --apple-border: rgba(0, 0, 0, 0.08);
+        --apple-border-light: rgba(0, 0, 0, 0.04);
+        --apple-accent: #f5f5f7;
+        --apple-blue: #0066cc;
+        --apple-blue-hover: #0077ed;
+        --apple-danger: #ff3b30;
+        --apple-danger-hover: #ff453a;
+        --apple-radius: 20px;
+        --apple-radius-sm: 12px;
+        --apple-shadow: 0 4px 24px rgba(0,0,0,0.04);
+        --apple-shadow-sm: 0 2px 12px rgba(0,0,0,0.03);
+        --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+    .lf-page{display:grid;gap:32px;max-width:1200px;margin:0 auto;padding-bottom:40px;color:var(--apple-text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+    .lf-hero,.lf-card{background:var(--apple-card);border:1px solid var(--apple-border);border-radius:var(--apple-radius);box-shadow:var(--apple-shadow);transition:var(--transition)}
+    .lf-hero{padding:40px}
+    .lf-hero-grid,.lf-grid{display:grid;gap:32px}
+    .lf-hero-grid{grid-template-columns:minmax(0,1.2fr) minmax(300px,.8fr)}
+    .lf-grid{grid-template-columns:minmax(0,1.15fr) minmax(360px,.85fr);align-items:start}
     .lf-main,.lf-side,.lf-fields{display:grid;gap:24px}
-    .lf-card{padding:24px}
-    .lf-kicker{font-size:12px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:var(--text-secondary);margin-bottom:12px}
-    .lf-hero h3,.lf-card h4,.lf-side h5{color:var(--text);letter-spacing:-0.021em;font-weight:600}
-    .lf-hero h3{font-size:clamp(26px,3vw,34px);line-height:1.1;margin-bottom:12px}
-    .lf-hero p,.lf-head p,.lf-guide li,.lf-hint,.lf-note{font-size:14px;line-height:1.5;color:var(--text-secondary)}
-    .lf-guide{padding:20px;border:1px solid var(--border-light);border-radius:var(--radius-sm);background:var(--accent-light)}
-    .lf-guide strong{display:block;margin-bottom:12px;color:var(--text);font-weight:600;font-size:15px}
-    .lf-guide ul{padding-left:18px;display:grid;gap:8px}
-    .lf-head{display:flex;justify-content:space-between;gap:16px;align-items:flex-start}
-    .lf-head h4{font-size:22px;line-height:1.1}
-    .lf-pill{padding:6px 12px;border-radius:999px;background:var(--accent-light);color:var(--text);font-size:12px;font-weight:600;letter-spacing:0;white-space:nowrap;border:1px solid var(--border-light)}
-    .lf-upload{display:grid;gap:14px;padding:24px;border:1px dashed var(--border);border-radius:var(--radius-md);background:var(--accent-light)}
-    .lf-upload strong{font-size:18px;color:var(--text);font-weight:600;letter-spacing:-0.01em}
-    .lf-upload-actions{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
-    .lf-file{position:relative;display:inline-flex;align-items:center;justify-content:center;min-height:40px;padding:8px 16px;border-radius:999px;background:var(--accent);color:#fff;font-size:14px;font-weight:500;cursor:pointer;transition:all 0.2s ease}
-    .lf-file:hover{background:var(--accent-hover)}
+    .lf-card{padding:32px}
+    .lf-kicker{font-size:13px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:var(--apple-blue);margin-bottom:12px}
+    .lf-hero h3,.lf-card h4,.lf-side h5{color:var(--apple-text);letter-spacing:-0.02em;font-weight:700;margin:0}
+    .lf-hero h3{font-size:clamp(28px,4vw,36px);line-height:1.15;margin-bottom:16px}
+    .lf-card h4{font-size:24px;margin-bottom:8px}
+    .lf-side h5{font-size:20px;margin-bottom:16px}
+    .lf-hero p,.lf-head p,.lf-guide li,.lf-hint,.lf-note{font-size:15px;line-height:1.6;color:var(--apple-text-secondary)}
+    .lf-guide{padding:24px;border:1px solid var(--apple-border);border-radius:var(--apple-radius-sm);background:var(--apple-accent)}
+    .lf-guide strong{display:block;margin-bottom:12px;color:var(--apple-text);font-weight:600;font-size:16px}
+    .lf-guide ul{padding-left:18px;display:grid;gap:10px}
+    .lf-head{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;margin-bottom:24px}
+    .lf-pill{padding:8px 16px;border-radius:999px;background:var(--apple-accent);color:var(--apple-text);font-size:13px;font-weight:600;white-space:nowrap;border:1px solid rgba(0,0,0,0.04)}
+    .lf-upload{display:grid;gap:16px;padding:32px;border:2px dashed var(--apple-border);border-radius:var(--apple-radius-sm);background:#fbfbfd;text-align:center;transition:var(--transition)}
+    .lf-upload:hover{border-color:var(--apple-blue);background:#f0f8ff}
+    .lf-upload strong{font-size:20px;color:var(--apple-text);font-weight:600;letter-spacing:-0.01em}
+    .lf-source-tabs{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-top:24px}
+    .lf-source-tab{position:relative;display:grid;gap:8px;padding:20px;border:1px solid var(--apple-border);border-radius:var(--apple-radius-sm);background:var(--apple-card);text-decoration:none;color:inherit;transition:var(--transition)}
+    .lf-source-tab:hover{border-color:var(--apple-blue);box-shadow:var(--apple-shadow-sm);transform:translateY(-2px)}
+    .lf-source-tab.is-active{border-color:var(--apple-blue);background:#f0f8ff;box-shadow:0 0 0 1px var(--apple-blue)}
+    .lf-source-tab.is-disabled{opacity:0.5;background:#f5f5f7;pointer-events:none}
+    .lf-source-tab.is-selectable{cursor:pointer}
+    .lf-source-input{position:absolute;opacity:0;pointer-events:none}
+    .lf-source-label{font-size:15px;font-weight:700;color:var(--apple-text);text-transform:uppercase;letter-spacing:0.04em}
+    .lf-source-copy{font-size:14px;line-height:1.5;color:var(--apple-text-secondary)}
+    .lf-source-status{font-size:13px;font-weight:600;color:var(--apple-blue);margin-top:8px}
+    .lf-upload-actions{display:flex;gap:16px;flex-direction:column;align-items:center}
+    .lf-file{position:relative;display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:10px 24px;border-radius:999px;background:var(--apple-blue);color:#fff;font-size:15px;font-weight:600;cursor:pointer;transition:var(--transition)}
+    .lf-file:hover{background:var(--apple-blue-hover);transform:scale(1.02)}
     .lf-file input{position:absolute;opacity:0;pointer-events:none}
-    .lf-gallery{display:grid;gap:16px}
+    .lf-gallery{display:grid;gap:20px;margin-top:32px;padding-top:32px;border-top:1px solid var(--apple-border)}
     .lf-gallery-head{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}
-    .lf-gallery-title{font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:0.02em;color:var(--text)}
-    .lf-media-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px}
-    .lf-media{display:grid;gap:12px;padding:12px;border:1px solid var(--border-light);border-radius:var(--radius-md);background:var(--card-bg)}
-    .lf-frame{position:relative;height:140px;border-radius:var(--radius-sm);overflow:hidden;background:var(--accent-light);border:1px solid var(--border-light)}
+    .lf-gallery-title{font-size:15px;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;color:var(--apple-text)}
+    .lf-media-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px}
+    .lf-media{display:grid;gap:12px;padding:12px;border:1px solid var(--apple-border);border-radius:var(--apple-radius-sm);background:var(--apple-card);transition:var(--transition)}
+    .lf-media:hover{box-shadow:var(--apple-shadow-sm);transform:translateY(-2px)}
+    .lf-frame{position:relative;height:160px;border-radius:8px;overflow:hidden;background:#f5f5f7;border:1px solid rgba(0,0,0,0.04)}
     .lf-frame img{width:100%;height:100%;object-fit:cover;display:block}
     .lf-badges{position:absolute;top:10px;left:10px;display:flex;gap:8px;flex-wrap:wrap}
-    .lf-badge{display:inline-flex;align-items:center;padding:4px 8px;border-radius:6px;background:rgba(255,255,255,0.9);color:var(--text);font-size:11px;font-weight:600;letter-spacing:0;box-shadow:0 1px 2px rgba(0,0,0,0.1)}
-    .lf-badge.cover{background:var(--text);color:#fff}
-    .lf-name{font-size:13px;font-weight:500;color:var(--text);line-height:1.4;word-break:break-word}
-    .lf-sub{font-size:12px;color:var(--text-secondary);word-break:break-word}
-    .lf-remove{display:inline-flex;align-items:center;justify-content:center;min-height:36px;padding:6px 12px;border-radius:8px;border:1px solid var(--border-light);background:var(--card-bg);color:var(--danger);font-size:13px;font-weight:500;cursor:pointer;transition:all 0.2s}
-    .lf-remove:hover{background:#fff5f5;border-color:#ffb3b0}
-    .lf-empty{padding:24px;border:1px dashed var(--border);border-radius:var(--radius-sm);background:var(--accent-light);color:var(--text-secondary);font-size:14px;line-height:1.5;text-align:center}
-    .lf-form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+    .lf-badge{display:inline-flex;align-items:center;padding:6px 10px;border-radius:6px;background:rgba(255,255,255,0.9);color:var(--apple-text);font-size:11px;font-weight:700;letter-spacing:0.02em;box-shadow:0 2px 4px rgba(0,0,0,0.1);backdrop-filter:blur(4px)}
+    .lf-badge.cover{background:var(--apple-text);color:#fff}
+    .lf-name{font-size:14px;font-weight:600;color:var(--apple-text);line-height:1.4;word-break:break-word}
+    .lf-sub{font-size:13px;color:var(--apple-text-secondary);word-break:break-word}
+    .lf-remove{display:inline-flex;align-items:center;justify-content:center;min-height:36px;padding:8px 16px;border-radius:8px;border:none;background:var(--apple-accent);color:var(--apple-danger);font-size:14px;font-weight:600;cursor:pointer;transition:var(--transition)}
+    .lf-remove:hover{background:#ffefef;color:var(--apple-danger-hover)}
+    .lf-empty{padding:32px;border:1px dashed var(--apple-border);border-radius:var(--apple-radius-sm);background:#fbfbfd;color:var(--apple-text-secondary);font-size:15px;line-height:1.6;text-align:center;font-weight:500}
+    .lf-form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
     .lf-full{grid-column:1/-1}
-    .lf-check{display:flex;gap:12px;align-items:flex-start;padding:16px;border:1px solid var(--border-light);border-radius:var(--radius-sm);background:var(--accent-light);cursor:pointer}
-    .lf-check input{width:18px;height:18px;accent-color:var(--text);cursor:pointer;margin-top:2px}
-    .lf-check strong{display:block;font-size:14px;color:var(--text);font-weight:500}
-    .lf-check span{display:block;margin-top:4px;font-size:13px;color:var(--text-secondary)}
-    .lf-side{position:sticky;top:88px}
-    .lf-side h5{font-size:20px;line-height:1.1}
-    .lf-summary{display:grid;gap:12px}
-    .lf-row{display:flex;justify-content:space-between;gap:12px;padding-bottom:12px;border-bottom:1px solid var(--border-light)}
+    .lf-check{display:flex;gap:12px;align-items:flex-start;padding:20px;border:1px solid var(--apple-border);border-radius:var(--apple-radius-sm);background:var(--apple-accent);cursor:pointer;transition:var(--transition)}
+    .lf-check:hover{border-color:var(--apple-blue)}
+    .lf-check input{width:20px;height:20px;accent-color:var(--apple-blue);cursor:pointer;margin-top:2px}
+    .lf-check strong{display:block;font-size:15px;color:var(--apple-text);font-weight:600}
+    .lf-check span{display:block;margin-top:4px;font-size:14px;color:var(--apple-text-secondary)}
+    .lf-side{position:sticky;top:32px}
+    .lf-summary{display:grid;gap:16px}
+    .lf-row{display:flex;justify-content:space-between;gap:12px;padding-bottom:16px;border-bottom:1px solid var(--apple-border)}
     .lf-row:last-child{padding-bottom:0;border-bottom:0}
-    .lf-row span{font-size:13px;font-weight:500;color:var(--text-secondary)}
-    .lf-row strong{font-size:14px;font-weight:600;color:var(--text);text-align:right;word-break:break-word}
-    .lf-note{padding:16px;border-radius:var(--radius-sm);background:var(--accent-light);color:var(--text-secondary);border:1px solid var(--border-light)}
+    .lf-row span{font-size:14px;font-weight:600;color:var(--apple-text-secondary)}
+    .lf-row strong{font-size:15px;font-weight:600;color:var(--apple-text);text-align:right;word-break:break-word}
+    .lf-note{padding:20px;border-radius:var(--apple-radius-sm);background:#f5f5f7;color:var(--apple-text-secondary);border:1px solid rgba(0,0,0,0.04);margin:24px 0}
     .lf-actions{display:flex;gap:12px;flex-wrap:wrap}
+    
+    .lf-actions .btn {
+        flex: 1;
+        padding: 14px 24px;
+        border-radius: 999px;
+        font-weight: 600;
+        font-size: 15px;
+        text-align: center;
+        border: none;
+        cursor: pointer;
+        transition: var(--transition);
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .lf-actions .btn-primary { background: var(--apple-blue); color: #ffffff; }
+    .lf-actions .btn-primary:hover { background: var(--apple-blue-hover); transform: scale(1.02); }
+    .lf-actions .btn-secondary { background: var(--apple-accent); color: var(--apple-text); }
+    .lf-actions .btn-secondary:hover { background: rgba(0,0,0,0.05); }
+
+    .form-label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 8px; color: var(--apple-text); }
+    .form-input, .form-select, .form-textarea { width: 100%; border: 1px solid var(--apple-border); background: var(--apple-accent); border-radius: 12px; padding: 14px 16px; font-size: 15px; color: var(--apple-text); transition: var(--transition); font-family: inherit; }
+    .form-input:focus, .form-select:focus, .form-textarea:focus { background: #ffffff; border-color: var(--apple-blue); outline: none; box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.15); }
+    .form-textarea { resize: vertical; min-height: 100px; }
+    .form-hint { font-size: 13px; color: var(--apple-text-secondary); margin-top: 6px; }
+
     @media (max-width:1180px){.lf-hero-grid,.lf-grid{grid-template-columns:1fr}.lf-side{position:static}}
-    @media (max-width:780px){.lf-card,.lf-hero{padding:20px;border-radius:var(--radius-sm)}.lf-form-grid,.lf-media-grid{grid-template-columns:1fr}.lf-head{flex-direction:column}}
+    @media (max-width:780px){
+        .lf-card,.lf-hero{padding:24px}
+        .lf-form-grid,.lf-media-grid{grid-template-columns:1fr}
+        .lf-head{flex-direction:column}
+        .lf-actions .btn {flex-basis: 100%;}
+    }
 </style>
 
 <div class="lf-page">
+    @if($createSourceTabs->isNotEmpty())
+        <section class="lf-card">
+            <div class="lf-head">
+                <div>
+                    <h4>Listing Source</h4>
+                    <p>{{ $listing ? 'Choose where this listing should live after you save.' : 'Choose where this listing should be created before you upload photos.' }}</p>
+                </div>
+            </div>
+            <div class="lf-source-tabs">
+                @foreach($createSourceTabs as $sourceTab)
+                    @php
+                        $isActiveSource = $selectedFormSource === $sourceTab['key'];
+                        $sourceTabClass = 'lf-source-tab' . ($isActiveSource ? ' is-active' : '') . (! $sourceTab['enabled'] ? ' is-disabled' : '') . ($listing ? ' is-selectable' : '');
+                    @endphp
+                    @if($listing)
+                        <label class="{{ $sourceTabClass }}">
+                            <input class="lf-source-input" type="radio" name="source" value="{{ $sourceTab['key'] }}" @checked($isActiveSource) @disabled(! $sourceTab['enabled'])>
+                            <span class="lf-source-label">{{ $sourceTab['label'] }}</span>
+                            <span class="lf-source-copy">{{ $sourceTab['description'] }}</span>
+                            @if($originalFormSource === $sourceTab['key'])
+                                <span class="lf-source-status">Current source</span>
+                            @elseif($isActiveSource)
+                                <span class="lf-source-status">Will move on save</span>
+                            @endif
+                        </label>
+                    @elseif($sourceTab['enabled'])
+                        <a href="{{ route('listings.create', ['source' => $sourceTab['key']]) }}" class="{{ $sourceTabClass }}">
+                            <span class="lf-source-label">{{ $sourceTab['label'] }}</span>
+                            <span class="lf-source-copy">{{ $sourceTab['description'] }}</span>
+                        </a>
+                    @else
+                        <div class="{{ $sourceTabClass }}">
+                            <span class="lf-source-label">{{ $sourceTab['label'] }}</span>
+                            <span class="lf-source-copy">{{ $sourceTab['description'] }}</span>
+                        </div>
+                    @endif
+                @endforeach
+            </div>
+        </section>
+    @endif
+
     <section class="lf-hero">
         <div class="lf-hero-grid">
             <div>
                 <div class="lf-kicker">{{ $listing ? 'Update Listing' : 'Create Listing' }}</div>
                 <h3>{{ $listing ? 'Keep the gallery current and the listing polished.' : 'Launch a new listing with real uploaded images.' }}</h3>
-                <p>Agents can now upload actual listing photos here. The CMS saves the image paths automatically, so there is no need to paste manual URLs or legacy server paths anymore.</p>
+                <p>
+                    @if($listing && $selectedFormSource !== $originalFormSource)
+                        Saving will move this listing from {{ strtoupper($originalFormSource) }} to {{ strtoupper($selectedFormSource) }} while keeping the same property ID and legacy image paths.
+                    @elseif($listing)
+                        Agents can keep the gallery current here without touching raw legacy metadata by hand.
+                    @elseif($selectedFormSource === 'icp')
+                        ICP uploads follow the mobile-app flow: photos are saved into legacy <code>Database/Images/&lt;propertyId&gt;/001.jpg</code> paths before the listing row is written.
+                    @elseif($selectedFormSource === 'condo')
+                        Condo uploads are written into WordPress properties inside <code>wp_condo</code> so Estatik, Rank Math, and future condo subdomains can read the same listing.
+                    @else
+                        IPP uploads now keep the same legacy <code>Database/Images/&lt;propertyId&gt;/001.jpg</code> image path format used by the existing listing databases.
+                    @endif
+                </p>
             </div>
             <div class="lf-guide">
-                <strong>How photo updates work</strong>
+                <strong>{{ $listing ? 'How photo updates work' : 'How this save flow works' }}</strong>
                 <ul>
                     <li>Keep any saved image you still want on the listing.</li>
                     <li>Remove any outdated photo, then add replacements below.</li>
                     <li>The first kept or uploaded image becomes the cover photo after save.</li>
+                    @if($listing)
+                        <li>Changing the source here moves the listing when you save.</li>
+                    @endif
                 </ul>
             </div>
         </div>
@@ -85,6 +212,13 @@
 
     <div class="lf-grid">
         <div class="lf-main">
+            @if($listing)
+                <input type="hidden" name="original_source" value="{{ $originalFormSource }}">
+                <input type="hidden" name="return_source" value="{{ $formReturnSource }}">
+            @else
+                <input type="hidden" name="source" value="{{ $selectedFormSource }}">
+            @endif
+
             <section class="lf-card">
                 <div class="lf-head">
                     <div>
@@ -99,11 +233,19 @@
                     <div class="lf-upload-actions">
                         <label class="lf-file">
                             Choose Images
-                            <input id="listing-new-images" type="file" name="new_images[]" accept="image/*" multiple>
+                            <input id="listing-new-images" type="file" name="new_images[]" accept="image/*" multiple @disabled(! $selectedSourceEnabled)>
                         </label>
-                        <span class="lf-hint">JPG, PNG, WEBP, GIF, BMP, and SVG up to 10MB each.</span>
+                        <span class="lf-hint">JPG, JPEG, PNG, WEBP, GIF, and BMP up to 10MB each.</span>
                     </div>
-                    <div class="lf-hint">This replaces the old raw image-path entry flow.</div>
+                    <div class="lf-hint">
+                        @if($selectedFormSource === 'icp')
+                            New ICP uploads are saved with sequential legacy filenames like <code>001.jpg</code>, <code>002.jpg</code>, and the DB keeps the matching <code>Database/Images</code> paths.
+                        @elseif($selectedFormSource === 'condo')
+                            Condo uploads are copied into WordPress media-style uploads and linked back to the property post for the condo site.
+                        @else
+                            New uploads are stored with legacy <code>Database/Images</code> paths so they match the existing IPP/ICP databases.
+                        @endif
+                    </div>
                 </div>
 
                 <div class="lf-gallery">
@@ -292,8 +434,8 @@
                 </div>
                 <div class="lf-note">Images are stored automatically and their paths are saved for you. Removing a saved local image here removes it from the listing after save.</div>
                 <div class="lf-actions">
-                    <button type="submit" class="btn btn-primary">{{ $submitLabel }}</button>
-                    <a href="{{ $listing ? route('listings.show', $listing->id) : route('listings.index') }}" class="btn btn-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-primary" @disabled(! $selectedSourceEnabled)>{{ ! $selectedSourceEnabled ? 'Source Not Ready Yet' : $submitLabel }}</button>
+                    <a href="{{ $listing ? route('listings.show', array_filter(['id' => $listing->id, 'source' => $originalFormSource === 'ipp' ? null : $originalFormSource, 'return_source' => $formReturnSource], static fn ($value) => $value !== null)) : route('listings.index', ['source' => $selectedFormSource]) }}" class="btn btn-secondary">Cancel</a>
                 </div>
             </section>
         </aside>

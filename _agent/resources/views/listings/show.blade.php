@@ -3,14 +3,20 @@
 @section('page-title', 'Listing Details')
 @section('topbar-actions')
     @if($canManageListing)
-        <a href="{{ route('listings.edit', $listing->id) }}" class="btn btn-secondary btn-sm">Edit</a>
+        <a href="{{ route('listings.edit', array_filter(['id' => $listing->id, 'source' => $listing->source_key === 'ipp' ? null : $listing->source_key, 'return_source' => $returnSource], static fn ($value) => $value !== null)) }}" class="btn btn-secondary btn-sm">Edit</a>
+        @if(($listing->source_key ?? '') === 'condo')
+            <a href="{{ route('seo.edit', $listing->id) }}" class="btn btn-secondary btn-sm">SEO</a>
+            <a href="{{ route('social.create', ['listing' => $listing->id]) }}" class="btn btn-secondary btn-sm">Schedule</a>
+        @endif
         <form method="POST" action="{{ route('listings.destroy', $listing->id) }}" onsubmit="return confirm('Delete this listing? This action cannot be undone.');" style="margin:0;">
             @csrf
             @method('DELETE')
+            <input type="hidden" name="source" value="{{ $listing->source_key }}">
+            <input type="hidden" name="return_source" value="{{ $returnSource }}">
             <button type="submit" class="btn btn-danger btn-sm">Delete</button>
         </form>
     @else
-        <span class="badge badge-default">ICP Read Only</span>
+        <span class="badge badge-default">{{ strtoupper($listing->source_key ?? 'ipp') }} Read Only</span>
     @endif
     <a href="{{ route('listings.index', ['source' => $returnSource]) }}" class="btn btn-secondary btn-sm">Back</a>
 @endsection
@@ -94,18 +100,42 @@
 @endif
 
 <style>
+    /* Styling strictly minimal, clean, Apple-like */
+    :root {
+        --apple-bg: #fbfbfd;
+        --apple-card: #ffffff;
+        --apple-text: #1d1d1f;
+        --apple-text-muted: #86868b;
+        --apple-border: rgba(0, 0, 0, 0.08);
+        --apple-blue: #0066cc;
+        --apple-blue-hover: #0077ed;
+        --apple-radius: 20px;
+        --apple-radius-sm: 12px;
+        --apple-shadow: 0 4px 24px rgba(0,0,0,0.04);
+        --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+
+    body {
+        background-color: var(--apple-bg);
+        color: var(--apple-text);
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
     .listing-detail-page {
         display: grid;
         gap: 32px;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding-bottom: 40px;
     }
 
     .listing-hero-card {
         padding: 0;
         overflow: hidden;
-        background: var(--card-bg);
-        border: 1px solid var(--border-light);
-        border-radius: var(--radius-lg);
-        box-shadow: var(--shadow-sm);
+        background: var(--apple-card);
+        border: 1px solid var(--apple-border);
+        border-radius: var(--apple-radius);
+        box-shadow: var(--apple-shadow);
     }
 
     .listing-hero-grid {
@@ -114,44 +144,45 @@
     }
 
     .listing-gallery-shell {
-        padding: 32px;
-        border-bottom: 1px solid var(--border-light);
-        background: var(--card-bg);
+        padding: 24px;
+        border-bottom: 1px solid var(--apple-border);
+        background: var(--apple-card);
     }
 
     .listing-stage {
         position: relative;
         display: block;
         height: 520px;
-        border-radius: var(--radius-lg);
+        border-radius: 16px;
         overflow: hidden;
-        background: var(--accent-light);
-        border: 1px solid var(--border-light);
+        background: #f5f5f7;
+        border: 1px solid var(--apple-border);
     }
 
     .listing-stage img {
         width: 100%;
         height: 100%;
-        object-fit: cover;
+        object-fit: contain;
         display: block;
     }
 
     .listing-stage-count {
         position: absolute;
-        left: 16px;
-        bottom: 16px;
+        left: 20px;
+        bottom: 20px;
         display: inline-flex;
         align-items: center;
         gap: 8px;
-        padding: 6px 12px;
+        padding: 8px 16px;
         border-radius: 999px;
-        background: rgba(0, 0, 0, 0.6);
-        backdrop-filter: blur(8px);
-        -webkit-backdrop-filter: blur(8px);
-        color: #fff;
+        background: rgba(255, 255, 255, 0.8);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        color: var(--apple-text);
         font-size: 13px;
         font-weight: 600;
-        letter-spacing: -0.01em;
+        border: 1px solid rgba(0,0,0,0.05);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
     }
 
     .listing-thumbnail-row {
@@ -166,17 +197,21 @@
         border-radius: 12px;
         overflow: hidden;
         padding: 0;
-        background: var(--accent-light);
+        background: #f5f5f7;
         cursor: pointer;
-        transition: all 0.2s ease;
+        transition: var(--transition);
         min-height: 82px;
+        aspect-ratio: 4/3;
     }
 
-    .listing-thumb:hover,
-    .listing-thumb.is-active {
-        border-color: var(--text);
+    .listing-thumb:hover {
         transform: translateY(-2px);
         box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    .listing-thumb.is-active {
+        border-color: var(--apple-blue);
+        box-shadow: 0 4px 12px rgba(0,102,204,0.1);
     }
 
     .listing-thumb img {
@@ -189,14 +224,14 @@
 
     .listing-gallery-placeholder {
         min-height: 520px;
-        border-radius: var(--radius-lg);
+        border-radius: 16px;
         padding: 32px;
         display: grid;
         place-items: center;
         text-align: center;
-        background: var(--accent-light);
-        color: var(--text);
-        border: 1px dashed var(--border);
+        background: #fbfbfd;
+        color: var(--apple-text);
+        border: 1px dashed var(--apple-border);
     }
 
     .listing-gallery-placeholder span {
@@ -207,15 +242,15 @@
         place-items: center;
         font-size: 32px;
         font-weight: 500;
-        background: var(--card-bg);
-        box-shadow: var(--shadow-sm);
+        background: #ffffff;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
         margin-bottom: 20px;
-        color: var(--text-secondary);
+        color: var(--apple-text-muted);
     }
 
     .listing-gallery-placeholder p {
         max-width: 280px;
-        color: var(--text-secondary);
+        color: var(--apple-text-muted);
         font-size: 15px;
         line-height: 1.5;
     }
@@ -223,27 +258,27 @@
     .listing-summary-panel {
         display: flex;
         flex-direction: column;
-        gap: 24px;
-        padding: 32px;
-        background: var(--card-bg);
+        gap: 28px;
+        padding: 40px 32px;
+        background: var(--apple-card);
     }
 
     .listing-eyebrow {
-        font-size: 12px;
-        letter-spacing: 0.04em;
+        font-size: 13px;
+        letter-spacing: 0.05em;
         text-transform: uppercase;
-        font-weight: 600;
-        color: var(--text-secondary);
+        font-weight: 700;
+        color: var(--apple-text-muted);
         margin-bottom: 12px;
     }
 
     .listing-title {
-        font-size: clamp(28px, 3vw, 40px);
-        line-height: 1.1;
-        letter-spacing: -0.021em;
-        color: var(--text);
-        margin-bottom: 12px;
-        font-weight: 600;
+        font-size: clamp(28px, 4vw, 44px);
+        line-height: 1.15;
+        letter-spacing: -0.02em;
+        color: var(--apple-text);
+        margin-bottom: 16px;
+        font-weight: 700;
     }
 
     .listing-location {
@@ -251,46 +286,46 @@
         align-items: center;
         gap: 10px;
         flex-wrap: wrap;
-        color: var(--text-secondary);
-        font-size: 15px;
+        color: var(--apple-text-muted);
+        font-size: 16px;
     }
 
     .listing-location-dot {
         width: 6px;
         height: 6px;
         border-radius: 50%;
-        background: var(--text-secondary);
+        background: var(--apple-blue);
         flex-shrink: 0;
     }
 
     .listing-price-panel {
         padding: 24px;
-        border-radius: var(--radius-md);
-        border: 1px solid var(--border-light);
-        background: var(--accent-light);
+        border-radius: var(--apple-radius-sm);
+        border: 1px solid var(--apple-border);
+        background: #f5f5f7;
     }
 
     .listing-price-label {
-        font-size: 12px;
+        font-size: 13px;
         font-weight: 600;
         letter-spacing: 0.04em;
         text-transform: uppercase;
-        color: var(--text-secondary);
+        color: var(--apple-text-muted);
         margin-bottom: 8px;
     }
 
     .listing-price-value {
-        font-size: clamp(32px, 3.1vw, 48px);
+        font-size: clamp(32px, 3.5vw, 48px);
         line-height: 1;
         letter-spacing: -0.025em;
-        font-weight: 600;
-        color: var(--text);
+        font-weight: 700;
+        color: var(--apple-text);
     }
 
     .listing-price-value span {
-        font-size: 16px;
+        font-size: 18px;
         letter-spacing: 0;
-        color: var(--text-secondary);
+        color: var(--apple-text-muted);
         font-weight: 500;
         margin-left: 8px;
     }
@@ -305,82 +340,78 @@
         display: inline-flex;
         align-items: center;
         gap: 8px;
-        padding: 6px 14px;
+        padding: 8px 16px;
         border-radius: 999px;
-        background: var(--accent-light);
-        color: var(--text);
-        border: 1px solid var(--border-light);
-        font-size: 13px;
-        font-weight: 500;
+        background: #f5f5f7;
+        color: var(--apple-text);
+        border: 1px solid rgba(0,0,0,0.04);
+        font-size: 14px;
+        font-weight: 600;
     }
 
     .listing-highlights-grid {
         display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
         gap: 16px;
     }
 
     .listing-highlight {
-        padding: 16px;
-        border-radius: var(--radius-sm);
-        background: var(--card-bg);
-        border: 1px solid var(--border-light);
+        padding: 20px;
+        border-radius: var(--apple-radius-sm);
+        background: var(--apple-card);
+        border: 1px solid var(--apple-border);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.02);
     }
 
     .listing-highlight-label {
         display: block;
         margin-bottom: 8px;
-        font-size: 11px;
+        font-size: 12px;
         letter-spacing: 0.04em;
         text-transform: uppercase;
         font-weight: 600;
-        color: var(--text-secondary);
+        color: var(--apple-text-muted);
     }
 
     .listing-highlight-value {
         display: block;
-        color: var(--text);
-        font-size: 16px;
-        font-weight: 600;
-        line-height: 1.4;
+        color: var(--apple-text);
+        font-size: 18px;
+        font-weight: 700;
+        line-height: 1.3;
         word-break: break-word;
     }
 
     .listing-meta-grid {
         display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
         gap: 16px;
-    }
-
-    .listing-meta-item {
-        padding: 16px;
-        border-radius: var(--radius-sm);
-        background: var(--card-bg);
-        border: 1px solid var(--border-light);
+        padding-top: 24px;
+        border-top: 1px solid var(--apple-border);
     }
 
     .listing-meta-item span {
         display: block;
-        font-size: 11px;
+        font-size: 12px;
         letter-spacing: 0.04em;
         text-transform: uppercase;
         font-weight: 600;
-        color: var(--text-secondary);
-        margin-bottom: 8px;
+        color: var(--apple-text-muted);
+        margin-bottom: 6px;
     }
 
     .listing-meta-item strong {
         display: block;
-        font-size: 14px;
-        color: var(--text);
-        font-weight: 500;
+        font-size: 15px;
+        color: var(--apple-text);
+        font-weight: 600;
         line-height: 1.4;
         word-break: break-word;
     }
 
     .listing-body-grid {
         display: grid;
-        grid-template-columns: minmax(0, 1.3fr) minmax(320px, 0.82fr);
+        grid-template-columns: minmax(0, 1.5fr) minmax(360px, 1fr);
         gap: 32px;
         align-items: start;
     }
@@ -393,17 +424,17 @@
 
     .listing-side-column .listing-side-card:first-child {
         position: sticky;
-        top: 88px;
+        top: 24px;
     }
 
-    .listing-section {
+    .listing-section, .listing-side-card {
         display: grid;
         gap: 24px;
         padding: 32px;
-        background: var(--card-bg);
-        border-radius: var(--radius-lg);
-        border: 1px solid var(--border-light);
-        box-shadow: var(--shadow-sm);
+        background: var(--apple-card);
+        border-radius: var(--apple-radius);
+        border: 1px solid var(--apple-border);
+        box-shadow: var(--apple-shadow);
     }
 
     .listing-section-head {
@@ -411,34 +442,42 @@
         align-items: flex-end;
         justify-content: space-between;
         gap: 16px;
+        border-bottom: 1px solid rgba(0,0,0,0.06);
+        padding-bottom: 16px;
     }
 
     .listing-section-kicker {
-        font-size: 12px;
-        letter-spacing: 0.04em;
+        font-size: 13px;
+        letter-spacing: 0.05em;
         text-transform: uppercase;
-        font-weight: 600;
-        color: var(--text-secondary);
+        font-weight: 700;
+        color: var(--apple-blue);
         margin-bottom: 8px;
     }
 
-    .listing-section-head h3 {
-        font-size: 24px;
+    .listing-section-head h3, .listing-side-card h4 {
+        font-size: 26px;
         line-height: 1.1;
-        letter-spacing: -0.021em;
-        color: var(--text);
-        font-weight: 600;
+        letter-spacing: -0.02em;
+        color: var(--apple-text);
+        font-weight: 700;
+        margin: 0;
+    }
+
+    .listing-side-card h4 {
+        font-size: 20px;
     }
 
     .listing-section-note {
         font-size: 14px;
-        color: var(--text-secondary);
+        color: var(--apple-text-muted);
+        font-weight: 500;
     }
 
     .listing-copy {
-        font-size: 15px;
-        line-height: 1.6;
-        color: var(--text);
+        font-size: 16px;
+        line-height: 1.7;
+        color: var(--apple-text);
         white-space: normal;
     }
 
@@ -447,62 +486,46 @@
     }
 
     .listing-empty-copy {
-        padding: 24px;
-        border-radius: var(--radius-sm);
-        background: var(--accent-light);
-        color: var(--text-secondary);
-        font-size: 15px;
+        padding: 32px;
+        border-radius: var(--apple-radius-sm);
+        background: #fbfbfd;
+        color: var(--apple-text-muted);
+        font-size: 16px;
         text-align: center;
-        border: 1px dashed var(--border);
+        border: 1px dashed var(--apple-border);
+        font-weight: 500;
     }
 
-    .listing-facts-grid {
+    .listing-facts-grid, .listing-records-grid {
         display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
         gap: 16px;
     }
 
-    .listing-fact {
-        padding: 16px;
-        border-radius: var(--radius-sm);
-        background: var(--accent-light);
-        border: 1px solid var(--border-light);
+    .listing-fact, .listing-record {
+        padding: 20px;
+        border-radius: var(--apple-radius-sm);
+        background: #f5f5f7;
+        border: 1px solid rgba(0,0,0,0.04);
     }
 
-    .listing-fact span {
+    .listing-fact span, .listing-record span {
         display: block;
         margin-bottom: 8px;
-        font-size: 11px;
+        font-size: 12px;
         letter-spacing: 0.04em;
         text-transform: uppercase;
         font-weight: 600;
-        color: var(--text-secondary);
+        color: var(--apple-text-muted);
     }
 
-    .listing-fact strong {
+    .listing-fact strong, .listing-record strong {
         display: block;
-        font-size: 15px;
-        color: var(--text);
-        font-weight: 500;
+        font-size: 16px;
+        color: var(--apple-text);
+        font-weight: 600;
         line-height: 1.4;
         word-break: break-word;
-    }
-
-    .listing-side-card {
-        display: grid;
-        gap: 24px;
-        padding: 32px;
-        background: var(--card-bg);
-        border-radius: var(--radius-lg);
-        border: 1px solid var(--border-light);
-        box-shadow: var(--shadow-sm);
-    }
-
-    .listing-side-card h4 {
-        font-size: 18px;
-        letter-spacing: -0.021em;
-        color: var(--text);
-        font-weight: 600;
     }
 
     .listing-side-list {
@@ -516,7 +539,7 @@
         align-items: flex-start;
         gap: 16px;
         padding-bottom: 16px;
-        border-bottom: 1px solid var(--border-light);
+        border-bottom: 1px solid var(--apple-border);
     }
 
     .listing-side-row:last-child {
@@ -525,16 +548,16 @@
     }
 
     .listing-side-row span {
-        color: var(--text-secondary);
-        font-size: 13px;
+        color: var(--apple-text-muted);
+        font-size: 14px;
         font-weight: 500;
         flex-shrink: 0;
     }
 
     .listing-side-row strong {
-        color: var(--text);
-        font-size: 14px;
-        font-weight: 500;
+        color: var(--apple-text);
+        font-size: 15px;
+        font-weight: 600;
         text-align: right;
         line-height: 1.4;
         word-break: break-word;
@@ -543,26 +566,27 @@
     .listing-agent {
         display: flex;
         align-items: center;
-        gap: 16px;
+        gap: 20px;
         padding: 20px;
-        border-radius: var(--radius-md);
-        background: var(--accent-light);
-        border: 1px solid var(--border-light);
+        border-radius: var(--apple-radius-sm);
+        background: #f5f5f7;
+        border: 1px solid rgba(0,0,0,0.04);
     }
 
     .listing-agent-avatar {
-        width: 64px;
-        height: 64px;
+        width: 72px;
+        height: 72px;
         border-radius: 50%;
         overflow: hidden;
-        background: var(--border);
-        color: var(--text);
+        background: #ffffff;
+        color: var(--apple-blue);
         display: grid;
         place-items: center;
-        font-size: 20px;
-        font-weight: 600;
+        font-size: 24px;
+        font-weight: 700;
         flex-shrink: 0;
-        border: 1px solid var(--border-light);
+        border: 1px solid var(--apple-border);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
     }
 
     .listing-agent-avatar img {
@@ -573,66 +597,193 @@
     }
 
     .listing-agent-label {
-        font-size: 11px;
+        font-size: 12px;
         letter-spacing: 0.04em;
         text-transform: uppercase;
-        font-weight: 600;
-        color: var(--text-secondary);
+        font-weight: 700;
+        color: var(--apple-blue);
         margin-bottom: 6px;
     }
 
     .listing-agent-name {
-        font-size: 18px;
+        font-size: 20px;
         line-height: 1.2;
-        letter-spacing: -0.021em;
-        color: var(--text);
-        font-weight: 600;
+        letter-spacing: -0.02em;
+        color: var(--apple-text);
+        font-weight: 700;
         margin-bottom: 4px;
     }
 
     .listing-agent-meta {
         font-size: 14px;
-        color: var(--text-secondary);
+        color: var(--apple-text-muted);
         line-height: 1.5;
+        font-weight: 500;
     }
 
     .listing-actions {
         display: flex;
-        gap: 12px;
+        gap: 8px;
         flex-wrap: wrap;
     }
 
-    .listing-records-grid {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 16px;
-    }
-
-    .listing-record {
-        padding: 16px;
-        border-radius: var(--radius-sm);
-        border: 1px solid var(--border-light);
-        background: var(--accent-light);
-    }
-
-    .listing-record span {
-        display: block;
-        margin-bottom: 8px;
-        font-size: 11px;
-        letter-spacing: 0.04em;
-        text-transform: uppercase;
+    .listing-actions .btn {
+        padding: 8px 18px;
+        border-radius: 8px;
         font-weight: 600;
-        color: var(--text-secondary);
+        font-size: 13px;
+        text-align: center;
+        border: 1px solid var(--apple-border);
+        cursor: pointer;
+        transition: var(--transition);
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: #f5f5f7;
+        color: var(--apple-text);
     }
 
-    .listing-record strong {
-        display: block;
-        font-size: 15px;
-        color: var(--text);
-        line-height: 1.5;
-        white-space: pre-wrap;
-        word-break: break-word;
-        font-weight: 500;
+    .listing-actions .btn:hover {
+        background: rgba(0,0,0,0.06);
+    }
+
+    .listing-actions .btn-primary {
+        background: var(--apple-blue);
+        color: #ffffff;
+        border-color: var(--apple-blue);
+    }
+
+    .listing-actions .btn-primary:hover {
+        background: var(--apple-blue-hover);
+    }
+
+    /* Lightbox */
+    .lightbox-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        background: rgba(0,0,0,0.95);
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+    .lightbox-overlay.is-open { display: flex; }
+    .lightbox-close {
+        position: absolute;
+        top: 16px;
+        right: 16px;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.15);
+        border: none;
+        color: #fff;
+        font-size: 22px;
+        cursor: pointer;
+        display: grid;
+        place-items: center;
+        z-index: 10;
+        backdrop-filter: blur(8px);
+    }
+    .lightbox-close:hover { background: rgba(255,255,255,0.25); }
+    .lightbox-counter {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        color: rgba(255,255,255,0.7);
+        font-size: 14px;
+        font-weight: 600;
+        z-index: 10;
+    }
+    .lightbox-image-wrap {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        overflow: hidden;
+        touch-action: pan-y;
+        position: relative;
+    }
+    .lightbox-image-wrap img {
+        max-width: 92vw;
+        max-height: 80vh;
+        object-fit: contain;
+        border-radius: 8px;
+        user-select: none;
+        -webkit-user-drag: none;
+        transition: opacity 0.2s ease;
+    }
+    .lightbox-nav {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.12);
+        border: none;
+        color: #fff;
+        font-size: 20px;
+        cursor: pointer;
+        display: grid;
+        place-items: center;
+        backdrop-filter: blur(8px);
+        z-index: 10;
+    }
+    .lightbox-nav:hover { background: rgba(255,255,255,0.25); }
+    .lightbox-prev { left: 16px; }
+    .lightbox-next { right: 16px; }
+    .lightbox-strip {
+        display: flex;
+        gap: 6px;
+        padding: 12px 16px;
+        overflow-x: auto;
+        justify-content: center;
+        scrollbar-width: none;
+        max-width: 100vw;
+    }
+    .lightbox-strip::-webkit-scrollbar { display: none; }
+    .lightbox-strip button {
+        width: 52px;
+        height: 40px;
+        border-radius: 6px;
+        overflow: hidden;
+        border: 2px solid transparent;
+        padding: 0;
+        cursor: pointer;
+        flex-shrink: 0;
+        opacity: 0.5;
+        transition: all 0.2s;
+        background: transparent;
+    }
+    .lightbox-strip button.is-active { border-color: #fff; opacity: 1; }
+    .lightbox-strip button:hover { opacity: 0.85; }
+    .lightbox-strip button img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+    /* Mobile gallery: horizontal scroll strip instead of grid */
+    @media (max-width: 640px) {
+        .listing-thumbnail-row {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            padding-bottom: 4px;
+            margin-top: 12px;
+        }
+        .listing-thumbnail-row::-webkit-scrollbar { display: none; }
+        .listing-thumb {
+            flex-shrink: 0;
+            width: 72px;
+            min-height: 56px;
+            aspect-ratio: 4/3;
+            border-radius: 8px;
+        }
+        .listing-thumb img { min-height: 56px; }
+        .listing-stage { cursor: pointer; }
     }
 
     @media (max-width: 1120px) {
@@ -661,16 +812,6 @@
             min-height: 360px;
         }
 
-        .listing-highlights-grid,
-        .listing-facts-grid,
-        .listing-records-grid {
-            grid-template-columns: 1fr;
-        }
-
-        .listing-meta-grid {
-            grid-template-columns: 1fr;
-        }
-        
         .listing-section, .listing-side-card {
             padding: 24px;
         }
@@ -678,11 +819,11 @@
 
     @media (max-width: 520px) {
         .listing-title {
-            font-size: 26px;
+            font-size: 28px;
         }
 
         .listing-price-value {
-            font-size: 30px;
+            font-size: 32px;
         }
 
         .listing-thumbnail-row {
@@ -893,70 +1034,157 @@
 
                 <div class="listing-actions">
                     @if($canManageListing)
-                        <a href="{{ route('listings.edit', $listing->id) }}" class="btn btn-primary">Edit Listing</a>
+                        <a href="{{ route('listings.edit', $listing->id) }}" class="btn btn-primary">Edit</a>
                     @endif
-                    <a href="{{ route('listings.index', ['source' => $returnSource]) }}" class="btn btn-secondary">Back to Listings</a>
-                </div>
-            </section>
-
-            <section class="listing-side-card">
-                <div>
-                    <div class="listing-section-kicker">Agent</div>
-                    <h4>Managed By</h4>
+                    <a href="{{ route('listings.index', ['source' => $returnSource]) }}" class="btn btn-secondary">Back</a>
                 </div>
 
-                <div class="listing-agent">
-                    <div class="listing-agent-avatar">
-                        @if($agent?->photo_url)
-                            <img src="{{ $agent->photo_url }}" alt="{{ $agentName }}">
-                        @else
-                            {{ $agentInitials }}
-                        @endif
+                {{-- Managed By --}}
+                <div style="border-top: 1px solid var(--apple-border); padding-top: 20px;">
+                    <div class="listing-agent">
+                        <div class="listing-agent-avatar" style="width:48px;height:48px;font-size:16px;">
+                            @if($agent?->photo_url)
+                                <img src="{{ $agent->photo_url }}" alt="{{ $agentName }}">
+                            @else
+                                {{ $agentInitials }}
+                            @endif
+                        </div>
+                        <div>
+                            <div class="listing-agent-label" style="font-size:10px;margin-bottom:3px;">Listing Owner</div>
+                            <div class="listing-agent-name" style="font-size:15px;">{{ $agentName }}</div>
+                            <div class="listing-agent-meta" style="font-size:12px;">{{ $listing->username }}@if($agentPhone) · {{ $agentPhone }}@endif</div>
+                            @if($agentEmail)
+                                <div class="listing-agent-meta" style="font-size:12px;">{{ $agentEmail }}</div>
+                            @endif
+                        </div>
                     </div>
-
-                    <div>
-                        <div class="listing-agent-label">Listing Owner</div>
-                        <div class="listing-agent-name">{{ $agentName }}</div>
-                        <div class="listing-agent-meta">{{ $listing->username }}</div>
-                        @if($agentPhone)
-                            <div class="listing-agent-meta">{{ $agentPhone }}</div>
-                        @endif
-                        @if($agentEmail)
-                            <div class="listing-agent-meta">{{ $agentEmail }}</div>
-                        @endif
-                    </div>
-                </div>
-
-                <div class="listing-actions">
-                    <a href="{{ route('profile.index') }}" class="btn btn-secondary">Open Profile</a>
                 </div>
             </section>
         </aside>
     </div>
 </div>
+
+@if(!empty($gallery) && count($gallery) > 0)
+<div class="lightbox-overlay" id="lightbox">
+    <button class="lightbox-close" id="lightbox-close" aria-label="Close">&times;</button>
+    <span class="lightbox-counter" id="lightbox-counter"></span>
+    <button class="lightbox-nav lightbox-prev" id="lightbox-prev" aria-label="Previous">&lsaquo;</button>
+    <button class="lightbox-nav lightbox-next" id="lightbox-next" aria-label="Next">&rsaquo;</button>
+    <div class="lightbox-image-wrap" id="lightbox-image-wrap">
+        <img id="lightbox-img" src="" alt="">
+    </div>
+    <div class="lightbox-strip" id="lightbox-strip">
+        @foreach($gallery as $photo)
+            <button type="button" data-lb-idx="{{ $loop->index }}">
+                <img src="{{ $photo }}" alt="Thumbnail {{ $loop->iteration }}" loading="lazy">
+            </button>
+        @endforeach
+    </div>
+</div>
+@endif
 @endsection
 
 @section('scripts')
 <script>
-    document.querySelectorAll('[data-gallery-thumb]').forEach(function (thumbnail) {
-        thumbnail.addEventListener('click', function () {
-            var mainImage = document.getElementById('listing-main-image');
+(function () {
+    var gallery = @json($gallery ?? []);
+    var currentIdx = 0;
+
+    // -- Thumbnail click -> update main image --
+    document.querySelectorAll('[data-gallery-thumb]').forEach(function (thumb) {
+        thumb.addEventListener('click', function () {
+            var mainImg = document.getElementById('listing-main-image');
             var mainLink = document.getElementById('listing-main-link');
-
-            if (!mainImage || !mainLink) {
-                return;
-            }
-
-            mainImage.src = thumbnail.dataset.full;
-            mainImage.alt = thumbnail.dataset.alt || mainImage.alt;
-            mainLink.href = thumbnail.dataset.full;
-
-            document.querySelectorAll('[data-gallery-thumb]').forEach(function (item) {
-                item.classList.remove('is-active');
-            });
-
-            thumbnail.classList.add('is-active');
+            if (!mainImg || !mainLink) return;
+            mainImg.src = thumb.dataset.full;
+            mainImg.alt = thumb.dataset.alt || mainImg.alt;
+            mainLink.href = thumb.dataset.full;
+            document.querySelectorAll('[data-gallery-thumb]').forEach(function (t) { t.classList.remove('is-active'); });
+            thumb.classList.add('is-active');
+            currentIdx = gallery.indexOf(thumb.dataset.full);
+            if (currentIdx < 0) currentIdx = 0;
         });
     });
+
+    // -- Lightbox --
+    if (gallery.length === 0) return;
+
+    var overlay = document.getElementById('lightbox');
+    var lbImg = document.getElementById('lightbox-img');
+    var lbCounter = document.getElementById('lightbox-counter');
+    var lbStrip = document.getElementById('lightbox-strip');
+    if (!overlay || !lbImg) return;
+
+    function openLightbox(idx) {
+        currentIdx = idx;
+        renderLightbox();
+        overlay.classList.add('is-open');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeLightbox() {
+        overlay.classList.remove('is-open');
+        document.body.style.overflow = '';
+    }
+
+    function renderLightbox() {
+        lbImg.src = gallery[currentIdx];
+        lbImg.alt = 'Photo ' + (currentIdx + 1);
+        lbCounter.textContent = (currentIdx + 1) + ' / ' + gallery.length;
+        var stripBtns = lbStrip.querySelectorAll('button');
+        stripBtns.forEach(function (b) { b.classList.remove('is-active'); });
+        if (stripBtns[currentIdx]) {
+            stripBtns[currentIdx].classList.add('is-active');
+            stripBtns[currentIdx].scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+        }
+    }
+
+    function goNext() { currentIdx = (currentIdx + 1) % gallery.length; renderLightbox(); }
+    function goPrev() { currentIdx = (currentIdx - 1 + gallery.length) % gallery.length; renderLightbox(); }
+
+    // Click main image -> open lightbox
+    var mainLink = document.getElementById('listing-main-link');
+    if (mainLink) {
+        mainLink.addEventListener('click', function (e) {
+            e.preventDefault();
+            var src = mainLink.querySelector('img')?.src || gallery[0];
+            var idx = gallery.indexOf(src);
+            openLightbox(idx >= 0 ? idx : 0);
+        });
+    }
+
+    document.getElementById('lightbox-close').addEventListener('click', closeLightbox);
+    document.getElementById('lightbox-prev').addEventListener('click', goPrev);
+    document.getElementById('lightbox-next').addEventListener('click', goNext);
+
+    overlay.addEventListener('click', function (e) {
+        if (e.target === overlay || e.target.id === 'lightbox-image-wrap') closeLightbox();
+    });
+
+    lbStrip.querySelectorAll('button').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            openLightbox(parseInt(btn.dataset.lbIdx, 10));
+        });
+    });
+
+    // Keyboard
+    document.addEventListener('keydown', function (e) {
+        if (!overlay.classList.contains('is-open')) return;
+        if (e.key === 'Escape') closeLightbox();
+        if (e.key === 'ArrowRight') goNext();
+        if (e.key === 'ArrowLeft') goPrev();
+    });
+
+    // Swipe support
+    var touchStartX = 0;
+    var wrap = document.getElementById('lightbox-image-wrap');
+    wrap.addEventListener('touchstart', function (e) { touchStartX = e.changedTouches[0].screenX; }, { passive: true });
+    wrap.addEventListener('touchend', function (e) {
+        var diff = e.changedTouches[0].screenX - touchStartX;
+        if (Math.abs(diff) > 50) {
+            if (diff < 0) goNext(); else goPrev();
+        }
+    }, { passive: true });
+})();
 </script>
 @endsection

@@ -2,6 +2,8 @@
 
 namespace App\Support;
 
+use Illuminate\Support\Facades\Storage;
+
 class SharedAssetUrl
 {
     public static function listing(?string $username, string|int|null $propertyId, ?string $path): ?string
@@ -14,6 +16,10 @@ class SharedAssetUrl
 
         if (self::isAbsolute($path)) {
             return $path;
+        }
+
+        if (self::shouldUseLocalStorageFallback($path) && self::existsOnPublicDisk($path)) {
+            return self::storage($path);
         }
 
         if (self::isStoragePath($path)) {
@@ -112,5 +118,20 @@ class SharedAssetUrl
 
         return str_starts_with($path, 'storage/')
             || str_starts_with($path, 'listings/');
+    }
+
+    protected static function shouldUseLocalStorageFallback(string $path): bool
+    {
+        $path = ltrim($path, '/');
+
+        return str_starts_with($path, 'Database/Images/')
+            || self::isStoragePath($path);
+    }
+
+    protected static function existsOnPublicDisk(string $path): bool
+    {
+        $relativePath = self::publicStoragePath($path);
+
+        return $relativePath !== null && Storage::disk('public')->exists($relativePath);
     }
 }

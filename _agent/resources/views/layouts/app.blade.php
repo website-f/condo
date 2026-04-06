@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'CMS') — {{ config('app.name') }}</title>
+    @yield('head')
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -141,10 +142,15 @@
         .alert-error { background: #ffe9e6; color: #d92d20; border: 1px solid #ffd1cd; }
 
         /* Pagination */
-        .pagination { display: flex; gap: 6px; align-items: center; justify-content: center; padding: 32px 0; }
-        .pagination a, .pagination span { display: inline-flex; align-items: center; justify-content: center; min-width: 32px; height: 32px; padding: 0 10px; border-radius: var(--radius-sm); font-size: 14px; font-weight: 500; text-decoration: none; color: var(--text); transition: all 0.2s ease; border: 1px solid transparent; }
-        .pagination a:hover { background: var(--accent-light); border-color: var(--border-light); }
-        .pagination .active span { background: var(--accent); color: #fff; }
+        .pagination { display: flex; gap: 4px; align-items: center; justify-content: center; padding: 32px 0; flex-wrap: nowrap; }
+        .pagination-pages { display: flex; gap: 4px; align-items: center; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; max-width: calc(100vw - 120px); }
+        .pagination-pages::-webkit-scrollbar { display: none; }
+        .pagination a, .pagination span { display: inline-flex; align-items: center; justify-content: center; min-width: 36px; height: 36px; padding: 0 8px; border-radius: var(--radius-sm); font-size: 14px; font-weight: 500; text-decoration: none; color: var(--text-secondary); transition: all 0.2s ease; border: 1px solid transparent; flex-shrink: 0; }
+        .pagination a:hover { background: var(--accent-light); border-color: var(--border-light); color: var(--text); }
+        .pagination .active { background: var(--accent); color: #fff; border-color: var(--accent); }
+        .pagination-prev, .pagination-next { font-size: 20px; font-weight: 400; min-width: 40px; height: 40px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border-light) !important; box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
+        .pagination-prev:hover, .pagination-next:hover { background: var(--accent-light); }
+        .pagination-dots { color: var(--text-secondary); border: none !important; min-width: 24px; padding: 0; }
 
         /* Property card */
         .listing-card { background: var(--card-bg); border-radius: var(--radius-md); border: 1px solid var(--border-light); overflow: hidden; transition: all 0.3s ease; box-shadow: var(--shadow-sm); display: flex; flex-direction: column; }
@@ -229,6 +235,10 @@
             .details-title { font-size: 24px; }
             .details-price { font-size: 22px; }
             .card, .stat-card { padding: 20px; }
+            .pagination { padding: 24px 0; gap: 2px; }
+            .pagination a, .pagination span { min-width: 32px; height: 32px; font-size: 13px; padding: 0 6px; }
+            .pagination-prev, .pagination-next { min-width: 36px; height: 36px; font-size: 18px; }
+            .pagination-pages { max-width: calc(100vw - 140px); gap: 2px; }
         }
         @media (max-width: 480px) {
             .stats-grid { grid-template-columns: 1fr; }
@@ -264,6 +274,10 @@
             <a href="{{ route('news.index') }}" class="{{ request()->routeIs('news.*') ? 'active' : '' }}">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 7.5h1.5m-1.5 3h1.5m-7.5 3h7.5m-7.5 3h7.5m3-9h3.375c.621 0 1.125.504 1.125 1.125V18a2.25 2.25 0 01-2.25 2.25H5.625A2.25 2.25 0 013.375 18V7.875c0-.621.504-1.125 1.125-1.125h3.375" /></svg>
                 News
+            </a>
+            <a href="{{ route('recently-deleted.index') }}" class="{{ request()->routeIs('recently-deleted.*') ? 'active' : '' }}">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.021.166m-1.021-.165L18.16 19.674A2.25 2.25 0 0115.916 21.75H8.084A2.25 2.25 0 015.84 19.674L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0A48.11 48.11 0 017.5 5.625m6.75 0a48.11 48.11 0 00-3.75 0m3.75 0V4.5A1.125 1.125 0 0013.125 3.375h-2.25A1.125 1.125 0 009.75 4.5v1.125" /></svg>
+                Recently Deleted
             </a>
 
             <div class="sidebar-section">Marketing</div>

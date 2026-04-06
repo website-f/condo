@@ -2,7 +2,7 @@
 @section('title', 'New Listing')
 @section('page-title', 'New Listing')
 @section('topbar-actions')
-    <a href="{{ route('listings.index') }}" class="btn btn-secondary btn-sm">Back</a>
+    <a href="{{ route('listings.index', ['source' => $activeCreateSource]) }}" class="btn btn-secondary btn-sm">Back</a>
 @endsection
 
 @section('content')
