@@ -70,19 +70,26 @@ class SocialMediaController extends Controller
                     'title' => $schedule['listing_title'],
                     'start' => $start->toIso8601String(),
                     'end' => $end->toIso8601String(),
-                    'url' => $schedule['is_mutable']
-                        ? route('social.edit', $schedule['group_id'])
-                        : $schedule['view_url'],
                     'backgroundColor' => $schedule['status_color'],
                     'borderColor' => $schedule['status_color'],
                     'classNames' => ['schedule-status-' . $schedule['status']],
                     'extendedProps' => [
+                        'group_id' => $schedule['group_id'],
                         'status' => $schedule['status'],
                         'status_label' => $schedule['status_label'],
+                        'content_type_label' => $schedule['content_type_label'],
+                        'view_url' => $schedule['view_url'],
+                        'edit_url' => $schedule['can_manage_in_laravel'] && $schedule['is_mutable']
+                            ? route('social.edit', $schedule['group_id'])
+                            : null,
+                        'can_manage_in_laravel' => $schedule['can_manage_in_laravel'],
+                        'is_mutable' => $schedule['is_mutable'],
                         'networks' => collect($schedule['social_networks'])->map(fn (string $network) => strtoupper($network))->values()->all(),
                         'channels' => $schedule['total_channels'],
                         'channel_names' => collect($schedule['channels'])->pluck('name')->values()->all(),
                         'message' => Str::limit($messagePreview, 160),
+                        'message_full' => $messagePreview,
+                        'error_messages' => $schedule['error_messages'],
                         'time_label' => $schedule['scheduled_at']->format('D, d M Y h:i A'),
                         'action_label' => $schedule['is_mutable'] ? 'Edit Schedule' : 'View ' . $schedule['content_type_label'],
                     ],

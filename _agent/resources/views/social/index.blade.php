@@ -29,13 +29,17 @@
 @endphp
 
 <style>
+    .content {
+        max-width: none;
+        padding: 28px 28px 48px;
+    }
     .planner-shell {
         display: grid;
         gap: 24px;
     }
     .planner-stage {
         display: grid;
-        grid-template-columns: minmax(280px, 320px) minmax(0, 1fr);
+        grid-template-columns: minmax(0, 1fr);
         gap: 24px;
         align-items: start;
     }
@@ -43,6 +47,16 @@
     .planner-main {
         display: grid;
         gap: 24px;
+    }
+    .planner-sidebar {
+        grid-template-columns: minmax(320px, 1.15fr) minmax(220px, 0.9fr) minmax(220px, 0.9fr);
+        align-items: stretch;
+    }
+    .planner-sidebar > :first-child {
+        grid-row: 1 / span 2;
+    }
+    .planner-sidebar > :last-child {
+        grid-column: 2 / -1;
     }
     .planner-card {
         background: var(--card-bg);
@@ -53,7 +67,7 @@
     .planner-brand {
         padding: 28px;
         background:
-            radial-gradient(circle at top right, rgba(182, 215, 168, 0.4), transparent 42%),
+            radial-gradient(circle at top right, rgba(182, 215, 168, 0.35), transparent 42%),
             radial-gradient(circle at bottom left, rgba(253, 229, 207, 0.7), transparent 38%),
             linear-gradient(180deg, #ffffff 0%, #fffaf4 100%);
     }
@@ -77,7 +91,6 @@
         line-height: 1.02;
         letter-spacing: -0.04em;
         margin-bottom: 14px;
-        max-width: 10ch;
     }
     .planner-brand p,
     .planner-note,
@@ -91,6 +104,23 @@
         gap: 12px;
         flex-wrap: wrap;
         margin-top: 22px;
+    }
+    .planner-panel {
+        padding: 22px;
+    }
+    .planner-panel-head {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        align-items: flex-start;
+        flex-wrap: wrap;
+        margin-bottom: 18px;
+    }
+    .planner-panel-head h4 {
+        font-size: 19px;
+        line-height: 1.1;
+        letter-spacing: -0.02em;
+        margin-bottom: 6px;
     }
     .planner-mini-grid {
         display: grid;
@@ -117,23 +147,6 @@
         letter-spacing: -0.05em;
         font-weight: 700;
         margin-bottom: 8px;
-    }
-    .planner-panel {
-        padding: 22px;
-    }
-    .planner-panel-head {
-        display: flex;
-        justify-content: space-between;
-        gap: 16px;
-        align-items: flex-start;
-        flex-wrap: wrap;
-        margin-bottom: 18px;
-    }
-    .planner-panel-head h4 {
-        font-size: 19px;
-        line-height: 1.1;
-        letter-spacing: -0.02em;
-        margin-bottom: 6px;
     }
     .planner-upcoming-list,
     .planner-channel-list {
@@ -207,7 +220,6 @@
         line-height: 1.08;
         letter-spacing: -0.04em;
         margin-bottom: 10px;
-        max-width: 17ch;
     }
     .planner-toggle {
         display: inline-flex;
@@ -237,7 +249,7 @@
     }
     .planner-filter-grid {
         display: grid;
-        grid-template-columns: minmax(0, 1.3fr) repeat(2, minmax(180px, 0.35fr)) auto auto;
+        grid-template-columns: minmax(0, 1.4fr) repeat(2, minmax(180px, 0.4fr)) auto auto;
         gap: 12px;
     }
     .planner-view-card {
@@ -275,10 +287,135 @@
     .planner-pill.status-mixed { color: #7c3aed; }
     .planner-pill.status-sending { color: #0f6bdc; }
     .planner-calendar-frame {
-        padding: 16px;
+        padding: 20px;
         border-radius: 24px;
         background: linear-gradient(180deg, #ffffff 0%, #fbfcfe 100%);
         border: 1px solid var(--border-light);
+        overflow: hidden;
+    }
+    .planner-calendar-frame .fc .fc-toolbar {
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-bottom: 20px;
+    }
+    .planner-calendar-frame .fc .fc-toolbar-title {
+        font-size: clamp(20px, 2.1vw, 30px);
+        font-weight: 700;
+        letter-spacing: -0.04em;
+    }
+    .planner-calendar-frame .fc .fc-button {
+        border-radius: 999px !important;
+        padding: 10px 16px !important;
+        font-size: 13px !important;
+        font-weight: 700 !important;
+        background: #fff !important;
+        border-color: var(--border-light) !important;
+        color: var(--text) !important;
+        box-shadow: none !important;
+    }
+    .planner-calendar-frame .fc .fc-button-primary:not(:disabled).fc-button-active,
+    .planner-calendar-frame .fc .fc-button-primary:not(:disabled):active {
+        background: #1f4f45 !important;
+        border-color: #1f4f45 !important;
+        color: #fff !important;
+    }
+    .planner-calendar-frame .fc .fc-button:hover {
+        background: #f6f8fb !important;
+    }
+    .planner-calendar-frame .fc-theme-standard td,
+    .planner-calendar-frame .fc-theme-standard th,
+    .planner-calendar-frame .fc-theme-standard .fc-scrollgrid {
+        border-color: var(--border-light);
+    }
+    .planner-calendar-frame .fc .fc-daygrid-day-number,
+    .planner-calendar-frame .fc .fc-col-header-cell-cushion {
+        color: var(--text);
+        text-decoration: none;
+    }
+    .planner-calendar-frame .fc .fc-day-today {
+        background: rgba(223, 239, 231, 0.4) !important;
+    }
+    .planner-calendar-frame .fc .fc-view-harness {
+        min-height: 820px;
+    }
+    .planner-calendar-frame .fc .fc-daygrid-day-frame {
+        min-height: 162px;
+    }
+    .planner-calendar-frame .fc .fc-daygrid-day-top {
+        padding: 6px 8px 0;
+    }
+    .planner-calendar-frame .fc .fc-daygrid-day-number {
+        font-size: 13px;
+        font-weight: 700;
+    }
+    .planner-calendar-frame .fc .fc-daygrid-day-events {
+        display: grid;
+        gap: 8px;
+        margin: 8px 8px 0;
+    }
+    .planner-calendar-frame .fc .fc-daygrid-event-harness {
+        margin-top: 0 !important;
+    }
+    .planner-calendar-frame .fc .fc-daygrid-more-link {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin: 2px 8px 8px;
+        padding: 7px 10px;
+        border-radius: 999px;
+        background: #f3f6fb;
+        color: #335c89;
+        font-size: 11px;
+        font-weight: 700;
+        text-decoration: none;
+        border: 1px solid #d7e2f0;
+    }
+    .planner-calendar-frame .fc .fc-daygrid-more-link:hover {
+        background: #eaf0f7;
+    }
+    .calendar-chip {
+        display: grid;
+        gap: 4px;
+        padding: 10px 11px;
+        border-radius: 14px;
+        border: 1px solid rgba(0, 0, 0, 0.06);
+        box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
+        cursor: pointer;
+    }
+    .calendar-chip.schedule-status-scheduled { background: linear-gradient(180deg, #eff5ff 0%, #fbfdff 100%); }
+    .calendar-chip.schedule-status-success { background: linear-gradient(180deg, #e7f7ec 0%, #f8fdf9 100%); }
+    .calendar-chip.schedule-status-error { background: linear-gradient(180deg, #ffecea 0%, #fff9f9 100%); }
+    .calendar-chip.schedule-status-mixed { background: linear-gradient(180deg, #f5ecff 0%, #fdf9ff 100%); }
+    .calendar-chip.schedule-status-sending { background: linear-gradient(180deg, #e9f3ff 0%, #f8fbff 100%); }
+    .calendar-chip-top {
+        display: flex;
+        justify-content: space-between;
+        gap: 8px;
+        align-items: flex-start;
+    }
+    .calendar-chip-title {
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 1.3;
+        color: #1d1d1f;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    .calendar-chip-time {
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        white-space: nowrap;
+        color: #546273;
+    }
+    .calendar-chip-meta {
+        font-size: 10px;
+        line-height: 1.35;
+        color: #5a6472;
     }
     .planner-empty {
         padding: 56px 20px;
@@ -366,118 +503,171 @@
         background: #fbfbfd;
         line-height: 1.6;
     }
-    .planner-calendar-frame .fc .fc-toolbar {
-        gap: 12px;
-        flex-wrap: wrap;
-        margin-bottom: 20px;
+    .calendar-modal {
+        position: fixed;
+        inset: 0;
+        z-index: 140;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: clamp(12px, 3vw, 24px);
+        overflow-y: auto;
+        background: rgba(15, 23, 42, 0.42);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
     }
-    .planner-calendar-frame .fc .fc-toolbar-title {
-        font-size: clamp(20px, 2.1vw, 30px);
-        font-weight: 700;
-        letter-spacing: -0.04em;
+    .calendar-modal.open {
+        display: flex;
     }
-    .planner-calendar-frame .fc .fc-button {
-        border-radius: 999px !important;
-        padding: 10px 16px !important;
-        font-size: 13px !important;
-        font-weight: 700 !important;
-        background: #fff !important;
-        border-color: var(--border-light) !important;
-        color: var(--text) !important;
-        box-shadow: none !important;
-    }
-    .planner-calendar-frame .fc .fc-button-primary:not(:disabled).fc-button-active,
-    .planner-calendar-frame .fc .fc-button-primary:not(:disabled):active {
-        background: #1f4f45 !important;
-        border-color: #1f4f45 !important;
-        color: #fff !important;
-    }
-    .planner-calendar-frame .fc .fc-button:hover {
-        background: #f6f8fb !important;
-    }
-    .planner-calendar-frame .fc-theme-standard td,
-    .planner-calendar-frame .fc-theme-standard th,
-    .planner-calendar-frame .fc-theme-standard .fc-scrollgrid {
-        border-color: var(--border-light);
-    }
-    .planner-calendar-frame .fc .fc-daygrid-day-number,
-    .planner-calendar-frame .fc .fc-col-header-cell-cushion,
-    .planner-calendar-frame .fc .fc-timegrid-axis-cushion,
-    .planner-calendar-frame .fc .fc-timegrid-slot-label-cushion {
-        color: var(--text);
-        text-decoration: none;
-    }
-    .planner-calendar-frame .fc .fc-timegrid-slot-label-cushion,
-    .planner-calendar-frame .fc .fc-timegrid-axis-cushion {
-        font-size: 12px;
-        color: var(--text-secondary);
-    }
-    .planner-calendar-frame .fc .fc-day-today {
-        background: rgba(223, 239, 231, 0.4) !important;
-    }
-    .planner-calendar-frame .fc .fc-event {
-        border: none;
-        padding: 0;
-        border-radius: 18px;
-        box-shadow: 0 12px 24px rgba(15, 23, 42, 0.08);
+    .calendar-modal-panel {
+        width: min(920px, calc(100vw - 24px));
+        max-height: min(88dvh, 920px);
         overflow: hidden;
-    }
-    .schedule-event-card {
-        padding: 12px;
-        min-height: 100%;
+        border-radius: 28px;
+        background: #fff;
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        box-shadow: 0 20px 60px rgba(15, 23, 42, 0.2);
         display: grid;
-        gap: 8px;
-        color: #1d1d1f;
+        grid-template-rows: auto 1fr;
+        margin: auto;
     }
-    .schedule-event-card.schedule-status-scheduled { background: linear-gradient(180deg, #eff5ff 0%, #f9fbff 100%); }
-    .schedule-event-card.schedule-status-success { background: linear-gradient(180deg, #e7f7ec 0%, #f7fcf9 100%); }
-    .schedule-event-card.schedule-status-error { background: linear-gradient(180deg, #ffecea 0%, #fff9f9 100%); }
-    .schedule-event-card.schedule-status-mixed { background: linear-gradient(180deg, #f5ecff 0%, #fcf8ff 100%); }
-    .schedule-event-card.schedule-status-sending { background: linear-gradient(180deg, #e9f3ff 0%, #f8fbff 100%); }
-    .schedule-event-top {
+    .calendar-modal-head {
         display: flex;
         justify-content: space-between;
-        gap: 10px;
+        gap: 18px;
         align-items: flex-start;
+        padding: 24px 24px 18px;
+        border-bottom: 1px solid var(--border-light);
+        background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+        position: sticky;
+        top: 0;
+        z-index: 1;
     }
-    .schedule-event-title {
-        font-size: 13px;
-        font-weight: 700;
-        line-height: 1.28;
+    .calendar-modal-head > div,
+    .calendar-modal-item-top > div {
+        min-width: 0;
+        flex: 1 1 auto;
     }
-    .schedule-event-time {
+    .calendar-modal-kicker {
         font-size: 11px;
         font-weight: 700;
-        letter-spacing: 0.06em;
+        letter-spacing: 0.08em;
         text-transform: uppercase;
-        color: #546273;
-        white-space: nowrap;
+        color: var(--text-secondary);
+        margin-bottom: 8px;
     }
-    .schedule-event-meta,
-    .schedule-event-message {
+    .calendar-modal-title {
+        font-size: clamp(22px, 2.5vw, 32px);
+        line-height: 1.08;
+        letter-spacing: -0.04em;
+        margin-bottom: 8px;
+        overflow-wrap: anywhere;
+    }
+    .calendar-modal-subtitle {
+        color: var(--text-secondary);
+        line-height: 1.55;
+        overflow-wrap: anywhere;
+    }
+    .calendar-modal-close {
+        width: 42px;
+        height: 42px;
+        border-radius: 50%;
+        border: 1px solid var(--border-light);
+        background: #fff;
+        color: var(--text);
+        cursor: pointer;
+        font-size: 22px;
+        line-height: 1;
+        box-shadow: var(--shadow-sm);
+        flex-shrink: 0;
+    }
+    .calendar-modal-body {
+        overflow: auto;
+        padding: 20px 24px 24px;
+        display: grid;
+        gap: 14px;
+        background: #fbfbfd;
+        overscroll-behavior: contain;
+    }
+    .calendar-modal-item {
+        padding: 18px;
+        border-radius: 22px;
+        border: 1px solid var(--border-light);
+        background: #fff;
+        box-shadow: var(--shadow-sm);
+        display: grid;
+        gap: 10px;
+        min-width: 0;
+    }
+    .calendar-modal-item-top {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        align-items: flex-start;
+        margin-bottom: 12px;
+    }
+    .calendar-modal-item-time {
         font-size: 11px;
-        line-height: 1.45;
-        color: #5a6472;
-    }
-    .schedule-event-meta {
         font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: #2f6b52;
+        margin-bottom: 6px;
     }
-    .schedule-event-message {
-        display: -webkit-box;
-        -webkit-line-clamp: 3;
-        line-clamp: 3;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
+    .calendar-modal-item-title {
+        font-size: 18px;
+        line-height: 1.2;
+        letter-spacing: -0.03em;
+        margin-bottom: 0;
+        overflow-wrap: anywhere;
+    }
+    .calendar-modal-meta,
+    .calendar-modal-error {
+        color: var(--text-secondary);
+        line-height: 1.55;
+        overflow-wrap: anywhere;
+    }
+    .calendar-modal-message {
+        margin-top: 12px;
+        padding: 14px 16px;
+        border-radius: 18px;
+        background: #f8fafc;
+        border: 1px solid var(--border-light);
+        line-height: 1.65;
+        color: var(--text);
+        overflow-wrap: anywhere;
+    }
+    .calendar-modal-error {
+        margin-top: 10px;
+        color: #b42318;
+    }
+    .calendar-modal-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 16px;
+        align-items: stretch;
     }
     @media (max-width: 1180px) {
-        .planner-stage {
-            grid-template-columns: 1fr;
+        .planner-sidebar {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+        .planner-sidebar > :first-child,
+        .planner-sidebar > :last-child {
+            grid-column: auto;
+            grid-row: auto;
         }
         .planner-filter-grid {
             grid-template-columns: 1fr 1fr;
         }
     }
     @media (max-width: 820px) {
+        .content {
+            padding: 22px 16px 38px;
+        }
+        .planner-sidebar {
+            grid-template-columns: 1fr;
+        }
         .planner-filter-grid {
             grid-template-columns: 1fr;
         }
@@ -493,6 +683,37 @@
         }
         .planner-toggle a {
             flex: 1 1 0;
+        }
+        .planner-calendar-frame {
+            padding: 10px;
+        }
+        .planner-calendar-frame .fc .fc-toolbar {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        .planner-calendar-frame .fc .fc-toolbar-chunk {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .planner-calendar-frame .fc .fc-view-harness {
+            min-height: 640px;
+        }
+        .planner-calendar-frame .fc .fc-daygrid-day-frame {
+            min-height: 118px;
+        }
+        .calendar-chip {
+            padding: 8px 9px;
+            gap: 2px;
+        }
+        .calendar-chip-title {
+            font-size: 11px;
+            -webkit-line-clamp: 1;
+            line-clamp: 1;
+        }
+        .calendar-chip-meta {
+            display: none;
         }
         .planner-table thead {
             display: none;
@@ -535,11 +756,24 @@
         .planner-table-links button {
             flex: 1 1 140px;
         }
-        .planner-calendar-frame {
-            padding: 10px;
+        .calendar-modal {
+            padding: 12px;
         }
-        .planner-calendar-frame .fc .fc-toolbar-title {
-            font-size: 22px;
+        .calendar-modal-panel {
+            width: min(820px, calc(100vw - 16px));
+            max-height: calc(100dvh - 16px);
+            border-radius: 22px;
+        }
+        .calendar-modal-head,
+        .calendar-modal-body {
+            padding-left: 16px;
+            padding-right: 16px;
+        }
+        .calendar-modal-item-top {
+            flex-direction: column;
+        }
+        .calendar-modal-close {
+            align-self: flex-start;
         }
     }
     @media (max-width: 560px) {
@@ -555,8 +789,50 @@
         .planner-brand-actions {
             flex-direction: column;
         }
-        .planner-brand-actions .btn {
+        .planner-brand-actions .btn,
+        .calendar-modal-actions .btn {
             width: 100%;
+        }
+        .calendar-modal {
+            padding: 0;
+            align-items: flex-end;
+        }
+        .calendar-modal-panel {
+            width: 100%;
+            max-height: min(94dvh, 100dvh);
+            border-radius: 24px 24px 0 0;
+            border-bottom: none;
+        }
+        .calendar-modal-head {
+            padding-top: 18px;
+        }
+        .calendar-modal-head::before {
+            content: '';
+            width: 48px;
+            height: 5px;
+            border-radius: 999px;
+            background: #d7dee7;
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        .calendar-modal-body {
+            padding-bottom: 28px;
+        }
+        .calendar-modal-item {
+            padding: 16px;
+            border-radius: 18px;
+        }
+        .planner-calendar-frame .fc .fc-daygrid-day-frame {
+            min-height: 104px;
+        }
+        .planner-calendar-frame .fc .fc-button {
+            padding: 8px 12px !important;
+            font-size: 12px !important;
+        }
+        .planner-calendar-frame .fc .fc-toolbar-title {
+            font-size: 18px;
         }
     }
 </style>
@@ -567,7 +843,7 @@
             <section class="planner-card planner-brand">
                 <div class="planner-chip">FS Poster Live Sync</div>
                 <h3>Review WordPress FS Poster schedules from Laravel.</h3>
-                <p>Laravel now reads the same FS Poster schedules, per-channel customization payloads, and WordPress post meta markers used by the condo site. Condo property schedules stay editable here, while WordPress post schedules appear read-only so you can still monitor the same queue from both sides.</p>
+                <p>Laravel reads the same FS Poster schedules, channel customization payloads, and schedule meta used by WordPress. Condo listing schedules remain editable here, while WordPress post schedules stay visible so both sides reflect the same queue.</p>
                 <div class="planner-brand-actions">
                     <a href="{{ route('social.create') }}" class="btn btn-primary">Add Schedule</a>
                     <a href="{{ rtrim(\App\Support\CondoWordpressBridge::siteBaseUrl(), '/') . '/wp-admin/admin.php?page=fs-poster#/calendar' }}" class="btn btn-secondary" target="_blank" rel="noreferrer">Open WP FS Poster</a>
@@ -618,7 +894,7 @@
                             <article class="planner-upcoming-item">
                                 <div class="planner-upcoming-time">{{ $schedule['scheduled_at']->format('D, d M Y h:i A') }}</div>
                                 <div class="planner-upcoming-title">{{ $schedule['listing_title'] }}</div>
-                                <div class="planner-subtle">{{ implode(', ', array_map('strtoupper', $schedule['social_networks'])) }} - {{ $schedule['total_channels'] }} channel{{ $schedule['total_channels'] === 1 ? '' : 's' }}</div>
+                                <div class="planner-subtle">{{ $schedule['content_type_label'] }} - {{ implode(', ', array_map('strtoupper', $schedule['social_networks'])) }}</div>
                             </article>
                         @endforeach
                     </div>
@@ -663,7 +939,7 @@
                     <div>
                         <div class="planner-eyebrow">Social Planner</div>
                         <h3>Calendar and table views are reading the same FS Poster schedule groups from WordPress.</h3>
-                        <div class="planner-note">When you add or edit a condo schedule here, Laravel updates the WordPress `fsp_schedules` rows, preserves WordPress-authored channel settings where possible, and syncs the same `postmeta` markers FS Poster expects. Existing WordPress post schedules stay visible here as read-only references.</div>
+                        <div class="planner-note">The calendar now stays in a month view so each day shows a cleaner summary. Tap any event to review it in a modal, and use the day "see more" link to open every item on that date without being redirected away.</div>
                     </div>
                     <div class="planner-toggle">
                         <a href="{{ route('social.index', $calendarQuery) }}" class="{{ $viewMode === 'calendar' ? 'active' : '' }}">Calendar</a>
@@ -673,7 +949,7 @@
 
                 <form method="GET" class="planner-filter-grid">
                     <input type="hidden" name="view" value="{{ $viewMode }}">
-                    <input type="text" name="search" class="form-input" value="{{ $search }}" placeholder="Search listing title or social message">
+                    <input type="text" name="search" class="form-input" value="{{ $search }}" placeholder="Search content title or social message">
 
                     <select name="status" class="form-select">
                         <option value="">All statuses</option>
@@ -700,9 +976,9 @@
                         <h4>{{ $viewMode === 'calendar' ? 'Schedule Calendar' : 'Schedule Table' }}</h4>
                         <div class="planner-subtle">
                             @if($viewMode === 'calendar')
-                                Every colored card below is a live FS Poster schedule group. Click a card to edit future items or jump into the linked condo listing.
+                                Each day shows the first four schedule groups only. Use the "see more" link to open the full list for that day inside the detail modal.
                             @else
-                                The table below is the same schedule dataset, just rendered as a cleaner management view for scanning, editing, and deleting.
+                                The table below is the same dataset, just rendered as a cleaner management view for scanning, filtering, and opening the linked content.
                             @endif
                         </div>
                     </div>
@@ -793,6 +1069,20 @@
             </section>
         </div>
     </div>
+
+    <div class="calendar-modal" id="calendar-schedule-modal" aria-hidden="true">
+        <div class="calendar-modal-panel" role="dialog" aria-modal="true" aria-labelledby="calendar-schedule-modal-title">
+            <div class="calendar-modal-head">
+                <div>
+                    <div class="calendar-modal-kicker">Schedule Details</div>
+                    <h3 class="calendar-modal-title" id="calendar-schedule-modal-title" data-modal-title>Schedule details</h3>
+                    <div class="calendar-modal-subtitle" data-modal-subtitle>Review the selected schedule group.</div>
+                </div>
+                <button type="button" class="calendar-modal-close" data-modal-close aria-label="Close schedule details">&times;</button>
+            </div>
+            <div class="calendar-modal-body" data-modal-body></div>
+        </div>
+    </div>
 </div>
 @endsection
 
@@ -801,83 +1091,186 @@
 <script>
     (function () {
         var calendarEl = document.getElementById('social-calendar');
+        var modalEl = document.getElementById('calendar-schedule-modal');
+        var modalTitleEl = modalEl ? modalEl.querySelector('[data-modal-title]') : null;
+        var modalSubtitleEl = modalEl ? modalEl.querySelector('[data-modal-subtitle]') : null;
+        var modalBodyEl = modalEl ? modalEl.querySelector('[data-modal-body]') : null;
+        var modalCloseButtons = modalEl ? modalEl.querySelectorAll('[data-modal-close]') : [];
 
         if (!calendarEl || typeof FullCalendar === 'undefined') {
             return;
         }
 
-        function defaultView() {
-            if (window.innerWidth < 720) {
-                return 'timeGridDay';
+        function escapeHtml(value) {
+            return String(value || '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        function openModal(title, subtitle, bodyHtml) {
+            if (!modalEl || !modalTitleEl || !modalSubtitleEl || !modalBodyEl) {
+                return;
             }
 
-            if (window.innerWidth < 1120) {
-                return 'timeGridWeek';
+            modalTitleEl.textContent = title;
+            modalSubtitleEl.textContent = subtitle;
+            modalBodyEl.innerHTML = bodyHtml;
+            modalEl.classList.add('open');
+            modalEl.setAttribute('aria-hidden', 'false');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            if (!modalEl || !modalBodyEl) {
+                return;
             }
 
-            return 'timeGridWeek';
+            modalEl.classList.remove('open');
+            modalEl.setAttribute('aria-hidden', 'true');
+            modalBodyEl.innerHTML = '';
+            document.body.style.overflow = '';
+        }
+
+        function sameDay(dateA, dateB) {
+            return dateA instanceof Date
+                && dateB instanceof Date
+                && dateA.getFullYear() === dateB.getFullYear()
+                && dateA.getMonth() === dateB.getMonth()
+                && dateA.getDate() === dateB.getDate();
+        }
+
+        function formatModalItem(event) {
+            var props = event.extendedProps || {};
+            var actions = [];
+            var networks = Array.isArray(props.networks) ? props.networks : [];
+            var errors = Array.isArray(props.error_messages) ? props.error_messages : [];
+            var metaBits = [
+                props.content_type_label || 'Schedule',
+                networks.length ? networks.join(', ') : '',
+                props.channels ? props.channels + ' channel' + (props.channels === 1 ? '' : 's') : ''
+            ].filter(Boolean);
+
+            if (props.edit_url) {
+                actions.push('<a href="' + escapeHtml(props.edit_url) + '" class="btn btn-primary btn-sm">Edit Schedule</a>');
+            }
+
+            if (props.view_url) {
+                actions.push('<a href="' + escapeHtml(props.view_url) + '" class="btn btn-secondary btn-sm">Open ' + escapeHtml(props.content_type_label || 'Content') + '</a>');
+            }
+
+            return ''
+                + '<article class="calendar-modal-item">'
+                + '  <div class="calendar-modal-item-top">'
+                + '    <div>'
+                + '      <div class="calendar-modal-item-time">' + escapeHtml(props.time_label || '') + '</div>'
+                + '      <h4 class="calendar-modal-item-title">' + escapeHtml(event.title || 'Untitled schedule') + '</h4>'
+                + '    </div>'
+                + '    <span class="planner-status-tag status-' + escapeHtml(props.status || 'scheduled') + '">' + escapeHtml(props.status_label || 'Scheduled') + '</span>'
+                + '  </div>'
+                + '  <div class="calendar-modal-meta">' + escapeHtml(metaBits.join(' - ')) + '</div>'
+                + (props.message_full ? '<div class="calendar-modal-message">' + escapeHtml(props.message_full) + '</div>' : '')
+                + (errors.length ? '<div class="calendar-modal-error">' + escapeHtml(errors.join(' ')) + '</div>' : '')
+                + (actions.length ? '<div class="calendar-modal-actions">' + actions.join('') + '</div>' : '')
+                + '</article>';
+        }
+
+        function openEventModal(event) {
+            var props = event.extendedProps || {};
+            openModal(
+                event.title || 'Schedule details',
+                props.action_label || 'Review the selected schedule.',
+                formatModalItem(event)
+            );
+        }
+
+        function openDayModal(date, calendar) {
+            var events = calendar.getEvents()
+                .filter(function (event) {
+                    return sameDay(event.start, date);
+                })
+                .sort(function (left, right) {
+                    return left.start - right.start;
+                });
+
+            var label = new Intl.DateTimeFormat('en-MY', {
+                weekday: 'long',
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric'
+            }).format(date);
+
+            if (!events.length) {
+                openModal(
+                    label,
+                    'No schedules were found for this day.',
+                    '<article class="calendar-modal-item"><div class="calendar-modal-meta">There are no FS Poster schedule groups on this date.</div></article>'
+                );
+                return;
+            }
+
+            openModal(
+                label,
+                events.length + ' schedule group' + (events.length === 1 ? '' : 's') + ' on this day.',
+                events.map(formatModalItem).join('')
+            );
         }
 
         var calendar = new FullCalendar.Calendar(calendarEl, {
-            initialView: defaultView(),
+            initialView: 'dayGridMonth',
             headerToolbar: {
                 left: 'prev,next today',
                 center: 'title',
-                right: 'dayGridMonth,timeGridWeek,timeGridDay'
+                right: ''
             },
             buttonText: {
                 today: 'Today',
-                month: 'Month',
-                week: 'Week',
-                day: 'Day'
+                month: 'Month'
             },
             firstDay: 1,
-            nowIndicator: true,
+            fixedWeekCount: false,
             height: 'auto',
-            slotMinTime: '06:00:00',
-            slotMaxTime: '23:00:00',
-            dayMaxEvents: true,
+            dayMaxEvents: 4,
+            dayMaxEventRows: 4,
             events: @json($calendarEvents),
             eventTimeFormat: {
                 hour: 'numeric',
                 minute: '2-digit',
                 meridiem: 'short'
             },
+            moreLinkContent: function (args) {
+                return {
+                    html: 'See ' + args.num + ' more'
+                };
+            },
             eventContent: function (info) {
                 var props = info.event.extendedProps || {};
                 var wrapper = document.createElement('div');
-                wrapper.className = 'schedule-event-card schedule-status-' + (props.status || 'scheduled');
+                wrapper.className = 'calendar-chip schedule-status-' + (props.status || 'scheduled');
 
                 var top = document.createElement('div');
-                top.className = 'schedule-event-top';
+                top.className = 'calendar-chip-top';
 
                 var title = document.createElement('div');
-                title.className = 'schedule-event-title';
+                title.className = 'calendar-chip-title';
                 title.textContent = info.event.title;
 
                 var time = document.createElement('div');
-                time.className = 'schedule-event-time';
+                time.className = 'calendar-chip-time';
                 time.textContent = info.timeText || '';
+
+                var meta = document.createElement('div');
+                meta.className = 'calendar-chip-meta';
+                meta.textContent = (props.content_type_label || 'Schedule') + ((props.networks || []).length ? ' - ' + (props.networks || []).join(', ') : '');
 
                 top.appendChild(title);
                 top.appendChild(time);
-
-                var meta = document.createElement('div');
-                meta.className = 'schedule-event-meta';
-                meta.textContent = (props.networks || []).join(', ') + ((props.channels || 0) ? ' - ' + props.channels + ' channel' + ((props.channels || 0) === 1 ? '' : 's') : '');
-
-                var message = document.createElement('div');
-                message.className = 'schedule-event-message';
-                message.textContent = props.message || '';
-
                 wrapper.appendChild(top);
 
                 if (meta.textContent.trim() !== '') {
                     wrapper.appendChild(meta);
-                }
-
-                if (message.textContent.trim() !== '') {
-                    wrapper.appendChild(message);
                 }
 
                 return { domNodes: [wrapper] };
@@ -894,10 +1287,39 @@
                 if (tooltipParts.length) {
                     info.el.title = tooltipParts.join('\n');
                 }
+            },
+            moreLinkDidMount: function (arg) {
+                arg.el.addEventListener('click', function (event) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    openDayModal(arg.date, calendar);
+                });
+            },
+            eventClick: function (info) {
+                info.jsEvent.preventDefault();
+                openEventModal(info.event);
             }
         });
 
         calendar.render();
+
+        modalCloseButtons.forEach(function (button) {
+            button.addEventListener('click', closeModal);
+        });
+
+        if (modalEl) {
+            modalEl.addEventListener('click', function (event) {
+                if (event.target === modalEl) {
+                    closeModal();
+                }
+            });
+        }
+
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape' && modalEl && modalEl.classList.contains('open')) {
+                closeModal();
+            }
+        });
     }());
 </script>
 @endsection
