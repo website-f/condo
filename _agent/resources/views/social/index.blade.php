@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('title', 'Social Media')
-@section('page-title', 'FS Poster Scheduler')
+@section('page-title', 'Social Scheduler')
 
 @section('head')
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.17/index.global.min.css">
@@ -9,7 +9,6 @@
 
 @section('topbar-actions')
     <a href="{{ route('social.create') }}" class="btn btn-primary btn-sm">New Schedule</a>
-    <a href="{{ rtrim(\App\Support\CondoWordpressBridge::siteBaseUrl(), '/') . '/wp-admin/admin.php?page=fs-poster#/calendar' }}" class="btn btn-secondary btn-sm" target="_blank" rel="noreferrer">WP Calendar</a>
 @endsection
 
 @section('content')
@@ -26,6 +25,8 @@
         'status' => $statusFilter !== '' ? $statusFilter : null,
         'network' => $networkFilter !== '' ? $networkFilter : null,
     ]);
+    $channelPreview = $networkSummary->take(4);
+    $channelOverflow = $networkSummary->slice(4)->values();
 @endphp
 
 <style>
@@ -49,14 +50,11 @@
         gap: 24px;
     }
     .planner-sidebar {
-        grid-template-columns: minmax(320px, 1.15fr) minmax(220px, 0.9fr) minmax(220px, 0.9fr);
+        grid-template-columns: repeat(3, minmax(0, 1fr));
         align-items: stretch;
     }
     .planner-sidebar > :first-child {
-        grid-row: 1 / span 2;
-    }
-    .planner-sidebar > :last-child {
-        grid-column: 2 / -1;
+        grid-column: 1 / -1;
     }
     .planner-card {
         background: var(--card-bg);
@@ -107,6 +105,9 @@
     }
     .planner-panel {
         padding: 22px;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
     }
     .planner-panel-head {
         display: flex;
@@ -152,6 +153,7 @@
     .planner-channel-list {
         display: grid;
         gap: 12px;
+        align-content: start;
     }
     .planner-upcoming-item,
     .planner-channel-item {
@@ -192,6 +194,45 @@
         background: #f4f4f8;
         border: 1px solid var(--border-light);
         font-weight: 700;
+    }
+    .planner-inline-more {
+        margin-top: 12px;
+        border: 1px solid var(--border-light);
+        border-radius: 18px;
+        background: #f9fbfd;
+        overflow: hidden;
+    }
+    .planner-inline-more summary {
+        list-style: none;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        padding: 14px 16px;
+        cursor: pointer;
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--text);
+    }
+    .planner-inline-more summary::-webkit-details-marker {
+        display: none;
+    }
+    .planner-inline-more summary::after {
+        content: 'See more';
+        color: #335c89;
+        font-size: 12px;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+    }
+    .planner-inline-more[open] summary::after {
+        content: 'See less';
+    }
+    .planner-inline-more-body {
+        display: grid;
+        gap: 12px;
+        padding: 0 16px 16px;
+        border-top: 1px solid var(--border-light);
+        background: #fff;
     }
     .planner-toolbar {
         padding: 26px;
@@ -291,7 +332,24 @@
         border-radius: 24px;
         background: linear-gradient(180deg, #ffffff 0%, #fbfcfe 100%);
         border: 1px solid var(--border-light);
-        overflow: hidden;
+    }
+    .planner-calendar-scroll {
+        overflow-x: auto;
+        padding-bottom: 8px;
+    }
+    .planner-calendar-scroll::-webkit-scrollbar {
+        height: 6px;
+    }
+    .planner-calendar-scroll::-webkit-scrollbar-track {
+        background: rgba(0,0,0,0.02);
+        border-radius: 6px;
+    }
+    .planner-calendar-scroll::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 6px;
+    }
+    .planner-calendar-scroll #social-calendar {
+        min-width: 800px;
     }
     .planner-calendar-frame .fc .fc-toolbar {
         gap: 12px;
@@ -355,67 +413,144 @@
     }
     .planner-calendar-frame .fc .fc-daygrid-event-harness {
         margin-top: 0 !important;
+        overflow: hidden !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+    }
+    .planner-calendar-frame .fc .fc-event {
+        background: transparent !important;
+        border: none !important;
+        margin: 0 4px !important;
+        overflow: hidden !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
     }
     .planner-calendar-frame .fc .fc-daygrid-more-link {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        margin: 2px 8px 8px;
-        padding: 7px 10px;
-        border-radius: 999px;
-        background: #f3f6fb;
-        color: #335c89;
+        display: inline-block;
+        margin: 6px auto 10px;
         font-size: 11px;
         font-weight: 700;
+        color: #0f172a;
         text-decoration: none;
-        border: 1px solid #d7e2f0;
+        background: transparent;
+        border: none;
+        text-align: center;
+        width: 100%;
     }
     .planner-calendar-frame .fc .fc-daygrid-more-link:hover {
-        background: #eaf0f7;
+        text-decoration: underline;
     }
     .calendar-chip {
-        display: grid;
-        gap: 4px;
-        padding: 10px 11px;
-        border-radius: 14px;
-        border: 1px solid rgba(0, 0, 0, 0.06);
-        box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
-        cursor: pointer;
-    }
-    .calendar-chip.schedule-status-scheduled { background: linear-gradient(180deg, #eff5ff 0%, #fbfdff 100%); }
-    .calendar-chip.schedule-status-success { background: linear-gradient(180deg, #e7f7ec 0%, #f8fdf9 100%); }
-    .calendar-chip.schedule-status-error { background: linear-gradient(180deg, #ffecea 0%, #fff9f9 100%); }
-    .calendar-chip.schedule-status-mixed { background: linear-gradient(180deg, #f5ecff 0%, #fdf9ff 100%); }
-    .calendar-chip.schedule-status-sending { background: linear-gradient(180deg, #e9f3ff 0%, #f8fbff 100%); }
-    .calendar-chip-top {
         display: flex;
-        justify-content: space-between;
-        gap: 8px;
-        align-items: flex-start;
+        flex-direction: column;
+        gap: 6px;
+        padding: 6px;
+        border-radius: 8px;
+        background: #ffffff;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        position: relative;
+        border: 1.5px solid;
+        box-shadow: 0 -3px 0 0 #fff, 0 -4px 0 0 #cbd5e1, 0 -6px 0 0 #fff, 0 -7px 0 0 #cbd5e1;
+        margin-top: 8px;
+        margin-bottom: 2px;
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+        overflow: hidden; /* Force clipping */
+    }
+    .calendar-chip:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 -2px 0 0 #fff, 0 -3px 0 0 #cbd5e1, 0 -4px 0 0 #fff, 0 -5px 0 0 #cbd5e1, 0 8px 12px rgba(15, 23, 42, 0.1);
+    }
+    .calendar-chip.schedule-status-scheduled { border-color: #cbd5e1; }
+    .calendar-chip.schedule-status-success { border-color: #1ed760; }
+    .calendar-chip.schedule-status-error { border-color: #ff3333; }
+    .calendar-chip.schedule-status-mixed { border-color: #a855f7; }
+    .calendar-chip.schedule-status-sending { border-color: #3b82f6; }
+    
+    .calendar-chip-thumbnail {
+        height: 54px;
+        border-radius: 4px;
+        background: #f1f5f9;
+        overflow: hidden;
+        position: relative;
+    }
+    .calendar-chip-thumbnail img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    .calendar-chip-thumbnail-placeholder {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #94a3b8;
+        font-size: 10px;
+        font-weight: 700;
+        text-transform: uppercase;
     }
     .calendar-chip-title {
-        font-size: 12px;
+        font-size: 11px;
         font-weight: 700;
-        line-height: 1.3;
-        color: #1d1d1f;
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        line-clamp: 2;
-        -webkit-box-orient: vertical;
+        line-height: 1.25;
+        color: #0f172a;
+        white-space: nowrap;
         overflow: hidden;
+        text-overflow: ellipsis;
+        padding: 0 4px;
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        display: block;
+        box-sizing: border-box;
+    }
+    .calendar-chip-bottom {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 2px;
+        min-width: 0;
     }
     .calendar-chip-time {
-        font-size: 10px;
+        font-size: 9px;
         font-weight: 700;
-        letter-spacing: 0.06em;
-        text-transform: uppercase;
-        white-space: nowrap;
-        color: #546273;
+        color: inherit;
+        display: flex;
+        align-items: center;
+        gap: 3px;
     }
-    .calendar-chip-meta {
-        font-size: 10px;
-        line-height: 1.35;
-        color: #5a6472;
+    .calendar-chip.schedule-status-success .calendar-chip-time { color: #1ed760; }
+    .calendar-chip.schedule-status-error .calendar-chip-time { color: #ff3333; }
+    .calendar-chip.schedule-status-scheduled .calendar-chip-time,
+    .calendar-chip.schedule-status-sending .calendar-chip-time,
+    .calendar-chip.schedule-status-mixed .calendar-chip-time { color: #64748b; }
+    
+    .calendar-chip-networks {
+        display: flex;
+        align-items: center;
+    }
+    .calendar-chip-network-icon {
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 8px;
+        font-weight: 800;
+        color: #0f172a;
+        margin-left: -6px;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        z-index: 1;
+    }
+    .calendar-chip-network-icon:first-child {
+        margin-left: 0;
     }
     .planner-empty {
         padding: 56px 20px;
@@ -595,16 +730,35 @@
         border: 1px solid var(--border-light);
         background: #fff;
         box-shadow: var(--shadow-sm);
+        display: flex;
+        gap: 16px;
+        align-items: flex-start;
+        min-width: 0;
+    }
+    .calendar-modal-image {
+        width: 100px;
+        height: 100px;
+        border-radius: 12px;
+        overflow: hidden;
+        background: #f1f5f9;
+        flex-shrink: 0;
+    }
+    .calendar-modal-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    .calendar-modal-content {
+        flex: 1;
+        min-width: 0;
         display: grid;
         gap: 10px;
-        min-width: 0;
     }
     .calendar-modal-item-top {
         display: flex;
         justify-content: space-between;
         gap: 16px;
         align-items: flex-start;
-        margin-bottom: 12px;
     }
     .calendar-modal-item-time {
         font-size: 11px;
@@ -637,6 +791,110 @@
         color: var(--text);
         overflow-wrap: anywhere;
     }
+    .calendar-message-layout {
+        display: grid;
+        gap: 14px;
+    }
+    .calendar-message-tags,
+    .calendar-message-links {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    .calendar-message-tag {
+        display: inline-flex;
+        align-items: center;
+        padding: 6px 10px;
+        border-radius: 999px;
+        background: #eef2ff;
+        border: 1px solid #dbe4ff;
+        color: #3f4b7a;
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 1.2;
+    }
+    .calendar-message-copy {
+        display: grid;
+        gap: 10px;
+    }
+    .calendar-message-copy p,
+    .calendar-message-notes p {
+        margin: 0;
+        white-space: pre-wrap;
+    }
+    .calendar-message-lead {
+        font-size: 15px;
+        font-weight: 600;
+        line-height: 1.7;
+        color: #172033;
+    }
+    .calendar-message-bullets {
+        margin: 0;
+        padding-left: 18px;
+        display: grid;
+        gap: 6px;
+    }
+    .calendar-message-bullets li {
+        line-height: 1.6;
+    }
+    .calendar-message-facts {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+        margin: 0;
+    }
+    .calendar-message-fact {
+        padding: 12px 14px;
+        border-radius: 16px;
+        background: #ffffff;
+        border: 1px solid var(--border-light);
+        min-width: 0;
+    }
+    .calendar-message-fact dt {
+        margin: 0 0 4px;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--text-secondary);
+    }
+    .calendar-message-fact dd {
+        margin: 0;
+        font-weight: 600;
+        line-height: 1.55;
+        color: var(--text);
+        overflow-wrap: anywhere;
+    }
+    .calendar-message-notes {
+        display: grid;
+        gap: 8px;
+    }
+    .calendar-message-note {
+        padding: 12px 14px;
+        border-radius: 16px;
+        background: #fff7ed;
+        border: 1px solid #fed7aa;
+        color: #9a3412;
+        font-weight: 600;
+    }
+    .calendar-message-link {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 38px;
+        padding: 0 14px;
+        border-radius: 999px;
+        background: #ffffff;
+        border: 1px solid #c7d2fe;
+        color: #374151;
+        text-decoration: none;
+        font-size: 13px;
+        font-weight: 700;
+    }
+    .calendar-message-link:hover {
+        background: #eef2ff;
+        text-decoration: none;
+    }
     .calendar-modal-error {
         margin-top: 10px;
         color: #b42318;
@@ -652,9 +910,8 @@
         .planner-sidebar {
             grid-template-columns: repeat(2, minmax(0, 1fr));
         }
-        .planner-sidebar > :first-child,
-        .planner-sidebar > :last-child {
-            grid-column: auto;
+        .planner-sidebar > :first-child {
+            grid-column: 1 / -1;
             grid-row: auto;
         }
         .planner-filter-grid {
@@ -703,18 +960,7 @@
         .planner-calendar-frame .fc .fc-daygrid-day-frame {
             min-height: 118px;
         }
-        .calendar-chip {
-            padding: 8px 9px;
-            gap: 2px;
-        }
-        .calendar-chip-title {
-            font-size: 11px;
-            -webkit-line-clamp: 1;
-            line-clamp: 1;
-        }
-        .calendar-chip-meta {
-            display: none;
-        }
+        /* calendar chips retain design on mobile due to horizontal scroll wrapper */
         .planner-table thead {
             display: none;
         }
@@ -793,6 +1039,10 @@
         .calendar-modal-actions .btn {
             width: 100%;
         }
+        .planner-inline-more summary {
+            flex-direction: column;
+            align-items: flex-start;
+        }
         .calendar-modal {
             padding: 0;
             align-items: flex-end;
@@ -821,8 +1071,17 @@
             padding-bottom: 28px;
         }
         .calendar-modal-item {
+            flex-direction: column;
+            align-items: stretch;
             padding: 16px;
             border-radius: 18px;
+        }
+        .calendar-modal-image {
+            width: 100%;
+            height: 160px;
+        }
+        .calendar-message-facts {
+            grid-template-columns: 1fr;
         }
         .planner-calendar-frame .fc .fc-daygrid-day-frame {
             min-height: 104px;
@@ -841,12 +1100,11 @@
     <div class="planner-stage">
         <aside class="planner-sidebar">
             <section class="planner-card planner-brand">
-                <div class="planner-chip">FS Poster Live Sync</div>
-                <h3>Review WordPress FS Poster schedules from Laravel.</h3>
-                <p>Laravel reads the same FS Poster schedules, channel customization payloads, and schedule meta used by WordPress. Condo listing schedules remain editable here, while WordPress post schedules stay visible so both sides reflect the same queue.</p>
+                <div class="planner-chip">Agent Social Queue</div>
+                <h3>Manage your live social schedule without leaving the agent portal.</h3>
+                <p>This page shows only the channels and schedule groups that can be tied back to the current agent. Condo listing schedules stay editable here, while anything without clear ownership stays hidden.</p>
                 <div class="planner-brand-actions">
                     <a href="{{ route('social.create') }}" class="btn btn-primary">Add Schedule</a>
-                    <a href="{{ rtrim(\App\Support\CondoWordpressBridge::siteBaseUrl(), '/') . '/wp-admin/admin.php?page=fs-poster#/calendar' }}" class="btn btn-secondary" target="_blank" rel="noreferrer">Open WP FS Poster</a>
                 </div>
             </section>
 
@@ -854,14 +1112,14 @@
                 <div class="planner-panel-head">
                     <div>
                         <h4>Queue Snapshot</h4>
-                        <div class="planner-subtle">Live totals from the current FS Poster schedules linked to your WordPress content and condo listings.</div>
+                        <div class="planner-subtle">Live totals from the current agent-owned schedules and channels visible in this portal.</div>
                     </div>
                 </div>
                 <div class="planner-mini-grid">
                     <article class="planner-mini-stat">
                         <div class="planner-mini-label">Active Channels</div>
                         <div class="planner-mini-value">{{ $stats['channels'] }}</div>
-                        <div class="planner-subtle">Connected in WordPress.</div>
+                        <div class="planner-subtle">Available to this agent.</div>
                     </article>
                     <article class="planner-mini-stat">
                         <div class="planner-mini-label">Queued</div>
@@ -885,7 +1143,7 @@
                 <div class="planner-panel-head">
                     <div>
                         <h4>Upcoming Queue</h4>
-                        <div class="planner-subtle">The next schedule groups that will hit FS Poster from this filtered view.</div>
+                        <div class="planner-subtle">The next schedule groups queued from this filtered view.</div>
                     </div>
                 </div>
                 @if($upcomingSchedules->count())
@@ -910,12 +1168,12 @@
                 <div class="planner-panel-head">
                     <div>
                         <h4>Channel Coverage</h4>
-                        <div class="planner-subtle">Active destinations discovered from the live FS Poster WordPress setup.</div>
+                        <div class="planner-subtle">Active destinations currently linked to this agent.</div>
                     </div>
                 </div>
                 @if($networkSummary->count())
                     <div class="planner-channel-list">
-                        @foreach($networkSummary as $network)
+                        @foreach($channelPreview as $network)
                             <article class="planner-channel-item">
                                 <div>
                                     <div class="planner-channel-title">{{ $network['label'] }}</div>
@@ -925,9 +1183,25 @@
                             </article>
                         @endforeach
                     </div>
+                    @if($channelOverflow->isNotEmpty())
+                        <details class="planner-inline-more">
+                            <summary>{{ $channelOverflow->count() }} more network{{ $channelOverflow->count() === 1 ? '' : 's' }}</summary>
+                            <div class="planner-inline-more-body">
+                                @foreach($channelOverflow as $network)
+                                    <article class="planner-channel-item">
+                                        <div>
+                                            <div class="planner-channel-title">{{ $network['label'] }}</div>
+                                            <div class="planner-subtle">{{ $network['count'] }} active channel{{ $network['count'] === 1 ? '' : 's' }}</div>
+                                        </div>
+                                        <div class="planner-channel-count">{{ $network['count'] }}</div>
+                                    </article>
+                                @endforeach
+                            </div>
+                        </details>
+                    @endif
                 @else
                     <div class="planner-empty">
-                        <p>No active FS Poster channels were found.</p>
+                        <p>No active social channels were found for this agent yet.</p>
                     </div>
                 @endif
             </section>
@@ -938,7 +1212,7 @@
                 <div class="planner-toolbar-row">
                     <div>
                         <div class="planner-eyebrow">Social Planner</div>
-                        <h3>Calendar and table views are reading the same FS Poster schedule groups from WordPress.</h3>
+                        <h3>Calendar and table views are reading the same live schedule groups used by this portal.</h3>
                         <div class="planner-note">The calendar now stays in a month view so each day shows a cleaner summary. Tap any event to review it in a modal, and use the day "see more" link to open every item on that date without being redirected away.</div>
                     </div>
                     <div class="planner-toggle">
@@ -993,7 +1267,9 @@
                 @if($posts->total())
                     @if($viewMode === 'calendar')
                         <div class="planner-calendar-frame">
-                            <div id="social-calendar"></div>
+                            <div class="planner-calendar-scroll">
+                                <div id="social-calendar"></div>
+                            </div>
                         </div>
                     @else
                         <div class="table-wrap">
@@ -1034,7 +1310,7 @@
                                             </td>
                                             <td data-label="Message">
                                                 <div class="planner-message-box">
-                                                    {{ $schedule['message_preview'] !== '' ? $schedule['message_preview'] : 'Using the current WordPress FS Poster template for this schedule group.' }}
+                                                    {{ $schedule['message_preview'] !== '' ? $schedule['message_preview'] : 'Using the saved channel template for this schedule group.' }}
                                                 </div>
                                             </td>
                                             <td data-label="Actions">
@@ -1110,6 +1386,195 @@
                 .replace(/'/g, '&#039;');
         }
 
+        function escapeRegExp(value) {
+            return String(value || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        }
+
+        function uniqueStrings(values) {
+            var seen = Object.create(null);
+
+            return (Array.isArray(values) ? values : [])
+                .map(function (value) {
+                    return String(value || '').trim();
+                })
+                .filter(function (value) {
+                    if (!value || seen[value]) {
+                        return false;
+                    }
+
+                    seen[value] = true;
+
+                    return true;
+                });
+        }
+
+        function parseScheduleMessage(title, message) {
+            var text = String(message || '').replace(/\r\n?/g, '\n').trim();
+            var titleText = String(title || '').trim();
+
+            if (!text) {
+                return {
+                    paragraphs: [],
+                    bullets: [],
+                    facts: [],
+                    notes: [],
+                    tags: [],
+                    links: []
+                };
+            }
+
+            if (titleText) {
+                text = text.replace(new RegExp('^' + escapeRegExp(titleText) + '\\s*', 'i'), '');
+            }
+
+            var links = uniqueStrings(text.match(/https?:\/\/[^\s<>"']+/g) || []);
+            links.forEach(function (link) {
+                text = text.split(link).join(' ');
+            });
+
+            var tags = uniqueStrings(text.match(/#[^\s#]+/g) || []);
+            tags.forEach(function (tag) {
+                text = text.split(tag).join(' ');
+            });
+
+            text = text
+                .replace(/\s*={2,}\s*/g, '\n')
+                .replace(/\s*=\s*(?=(Owner asking|For more info & viewing arrangement:|Whatsapp me now|View more photo|Show more photo|About this agent))/gi, '\n')
+                .replace(/\s*\|\s*/g, ' | ')
+                .replace(/Owner asking\s+(?=RM|MYR|USD)/gi, 'Owner asking: ')
+                .replace(/For More Info & Viewing Arrangement,?/gi, 'For more info & viewing arrangement:')
+                .replace(/\s+(?=(Size:|Bedroom:|Bathroom:|Carpark:|Condition:|Owner asking:|Location:|Built Up\s*:|Land Area\s*:|Agent name\s*:|Contact No\s*:|Agency\s*:|Tenure\s*:|Furnishing\s*:|Property Type\s*:|For more info & viewing arrangement:|Whatsapp me now|View more photo|Show more photo|About this agent))/gi, '\n')
+                .replace(/(\S)(?=(Location:|Built Up\s*:|Land Area\s*:|Agent name\s*:|Contact No\s*:|Agency\s*:))/gi, '$1\n')
+                .replace(/(\S)(?=(Whatsapp me now|View more photo|Show more photo|About this agent))/gi, '$1\n')
+                .replace(/[ \t]+/g, ' ')
+                .replace(/ *\n */g, '\n')
+                .replace(/\n{3,}/g, '\n\n')
+                .trim();
+
+            var lines = text.split('\n').map(function (line) {
+                return line.trim();
+            }).filter(Boolean);
+
+            var paragraphs = [];
+            var bullets = [];
+            var facts = [];
+            var notes = [];
+
+            lines.forEach(function (line) {
+                if (!line) {
+                    return;
+                }
+
+                if (/^[-*•]\s*/.test(line)) {
+                    bullets.push(line.replace(/^[-*•]\s*/, '').trim());
+                    return;
+                }
+
+                var factMatch = line.match(/^([A-Za-z][A-Za-z0-9 &/()'-]+?)\s*:\s*(.+)$/);
+
+                if (factMatch) {
+                    facts.push({
+                        label: factMatch[1].trim(),
+                        value: factMatch[2].replace(/[=|]+$/g, '').trim()
+                    });
+                    return;
+                }
+
+                if (/(for more info|whatsapp me now|view more photo|show more photo|about this agent|call\b)/i.test(line)) {
+                    notes.push(line);
+                    return;
+                }
+
+                paragraphs.push(line);
+            });
+
+            return {
+                paragraphs: paragraphs,
+                bullets: bullets,
+                facts: facts,
+                notes: notes,
+                tags: tags,
+                links: links
+            };
+        }
+
+        function renderScheduleMessage(title, message) {
+            var parsed = parseScheduleMessage(title, message);
+            var parts = [];
+
+            if (parsed.tags.length) {
+                parts.push(
+                    '<div class="calendar-message-tags">'
+                    + parsed.tags.map(function (tag) {
+                        return '<span class="calendar-message-tag">' + escapeHtml(tag) + '</span>';
+                    }).join('')
+                    + '</div>'
+                );
+            }
+
+            if (parsed.paragraphs.length) {
+                parts.push(
+                    '<div class="calendar-message-copy">'
+                    + parsed.paragraphs.map(function (paragraph, index) {
+                        return '<p' + (index === 0 ? ' class="calendar-message-lead"' : '') + '>' + escapeHtml(paragraph) + '</p>';
+                    }).join('')
+                    + '</div>'
+                );
+            }
+
+            if (parsed.bullets.length) {
+                parts.push(
+                    '<ul class="calendar-message-bullets">'
+                    + parsed.bullets.map(function (item) {
+                        return '<li>' + escapeHtml(item) + '</li>';
+                    }).join('')
+                    + '</ul>'
+                );
+            }
+
+            if (parsed.facts.length) {
+                parts.push(
+                    '<dl class="calendar-message-facts">'
+                    + parsed.facts.map(function (fact) {
+                        return ''
+                            + '<div class="calendar-message-fact">'
+                            + '  <dt>' + escapeHtml(fact.label) + '</dt>'
+                            + '  <dd>' + escapeHtml(fact.value) + '</dd>'
+                            + '</div>';
+                    }).join('')
+                    + '</dl>'
+                );
+            }
+
+            if (parsed.notes.length) {
+                parts.push(
+                    '<div class="calendar-message-notes">'
+                    + parsed.notes.map(function (note) {
+                        return '<p class="calendar-message-note">' + escapeHtml(note) + '</p>';
+                    }).join('')
+                    + '</div>'
+                );
+            }
+
+            if (parsed.links.length) {
+                parts.push(
+                    '<div class="calendar-message-links">'
+                    + parsed.links.map(function (link, index) {
+                        return '<a class="calendar-message-link" href="' + escapeHtml(link) + '" target="_blank" rel="noopener noreferrer">'
+                            + escapeHtml(index === 0 ? 'Open public page' : 'Open link ' + (index + 1))
+                            + '</a>';
+                    }).join('')
+                    + '</div>'
+                );
+            }
+
+            if (!parts.length) {
+                return '<div class="calendar-message-copy"><p>' + escapeHtml(message) + '</p></div>';
+            }
+
+            return '<div class="calendar-message-layout">' + parts.join('') + '</div>';
+        }
+
         function openModal(title, subtitle, bodyHtml) {
             if (!modalEl || !modalTitleEl || !modalSubtitleEl || !modalBodyEl) {
                 return;
@@ -1134,14 +1599,6 @@
             document.body.style.overflow = '';
         }
 
-        function sameDay(dateA, dateB) {
-            return dateA instanceof Date
-                && dateB instanceof Date
-                && dateA.getFullYear() === dateB.getFullYear()
-                && dateA.getMonth() === dateB.getMonth()
-                && dateA.getDate() === dateB.getDate();
-        }
-
         function formatModalItem(event) {
             var props = event.extendedProps || {};
             var actions = [];
@@ -1161,19 +1618,27 @@
                 actions.push('<a href="' + escapeHtml(props.view_url) + '" class="btn btn-secondary btn-sm">Open ' + escapeHtml(props.content_type_label || 'Content') + '</a>');
             }
 
+            var imageHtml = '';
+            if (props.image_url) {
+                imageHtml = '<div class="calendar-modal-image"><img src="' + escapeHtml(props.image_url) + '" alt=""></div>';
+            }
+
             return ''
                 + '<article class="calendar-modal-item">'
-                + '  <div class="calendar-modal-item-top">'
-                + '    <div>'
-                + '      <div class="calendar-modal-item-time">' + escapeHtml(props.time_label || '') + '</div>'
-                + '      <h4 class="calendar-modal-item-title">' + escapeHtml(event.title || 'Untitled schedule') + '</h4>'
+                + imageHtml
+                + '  <div class="calendar-modal-content">'
+                + '    <div class="calendar-modal-item-top">'
+                + '      <div>'
+                + '        <div class="calendar-modal-item-time">' + escapeHtml(props.time_label || '') + '</div>'
+                + '        <h4 class="calendar-modal-item-title">' + escapeHtml(event.title || 'Untitled schedule') + '</h4>'
+                + '      </div>'
+                + '      <span class="planner-status-tag status-' + escapeHtml(props.status || 'scheduled') + '">' + escapeHtml(props.status_label || 'Scheduled') + '</span>'
                 + '    </div>'
-                + '    <span class="planner-status-tag status-' + escapeHtml(props.status || 'scheduled') + '">' + escapeHtml(props.status_label || 'Scheduled') + '</span>'
-                + '  </div>'
-                + '  <div class="calendar-modal-meta">' + escapeHtml(metaBits.join(' - ')) + '</div>'
-                + (props.message_full ? '<div class="calendar-modal-message">' + escapeHtml(props.message_full) + '</div>' : '')
+                + '    <div class="calendar-modal-meta">' + escapeHtml(metaBits.join(' - ')) + '</div>'
+                + (props.message_full ? '<div class="calendar-modal-message">' + renderScheduleMessage(event.title || '', props.message_full) + '</div>' : '')
                 + (errors.length ? '<div class="calendar-modal-error">' + escapeHtml(errors.join(' ')) + '</div>' : '')
                 + (actions.length ? '<div class="calendar-modal-actions">' + actions.join('') + '</div>' : '')
+                + '  </div>'
                 + '</article>';
         }
 
@@ -1186,27 +1651,23 @@
             );
         }
 
-        function openDayModal(date, calendar) {
-            var events = calendar.getEvents()
-                .filter(function (event) {
-                    return sameDay(event.start, date);
-                })
-                .sort(function (left, right) {
-                    return left.start - right.start;
-                });
+        function openDayModal(date, events) {
+            events.sort(function (left, right) {
+                return (left.start || 0) - (right.start || 0);
+            });
 
-            var label = new Intl.DateTimeFormat('en-MY', {
+            var label = new Intl.DateTimeFormat('en-US', {
                 weekday: 'long',
                 day: 'numeric',
                 month: 'long',
                 year: 'numeric'
             }).format(date);
 
-            if (!events.length) {
+            if (!events || !events.length) {
                 openModal(
                     label,
                     'No schedules were found for this day.',
-                    '<article class="calendar-modal-item"><div class="calendar-modal-meta">There are no FS Poster schedule groups on this date.</div></article>'
+                    '<article class="calendar-modal-item"><div class="calendar-modal-meta">There are no schedule groups on this date.</div></article>'
                 );
                 return;
             }
@@ -1229,11 +1690,12 @@
                 today: 'Today',
                 month: 'Month'
             },
-            firstDay: 1,
+            firstDay: 0,
             fixedWeekCount: false,
             height: 'auto',
             dayMaxEvents: 4,
             dayMaxEventRows: 4,
+            eventDisplay: 'block',
             events: @json($calendarEvents),
             eventTimeFormat: {
                 hour: 'numeric',
@@ -1250,28 +1712,54 @@
                 var wrapper = document.createElement('div');
                 wrapper.className = 'calendar-chip schedule-status-' + (props.status || 'scheduled');
 
-                var top = document.createElement('div');
-                top.className = 'calendar-chip-top';
+                if (props.image_url) {
+                    var thumbnail = document.createElement('div');
+                    thumbnail.className = 'calendar-chip-thumbnail';
+                    thumbnail.innerHTML = '<img src="' + escapeHtml(props.image_url) + '" alt="">';
+                    wrapper.appendChild(thumbnail);
+                } else {
+                    var thumbnail = document.createElement('div');
+                    thumbnail.className = 'calendar-chip-thumbnail';
+                    thumbnail.innerHTML = '<div class="calendar-chip-thumbnail-placeholder">No Image</div>';
+                    wrapper.appendChild(thumbnail);
+                }
 
                 var title = document.createElement('div');
                 title.className = 'calendar-chip-title';
                 title.textContent = info.event.title;
 
+                var bottomRow = document.createElement('div');
+                bottomRow.className = 'calendar-chip-bottom';
+
                 var time = document.createElement('div');
                 time.className = 'calendar-chip-time';
-                time.textContent = info.timeText || '';
+                time.innerHTML = '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 10px; height: 10px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg><span>' + escapeHtml(info.timeText || '') + '</span>';
 
-                var meta = document.createElement('div');
-                meta.className = 'calendar-chip-meta';
-                meta.textContent = (props.content_type_label || 'Schedule') + ((props.networks || []).length ? ' - ' + (props.networks || []).join(', ') : '');
-
-                top.appendChild(title);
-                top.appendChild(time);
-                wrapper.appendChild(top);
-
-                if (meta.textContent.trim() !== '') {
-                    wrapper.appendChild(meta);
+                var networks = document.createElement('div');
+                networks.className = 'calendar-chip-networks';
+                
+                var showCount = 2;
+                var netList = props.networks || [];
+                var displayNets = netList.slice(0, showCount);
+                displayNets.forEach(function(net) {
+                    var icon = document.createElement('div');
+                    icon.className = 'calendar-chip-network-icon';
+                    icon.textContent = net.substring(0, 1).toUpperCase();
+                    icon.title = net;
+                    networks.appendChild(icon);
+                });
+                if (netList.length > showCount) {
+                    var plus = document.createElement('div');
+                    plus.className = 'calendar-chip-network-icon';
+                    plus.textContent = '+' + (netList.length - showCount);
+                    networks.appendChild(plus);
                 }
+
+                bottomRow.appendChild(time);
+                bottomRow.appendChild(networks);
+
+                wrapper.appendChild(title);
+                wrapper.appendChild(bottomRow);
 
                 return { domNodes: [wrapper] };
             },
@@ -1288,12 +1776,17 @@
                     info.el.title = tooltipParts.join('\n');
                 }
             },
-            moreLinkDidMount: function (arg) {
-                arg.el.addEventListener('click', function (event) {
-                    event.preventDefault();
-                    event.stopPropagation();
-                    openDayModal(arg.date, calendar);
-                });
+            moreLinkClick: function (arg) {
+                if (arg.jsEvent) {
+                    arg.jsEvent.preventDefault();
+                    arg.jsEvent.stopPropagation();
+                }
+                var events = [];
+                if (arg.allSegs) {
+                    events = arg.allSegs.map(function(seg) { return seg.event; });
+                }
+                openDayModal(arg.date, events);
+                return 'none';
             },
             eventClick: function (info) {
                 info.jsEvent.preventDefault();

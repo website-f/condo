@@ -13,15 +13,43 @@ use Illuminate\Validation\ValidationException;
 class FsPosterBridge
 {
     /**
+     * @var array<int, array<int, array{name:string,taxonomy:string}>>
+     */
+    private array $postTermsCache = [];
+
+    /**
+     * @var array<string, ?string>
+     */
+    private array $postMetaValueCache = [];
+
+    /**
+     * @var array<int, array{
+     *     post_title:string,
+     *     post_content:string,
+     *     post_excerpt:string,
+     *     post_url:string,
+     *     post_slug:string
+     * }>
+     */
+    private array $postPreviewContextCache = [];
+
+    /**
      * @return \Illuminate\Support\Collection<int, array{id:int,name:string,channel_type:string,social_network:string,status:bool,auto_share:bool,picture:string,session_name:string,created_by:int}>
      */
-    public function availableChannels(): Collection
+    public function availableChannels(string $username): Collection
     {
+        $wordpressUserIds = $this->wordpressUserIdsForAgent($username);
+
+        if ($wordpressUserIds === []) {
+            return collect();
+        }
+
         return collect(DB::connection('condo')
             ->table('fsp_channels')
             ->join('fsp_channel_sessions', 'fsp_channel_sessions.id', '=', 'fsp_channels.channel_session_id')
             ->where('fsp_channels.is_deleted', 0)
             ->where('fsp_channels.status', 1)
+            ->whereIn('fsp_channel_sessions.created_by', $wordpressUserIds)
             ->orderBy('fsp_channel_sessions.social_network')
             ->orderBy('fsp_channels.name')
             ->get([
@@ -75,6 +103,7 @@ class FsPosterBridge
     /**
      * @return Collection<int, array{
      *     group_id:string,
+     *     display_key:string,
      *     listing_id:int,
      *     listing_title:string,
      *     listing_url:string,
@@ -94,69 +123,53 @@ class FsPosterBridge
      */
     public function scheduleGroupsForAgent(string $username): Collection
     {
-        $wordpressUserIds = $this->wordpressUserIdsForAgent($username);
-        $rows = collect(DB::connection('condo')
-            ->table('fsp_schedules')
-            ->join('posts', 'posts.ID', '=', 'fsp_schedules.wp_post_id')
-            ->leftJoin('postmeta as agent_username_meta', function ($join) {
-                $join->on('agent_username_meta.post_id', '=', 'posts.ID')
-                    ->where('agent_username_meta.meta_key', '=', CondoWordpressBridge::META_USERNAME);
-            })
-            ->join('fsp_channels', 'fsp_channels.id', '=', 'fsp_schedules.channel_id')
-            ->join('fsp_channel_sessions', 'fsp_channel_sessions.id', '=', 'fsp_channels.channel_session_id')
-            ->leftJoin('postmeta as schedule_group_meta', function ($join) {
-                $join->on('schedule_group_meta.post_id', '=', 'posts.ID')
-                    ->where('schedule_group_meta.meta_key', '=', 'fsp_schedule_group_id');
-            })
-            ->leftJoin('postmeta as auto_share_meta', function ($join) {
-                $join->on('auto_share_meta.post_id', '=', 'posts.ID')
-                    ->where('auto_share_meta.meta_key', '=', 'fsp_enable_auto_share');
-            })
-            ->leftJoin('postmeta as manual_meta', function ($join) {
-                $join->on('manual_meta.post_id', '=', 'posts.ID')
-                    ->where('manual_meta.meta_key', '=', 'fsp_schedule_created_manually');
-            })
-            ->leftJoin('postmeta as cached_meta', function ($join) {
-                $join->on('cached_meta.post_id', '=', 'posts.ID')
-                    ->where('cached_meta.meta_key', '=', 'fsp_cache_schedules_data');
-            })
-            ->whereIn('posts.post_type', ['properties', 'post'])
-            ->where(function ($query) use ($username, $wordpressUserIds) {
-                $query->where('agent_username_meta.meta_value', $username);
+        $rows = $this->scheduleRowsForAgent($username);
 
-                if ($wordpressUserIds !== []) {
-                    $query->orWhereIn('posts.post_author', $wordpressUserIds);
-                }
-            })
-            ->orderByDesc('fsp_schedules.send_time')
-            ->orderByDesc('fsp_schedules.id')
-            ->get([
-                'fsp_schedules.id',
-                'fsp_schedules.group_id',
-                'fsp_schedules.wp_post_id',
-                'fsp_schedules.channel_id',
-                'fsp_schedules.user_id',
-                'fsp_schedules.status',
-                'fsp_schedules.error_msg',
-                'fsp_schedules.send_time',
-                'fsp_schedules.data',
-                'fsp_schedules.customization_data',
-                'posts.post_title',
-                'posts.post_status',
-                'posts.post_type',
-                'posts.guid',
-                'fsp_channels.name',
-                'fsp_channels.picture',
-                'fsp_channels.channel_type',
-                'fsp_channel_sessions.social_network',
-                'schedule_group_meta.meta_value as linked_group_id',
-                'auto_share_meta.meta_value as auto_share_flag',
-                'manual_meta.meta_value as manual_flag',
-                'cached_meta.meta_value as cached_schedules',
-            ]));
+        $this->primePreviewCaches($rows);
 
         return $rows
             ->groupBy('group_id')
+            ->map(fn (Collection $groupRows) => $this->hydrateScheduleGroup($groupRows))
+            ->sortByDesc(fn (array $group) => $group['scheduled_at']->timestamp)
+            ->values();
+    }
+
+    /**
+     * @return Collection<int, array{
+     *     group_id:string,
+     *     display_key:string,
+     *     listing_id:int,
+     *     listing_title:string,
+     *     listing_url:string,
+     *     scheduled_at:Carbon,
+     *     scheduled_at_form:string,
+     *     status:string,
+     *     status_label:string,
+     *     status_color:string,
+     *     message:string,
+     *     message_preview:string,
+     *     has_mixed_messages:bool,
+     *     auto_share_enabled:bool,
+     *     schedule_created_manually:bool,
+     *     is_primary_group:bool,
+     *     has_cached_schedule_data:bool,
+     *     channel_ids:array<int, int>,
+     *     social_networks:array<int, string>,
+     *     channels:array<int, array{id:int,name:string,social_network:string,channel_type:string,picture:string}>,
+     *     channel_customizations:array<int, array<string, mixed>>,
+     *     error_messages:array<int, string>,
+     *     is_mutable:bool,
+     *     total_channels:int
+     * }>
+     */
+    public function scheduleDisplayGroupsForAgent(string $username): Collection
+    {
+        $rows = $this->scheduleRowsForAgent($username);
+
+        $this->primePreviewCaches($rows);
+
+        return $rows
+            ->groupBy(fn (object $row) => (string) $row->group_id . '|' . (string) $row->status)
             ->map(fn (Collection $groupRows) => $this->hydrateScheduleGroup($groupRows))
             ->sortByDesc(fn (array $group) => $group['scheduled_at']->timestamp)
             ->values();
@@ -233,13 +246,80 @@ class FsPosterBridge
         return $group;
     }
 
+    /**
+     * @return Collection<int, object>
+     */
+    private function scheduleRowsForAgent(string $username): Collection
+    {
+        $wordpressUserIds = $this->wordpressUserIdsForAgent($username);
+
+        return collect(DB::connection('condo')
+            ->table('fsp_schedules')
+            ->join('posts', 'posts.ID', '=', 'fsp_schedules.wp_post_id')
+            ->leftJoin('postmeta as agent_username_meta', function ($join) {
+                $join->on('agent_username_meta.post_id', '=', 'posts.ID')
+                    ->where('agent_username_meta.meta_key', '=', CondoWordpressBridge::META_USERNAME);
+            })
+            ->join('fsp_channels', 'fsp_channels.id', '=', 'fsp_schedules.channel_id')
+            ->join('fsp_channel_sessions', 'fsp_channel_sessions.id', '=', 'fsp_channels.channel_session_id')
+            ->leftJoin('postmeta as schedule_group_meta', function ($join) {
+                $join->on('schedule_group_meta.post_id', '=', 'posts.ID')
+                    ->where('schedule_group_meta.meta_key', '=', 'fsp_schedule_group_id');
+            })
+            ->leftJoin('postmeta as auto_share_meta', function ($join) {
+                $join->on('auto_share_meta.post_id', '=', 'posts.ID')
+                    ->where('auto_share_meta.meta_key', '=', 'fsp_enable_auto_share');
+            })
+            ->leftJoin('postmeta as manual_meta', function ($join) {
+                $join->on('manual_meta.post_id', '=', 'posts.ID')
+                    ->where('manual_meta.meta_key', '=', 'fsp_schedule_created_manually');
+            })
+            ->leftJoin('postmeta as cached_meta', function ($join) {
+                $join->on('cached_meta.post_id', '=', 'posts.ID')
+                    ->where('cached_meta.meta_key', '=', 'fsp_cache_schedules_data');
+            })
+            ->whereIn('posts.post_type', ['properties', 'post'])
+            ->where(function ($query) use ($username, $wordpressUserIds) {
+                $query->where('agent_username_meta.meta_value', $username);
+
+                if ($wordpressUserIds !== []) {
+                    $query->orWhereIn('posts.post_author', $wordpressUserIds);
+                }
+            })
+            ->orderByDesc('fsp_schedules.send_time')
+            ->orderByDesc('fsp_schedules.id')
+            ->get([
+                'fsp_schedules.id',
+                'fsp_schedules.group_id',
+                'fsp_schedules.wp_post_id',
+                'fsp_schedules.channel_id',
+                'fsp_schedules.user_id',
+                'fsp_schedules.status',
+                'fsp_schedules.error_msg',
+                'fsp_schedules.send_time',
+                'fsp_schedules.data',
+                'fsp_schedules.customization_data',
+                'posts.post_title',
+                'posts.post_status',
+                'posts.post_type',
+                'fsp_channels.name',
+                'fsp_channels.picture',
+                'fsp_channels.channel_type',
+                'fsp_channel_sessions.social_network',
+                'schedule_group_meta.meta_value as linked_group_id',
+                'auto_share_meta.meta_value as auto_share_flag',
+                'manual_meta.meta_value as manual_flag',
+                'cached_meta.meta_value as cached_schedules',
+            ]));
+    }
+
     public function storeScheduleGroup(CondoListing $listing, string $username, array $validated, ?string $groupId = null): string
     {
         $postId = (int) $listing->getKey();
         $groupId = $this->resolveScheduleGroupId($username, $postId, $groupId);
         $scheduledAt = Carbon::parse((string) $validated['scheduled_at'], config('app.timezone'));
         $channelIds = collect($validated['channel_ids'] ?? [])->map(fn (mixed $id) => (int) $id)->unique()->values();
-        $channels = $this->availableChannels()->whereIn('id', $channelIds)->values();
+        $channels = $this->availableChannels($username)->whereIn('id', $channelIds)->values();
         $existingRows = $this->scheduleRowsForGroup($groupId);
         $existingRowsByChannel = $existingRows->keyBy(fn (object $row) => (int) $row->channel_id);
         $previousPostIds = $existingRows
@@ -448,11 +528,19 @@ class FsPosterBridge
             ->filter(fn (string $value) => $value !== '')
             ->unique()
             ->values();
+        $previewContext = $this->schedulePreviewContext($first);
+        $renderedMessages = $messages
+            ->map(fn (string $messageValue) => $this->renderScheduleTemplate($messageValue, $previewContext))
+            ->filter(fn (string $value) => trim($value) !== '')
+            ->unique()
+            ->values();
         $hasMixedMessages = $messages->count() > 1;
         $message = $hasMixedMessages ? '' : (string) ($messages->first() ?? '');
-        $messagePreview = $message !== '' ? $message : ($hasMixedMessages
-            ? 'Channel-specific content is configured in WordPress FS Poster for this schedule group.'
-            : '');
+        $messagePreview = $renderedMessages->isNotEmpty()
+            ? (string) $renderedMessages->first()
+            : ($message !== '' ? $this->renderScheduleTemplate($message, $previewContext) : ($hasMixedMessages
+            ? 'Channel-specific content is configured for this schedule group.'
+            : ''));
         $linkedGroupId = trim((string) ($first->linked_group_id ?? ''));
         $autoShareEnabled = $this->metaFlag($first->auto_share_flag ?? null, false);
         $scheduleCreatedManually = $this->metaFlag($first->manual_flag ?? null, false);
@@ -469,9 +557,10 @@ class FsPosterBridge
 
         return [
             'group_id' => (string) $first->group_id,
+            'display_key' => (string) $first->group_id . '|' . $status,
             'listing_id' => (int) $first->wp_post_id,
             'listing_title' => trim((string) $first->post_title) !== '' ? trim((string) $first->post_title) : 'Untitled condo listing',
-            'listing_url' => trim((string) $first->guid),
+            'listing_url' => $previewContext['post_url'],
             'content_type' => $contentType,
             'content_type_label' => $contentType === 'properties' ? 'Listing' : 'News',
             'view_url' => $viewUrl,
@@ -505,6 +594,354 @@ class FsPosterBridge
             ),
             'total_channels' => $rows->pluck('channel_id')->unique()->count(),
         ];
+    }
+
+    /**
+     * @return array{
+     *     post_id:int,
+     *     post_title:string,
+     *     post_content:string,
+     *     post_excerpt:string,
+     *     post_url:string,
+     *     post_slug:string
+     * }
+     */
+    private function schedulePreviewContext(object $row): array
+    {
+        $postId = (int) ($row->wp_post_id ?? 0);
+        $cached = $this->postPreviewContextCache[$postId] ?? [
+            'post_title' => trim((string) ($row->post_title ?? '')),
+            'post_content' => '',
+            'post_excerpt' => '',
+            'post_url' => '',
+            'post_slug' => '',
+        ];
+        $postContent = $cached['post_content'];
+
+        if ($postContent === '') {
+            $postContent = trim((string) $this->postMetaValue($postId, 'Descriptions'));
+        }
+
+        return [
+            'post_id' => $postId,
+            'post_title' => $cached['post_title'],
+            'post_content' => $this->cleanScheduleText($postContent),
+            'post_excerpt' => $this->cleanScheduleText($cached['post_excerpt']),
+            'post_url' => $cached['post_url'],
+            'post_slug' => $cached['post_slug'],
+        ];
+    }
+
+    /**
+     * @param  array{
+     *     post_id:int,
+     *     post_title:string,
+     *     post_content:string,
+     *     post_excerpt:string,
+     *     post_url:string,
+     *     post_slug:string
+     * }  $context
+     */
+    private function renderScheduleTemplate(string $template, array $context): string
+    {
+        $rendered = preg_replace_callback('/\{([a-z0-9_]+)([^}]*)\}/i', function (array $matches) use ($context) {
+            $shortCode = strtolower((string) ($matches[1] ?? ''));
+            $props = $this->parseShortCodeProps((string) ($matches[2] ?? ''));
+
+            $value = match ($shortCode) {
+                'post_title' => $context['post_title'],
+                'post_content' => $this->renderPostContentShortCode($context['post_content'], $props),
+                'post_excerpt' => $this->renderPostContentShortCode($context['post_excerpt'], $props),
+                'post_url', 'post_short_url' => $context['post_url'],
+                'post_slug' => $context['post_slug'],
+                'post_id' => (string) $context['post_id'],
+                'hashtags' => $this->renderHashtags($context['post_id'], null, $props),
+                'hashtags_categories' => $this->renderHashtags($context['post_id'], 'category', $props),
+                'hashtags_tags' => $this->renderHashtags($context['post_id'], 'post_tag', $props),
+                default => '',
+            };
+
+            if (($props['encoded'] ?? 'false') === 'true') {
+                $value = rawurlencode($value);
+            }
+
+            return $value;
+        }, $template);
+
+        $rendered = html_entity_decode((string) $rendered, ENT_QUOTES | ENT_HTML5);
+        $rendered = preg_replace("/[ \t]+\n/", "\n", $rendered) ?? $rendered;
+        $rendered = preg_replace("/\n{3,}/", "\n\n", $rendered) ?? $rendered;
+
+        return trim((string) $rendered);
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function parseShortCodeProps(string $rawProps): array
+    {
+        preg_match_all('/([a-z0-9_]+)\s*=\s*"([^"]*)"/i', $rawProps, $matches, PREG_SET_ORDER);
+
+        $props = [];
+
+        foreach ($matches as $match) {
+            $props[strtolower((string) $match[1])] = (string) $match[2];
+        }
+
+        return $props;
+    }
+
+    /**
+     * @param  array<string, string>  $props
+     */
+    private function renderPostContentShortCode(string $content, array $props): string
+    {
+        $content = $this->cleanScheduleText($content);
+
+        $limit = $props['limit'] ?? null;
+
+        if ($limit !== null && is_numeric($limit)) {
+            return trim(Str::limit($content, (int) $limit, ''));
+        }
+
+        return $content;
+    }
+
+    /**
+     * @param  array<string, string>  $props
+     */
+    private function renderHashtags(int $postId, ?string $taxonomy, array $props): string
+    {
+        $terms = collect($this->postTerms($postId, $taxonomy));
+        $separator = (string) ($props['separator'] ?? '');
+        $uppercase = ($props['uppercase'] ?? 'false') === 'true';
+
+        return $terms
+            ->map(function (array $term) use ($separator, $uppercase) {
+                $name = preg_replace(['/\\s+/', '/&+/', '/-+/'], $separator, $term['name']) ?? $term['name'];
+                $name = trim((string) $name, ' _');
+
+                if ($uppercase) {
+                    $name = mb_strtoupper($name);
+                }
+
+                return $name !== '' ? '#' . $name : '';
+            })
+            ->filter()
+            ->unique()
+            ->implode(' ');
+    }
+
+    /**
+     * @return array<int, array{name:string,taxonomy:string}>
+     */
+    private function postTerms(int $postId, ?string $taxonomy = null): array
+    {
+        if ($postId <= 0) {
+            return [];
+        }
+
+        if (! array_key_exists($postId, $this->postTermsCache)) {
+            $this->postTermsCache[$postId] = DB::connection('condo')
+                ->table('term_relationships as relationships')
+                ->join('term_taxonomy as taxonomy', 'taxonomy.term_taxonomy_id', '=', 'relationships.term_taxonomy_id')
+                ->join('terms as terms', 'terms.term_id', '=', 'taxonomy.term_id')
+                ->where('relationships.object_id', $postId)
+                ->orderBy('terms.name')
+                ->get([
+                    'terms.name',
+                    'taxonomy.taxonomy',
+                ])
+                ->map(fn (object $term) => [
+                    'name' => trim((string) $term->name),
+                    'taxonomy' => trim((string) $term->taxonomy),
+                ])
+                ->filter(fn (array $term) => $term['name'] !== '')
+                ->values()
+                ->all();
+        }
+
+        $terms = $this->postTermsCache[$postId];
+
+        if ($taxonomy === null || $taxonomy === '') {
+            return $terms;
+        }
+
+        return array_values(array_filter($terms, fn (array $term) => $term['taxonomy'] === $taxonomy));
+    }
+
+    /**
+     * @param  Collection<int, object>  $rows
+     */
+    private function primePreviewCaches(Collection $rows): void
+    {
+        $postIds = $rows
+            ->pluck('wp_post_id')
+            ->map(fn (mixed $value) => (int) $value)
+            ->filter(fn (int $value) => $value > 0)
+            ->unique()
+            ->values()
+            ->all();
+
+        if ($postIds === []) {
+            return;
+        }
+
+        $missingPreviewPostIds = array_values(array_filter(
+            $postIds,
+            fn (int $postId) => ! array_key_exists($postId, $this->postPreviewContextCache)
+        ));
+
+        if ($missingPreviewPostIds !== []) {
+            foreach ($missingPreviewPostIds as $postId) {
+                $this->postPreviewContextCache[$postId] = [
+                    'post_title' => '',
+                    'post_content' => '',
+                    'post_excerpt' => '',
+                    'post_url' => '',
+                    'post_slug' => '',
+                ];
+            }
+
+            $postRows = DB::connection('condo')
+                ->table('posts')
+                ->whereIn('ID', $missingPreviewPostIds)
+                ->get([
+                    'ID',
+                    'post_title',
+                    'post_content',
+                    'post_excerpt',
+                    'guid',
+                    'post_name',
+                ]);
+
+            foreach ($postRows as $postRow) {
+                $postId = (int) $postRow->ID;
+
+                if ($postId <= 0) {
+                    continue;
+                }
+
+                $postUrl = trim((string) $postRow->guid);
+                $postSlug = trim((string) $postRow->post_name);
+
+                if ($postUrl === '' && $postSlug !== '') {
+                    $postUrl = rtrim(CondoWordpressBridge::siteBaseUrl(), '/') . '/' . ltrim($postSlug, '/');
+                }
+
+                $this->postPreviewContextCache[$postId] = [
+                    'post_title' => trim((string) $postRow->post_title),
+                    'post_content' => $this->cleanScheduleText((string) $postRow->post_content),
+                    'post_excerpt' => $this->cleanScheduleText((string) $postRow->post_excerpt),
+                    'post_url' => $postUrl,
+                    'post_slug' => $postSlug,
+                ];
+            }
+        }
+
+        $missingTermPostIds = array_values(array_filter($postIds, fn (int $postId) => ! array_key_exists($postId, $this->postTermsCache)));
+
+        if ($missingTermPostIds !== []) {
+            foreach ($missingTermPostIds as $postId) {
+                $this->postTermsCache[$postId] = [];
+            }
+
+            $terms = DB::connection('condo')
+                ->table('term_relationships as relationships')
+                ->join('term_taxonomy as taxonomy', 'taxonomy.term_taxonomy_id', '=', 'relationships.term_taxonomy_id')
+                ->join('terms as terms', 'terms.term_id', '=', 'taxonomy.term_id')
+                ->whereIn('relationships.object_id', $missingTermPostIds)
+                ->orderBy('terms.name')
+                ->get([
+                    'relationships.object_id',
+                    'terms.name',
+                    'taxonomy.taxonomy',
+                ]);
+
+            foreach ($terms as $term) {
+                $postId = (int) $term->object_id;
+
+                if ($postId <= 0) {
+                    continue;
+                }
+
+                $name = trim((string) $term->name);
+
+                if ($name === '') {
+                    continue;
+                }
+
+                $this->postTermsCache[$postId][] = [
+                    'name' => $name,
+                    'taxonomy' => trim((string) $term->taxonomy),
+                ];
+            }
+        }
+
+        $descriptionCacheKeys = array_map(fn (int $postId) => $postId . ':Descriptions', $postIds);
+        $needsDescriptions = array_values(array_filter(
+            $postIds,
+            fn (int $postId) => ! array_key_exists($postId . ':Descriptions', $this->postMetaValueCache)
+        ));
+
+        if ($needsDescriptions !== []) {
+            foreach ($descriptionCacheKeys as $cacheKey) {
+                $this->postMetaValueCache[$cacheKey] = $this->postMetaValueCache[$cacheKey] ?? null;
+            }
+
+            $descriptionRows = DB::connection('condo')
+                ->table('postmeta')
+                ->whereIn('post_id', $needsDescriptions)
+                ->where('meta_key', 'Descriptions')
+                ->get([
+                    'post_id',
+                    'meta_value',
+                ]);
+
+            foreach ($descriptionRows as $row) {
+                $this->postMetaValueCache[(int) $row->post_id . ':Descriptions'] = trim((string) $row->meta_value);
+            }
+        }
+    }
+
+    private function postMetaValue(int $postId, string $metaKey): ?string
+    {
+        if ($postId <= 0 || trim($metaKey) === '') {
+            return null;
+        }
+
+        $cacheKey = $postId . ':' . $metaKey;
+
+        if (! array_key_exists($cacheKey, $this->postMetaValueCache)) {
+            $value = DB::connection('condo')
+                ->table('postmeta')
+                ->where('post_id', $postId)
+                ->where('meta_key', $metaKey)
+                ->value('meta_value');
+
+            $this->postMetaValueCache[$cacheKey] = $value === null ? null : trim((string) $value);
+        }
+
+        return $this->postMetaValueCache[$cacheKey];
+    }
+
+    private function schedulePostUrl(object $row): string
+    {
+        $postId = (int) ($row->wp_post_id ?? 0);
+
+        return $this->postPreviewContextCache[$postId]['post_url'] ?? '';
+    }
+
+    private function cleanScheduleText(string $value): string
+    {
+        $value = html_entity_decode($value, ENT_QUOTES | ENT_HTML5);
+        $value = strip_tags($value);
+        $value = preg_replace("/\r\n?/", "\n", $value) ?? $value;
+        $value = preg_replace("/[ \t]+/", ' ', $value) ?? $value;
+        $value = preg_replace("/ *\n */", "\n", $value) ?? $value;
+        $value = preg_replace("/\n{3,}/", "\n\n", $value) ?? $value;
+
+        return trim($value);
     }
 
     /**

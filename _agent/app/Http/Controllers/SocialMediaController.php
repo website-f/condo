@@ -24,8 +24,8 @@ class SocialMediaController extends Controller
     public function index(Request $request)
     {
         $username = Auth::guard('agent')->user()->username;
-        $channels = $this->fsPosterBridge->availableChannels();
-        $schedules = $this->fsPosterBridge->scheduleGroupsForAgent($username);
+        $channels = $this->fsPosterBridge->availableChannels($username);
+        $schedules = $this->fsPosterBridge->scheduleDisplayGroupsForAgent($username);
         $listings = $this->fsPosterBridge->availableListings($username);
         $viewMode = in_array($request->query('view'), ['calendar', 'table'], true)
             ? (string) $request->query('view')
@@ -49,6 +49,7 @@ class SocialMediaController extends Controller
                     $needle = mb_strtolower($search);
 
                     return str_contains(mb_strtolower($schedule['listing_title']), $needle)
+                        || str_contains(mb_strtolower($schedule['message_preview']), $needle)
                         || str_contains(mb_strtolower($schedule['message']), $needle);
                 }
 
@@ -58,15 +59,18 @@ class SocialMediaController extends Controller
 
         $posts = $this->paginateCollection($filtered, $request, 10);
         $calendarEvents = $filtered
-            ->map(function (array $schedule) {
+            ->map(function (array $schedule) use ($listings) {
                 $start = $schedule['scheduled_at']->copy();
                 $end = $start->copy()->addMinutes(45);
                 $messagePreview = $schedule['message_preview'] !== ''
                     ? $schedule['message_preview']
-                    : 'Using the WordPress FS Poster template for this channel set.';
+                    : 'Using the saved channel template for this schedule group.';
+
+                $listingData = $listings->firstWhere('id', $schedule['listing_id']);
+                $imageUrl = is_array($listingData) && isset($listingData['image_url']) ? $listingData['image_url'] : null;
 
                 return [
-                    'id' => $schedule['group_id'],
+                    'id' => ($schedule['display_key'] ?? $schedule['group_id']) . '_' . $schedule['listing_id'] . '_' . $start->timestamp,
                     'title' => $schedule['listing_title'],
                     'start' => $start->toIso8601String(),
                     'end' => $end->toIso8601String(),
@@ -92,6 +96,7 @@ class SocialMediaController extends Controller
                         'error_messages' => $schedule['error_messages'],
                         'time_label' => $schedule['scheduled_at']->format('D, d M Y h:i A'),
                         'action_label' => $schedule['is_mutable'] ? 'Edit Schedule' : 'View ' . $schedule['content_type_label'],
+                        'image_url' => $imageUrl,
                     ],
                 ];
             })
@@ -144,7 +149,7 @@ class SocialMediaController extends Controller
     public function create(Request $request)
     {
         $username = Auth::guard('agent')->user()->username;
-        $channels = $this->fsPosterBridge->availableChannels();
+        $channels = $this->fsPosterBridge->availableChannels($username);
         $listings = $this->fsPosterBridge->availableListings($username);
         $selectedListingId = (int) $request->query('listing', 0);
         $selectedListingId = $listings->firstWhere('id', $selectedListingId)['id'] ?? ($listings->first()['id'] ?? 0);
@@ -196,7 +201,7 @@ class SocialMediaController extends Controller
             abort(403);
         }
 
-        $channels = $this->fsPosterBridge->availableChannels();
+        $channels = $this->fsPosterBridge->availableChannels($username);
         $listings = $this->fsPosterBridge->availableListings($username);
 
         return view('social.form', [
