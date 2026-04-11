@@ -72,7 +72,7 @@
                      * ========================= */
                     el(
                         PanelBody,
-                        { title: "General", className: "es-my-listing-panel", initialOpen: true },
+                        { title: "General", className: "es-block-panel es-my-listing-panel", initialOpen: true },
 
                         el(ToggleControl, {
                             label: "Show Page Title",
@@ -105,7 +105,7 @@
                      * ========================= */
                     el(
                         PanelBody,
-                        { title: "Behaviour", className: "es-my-listing-panel", initialOpen: false },
+                        { title: "Behaviour", className: "es-block-panel es-my-listing-panel", initialOpen: false },
 
                         el(ToggleControl, {
                             label: "Enable Search",
@@ -149,7 +149,7 @@
                      * ========================= */
                     el(
                         PanelBody,
-                        { title: "Fields", className: "es-my-listing-panel es-block-panel--fields", initialOpen: true },
+                        { title: "Fields", className: "es-block-panel es-my-listing-panel es-block-panel--fields", initialOpen: true },
 
                         isSimpleMode &&
                             el(FormTokenField, {
@@ -209,7 +209,7 @@
 
                     el(
                         PanelBody,
-                        { title: "Search", className: "es-my-listing-panel", initialOpen: false },
+                        { title: "Search", className: "es-block-panel es-my-listing-panel", initialOpen: false },
 
                         el(SelectControl, {
                             label: "Search Type",
@@ -235,7 +235,7 @@
                      * ========================= */
                     el(
                         PanelBody,
-                        { title: "Content", className: "es-my-listing-panel", initialOpen: false },
+                        { title: "Content", className: "es-block-panel es-my-listing-panel", initialOpen: false },
 
                         el(TextControl, {
                             label: "Posts Per Page",
@@ -255,7 +255,7 @@
                      * ========================= */
                     el(
                         PanelBody,
-                        { title: "Pagination", className: "es-my-listing-panel", initialOpen: false },
+                        { title: "Pagination", className: "es-block-panel es-my-listing-panel", initialOpen: false },
 
                         el(TextControl, {
                             label: "Page Number",
@@ -275,7 +275,7 @@
                      * ========================= */
                     el(
                         PanelBody,
-                        { title: "Display Options", className: "es-my-listing-panel", initialOpen: false },
+                        { title: "Display Options", className: "es-block-panel es-my-listing-panel", initialOpen: false },
 
                         el(ToggleControl, {
                             label: "Show Sort",
@@ -301,7 +301,7 @@
                      * ========================= */
                     el(
                         PanelBody,
-                        { title: "Map", className: "es-my-listing-panel", initialOpen: false },
+                        { title: "Map", className: "es-block-panel es-my-listing-panel", initialOpen: false },
 
                         el(ToggleControl, {
                             label: "Show Map",
@@ -315,7 +315,7 @@
                      * ========================= */
                     el(
                         PanelBody,
-                        { title: "Query Filters", className: "es-my-listing-panel", initialOpen: false },
+                        { title: "Query Filters", className: "es-block-panel es-my-listing-panel", initialOpen: false },
 
                         queryKeys.length > 0 &&
                             el(
@@ -443,7 +443,7 @@
                     /* =========================
                      * Appearance
                      * ========================= */
-                    el(PanelBody, { title: "Appearance", className: "es-my-listing-panel", initialOpen: false })
+                    el(PanelBody, { title: "Appearance", className: "es-block-panel es-my-listing-panel", initialOpen: false })
                 ),
 
                 el("strong", {}, attrs.title || "My Listing"),
