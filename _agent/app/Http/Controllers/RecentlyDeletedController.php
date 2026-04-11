@@ -14,8 +14,6 @@ class RecentlyDeletedController extends Controller
     private const SECTIONS = [
         'all' => 'All',
         RecentlyDeletedService::GROUP_LISTINGS => 'Listings',
-        RecentlyDeletedService::GROUP_NEWS => 'News',
-        RecentlyDeletedService::GROUP_ARTICLES => 'Articles',
         RecentlyDeletedService::GROUP_SOCIAL => 'Social',
     ];
 
@@ -64,8 +62,6 @@ class RecentlyDeletedController extends Controller
         $stats = [
             'total' => $counts->get('all', 0),
             'listings' => $counts->get(RecentlyDeletedService::GROUP_LISTINGS, 0),
-            'news' => $counts->get(RecentlyDeletedService::GROUP_NEWS, 0),
-            'articles' => $counts->get(RecentlyDeletedService::GROUP_ARTICLES, 0),
             'social' => $counts->get(RecentlyDeletedService::GROUP_SOCIAL, 0),
         ];
 

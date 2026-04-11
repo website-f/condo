@@ -15,15 +15,15 @@
     </form>
 </div>
 
-<!-- Summary -->
 <div class="stats-grid" style="margin-bottom:24px;">
     <div class="stat-card">
         <div class="stat-label">Total Listings</div>
         <div class="stat-value">{{ number_format($totalListings) }}</div>
     </div>
     <div class="stat-card">
-        <div class="stat-label">Total Articles</div>
-        <div class="stat-value">{{ number_format($totalArticles) }}</div>
+        <div class="stat-label">Articles</div>
+        <div class="stat-value" style="font-size:20px;">Coming Soon</div>
+        <div class="stat-sub">Article analytics will return with the new content flow.</div>
     </div>
     <div class="stat-card">
         <div class="stat-label">Social Posts</div>
@@ -32,7 +32,6 @@
 </div>
 
 <div class="grid-2" style="margin-bottom:24px;">
-    <!-- Listings by Type -->
     <div class="card">
         <div class="card-header">Listings by Type</div>
         @if($listingsByType->count())
@@ -59,7 +58,6 @@
         @endif
     </div>
 
-    <!-- Listings by Property Type -->
     <div class="card">
         <div class="card-header">Listings by Property Type</div>
         @if($listingsByPropertyType->count())
@@ -87,8 +85,7 @@
     </div>
 </div>
 
-<div class="grid-3" style="margin-bottom:24px;">
-    <!-- Listings by State -->
+<div class="grid-2" style="margin-bottom:24px;">
     <div class="card">
         <div class="card-header">Top States</div>
         @if($listingsByState->count())
@@ -110,29 +107,6 @@
         @endif
     </div>
 
-    <!-- Articles by Status -->
-    <div class="card">
-        <div class="card-header">Articles by Status</div>
-        @if($articlesByStatus->count())
-        <div class="table-wrap">
-            <table>
-                <thead><tr><th>Status</th><th style="text-align:right;">Count</th></tr></thead>
-                <tbody>
-                @foreach($articlesByStatus as $item)
-                    <tr>
-                        <td><span class="badge {{ $item->status === 'published' ? 'badge-success' : ($item->status === 'draft' ? 'badge-warning' : 'badge-default') }}">{{ $item->status }}</span></td>
-                        <td style="text-align:right;font-weight:500;">{{ number_format($item->total) }}</td>
-                    </tr>
-                @endforeach
-                </tbody>
-            </table>
-        </div>
-        @else
-        <p style="font-size:13px;color:var(--text-secondary);">No data</p>
-        @endif
-    </div>
-
-    <!-- Social by Platform -->
     <div class="card">
         <div class="card-header">Social Posts by Platform</div>
         @if($socialByPlatform->count())

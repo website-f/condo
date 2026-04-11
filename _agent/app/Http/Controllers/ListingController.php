@@ -61,6 +61,10 @@ class ListingController extends Controller
                 'count' => $sourceCounts[$key] ?? null,
             ])
             ->values();
+        $bulkTargetSources = collect($this->createSourceTabs())
+            ->filter(fn (array $tab) => $tab['enabled'])
+            ->values()
+            ->all();
 
         return view('listings.index', compact(
             'listings',
@@ -68,7 +72,8 @@ class ListingController extends Controller
             'propertyTypes',
             'states',
             'activeSource',
-            'sourceTabs'
+            'sourceTabs',
+            'bulkTargetSources'
         ));
     }
 
@@ -232,26 +237,147 @@ class ListingController extends Controller
         $returnSource = $this->resolveListingSource($request->input('return_source', $request->query('return_source', $source)));
         $listing = $this->findOwnedListingOrFail($id, true, $source);
 
-        $this->recentlyDeletedService->rememberListing($listing, $source, Auth::guard('agent')->user()->username);
-
-        if ($source === 'condo') {
-            DB::connection($this->connectionForSource($source))->transaction(function () use ($listing) {
-                $now = now();
-
-                $listing->post_status = 'trash';
-                $listing->post_modified = $now->format('Y-m-d H:i:s');
-                $listing->post_modified_gmt = $now->clone()->utc()->format('Y-m-d H:i:s');
-                $listing->save();
-            });
-        } else {
-            DB::connection($this->connectionForSource($source))->transaction(function () use ($listing, $source) {
-                $this->retireListing($listing, $source, false);
-            });
-        }
+        $this->trashListing($listing, $source, Auth::guard('agent')->user()->username);
 
         return redirect()
             ->route('listings.index', ['source' => $returnSource])
             ->with('success', 'Listing moved to Recently Deleted.');
+    }
+
+    public function bulk(Request $request)
+    {
+        $request->validate([
+            'action' => ['required', 'string'],
+            'selection_mode' => ['nullable', 'string'],
+            'selected' => ['nullable', 'array'],
+            'selected.*' => ['string'],
+            'excluded' => ['nullable', 'array'],
+            'excluded.*' => ['string'],
+            'target_source' => ['nullable', 'string'],
+            'return_source' => ['nullable', 'string'],
+            'return_filters' => ['nullable', 'array'],
+        ]);
+
+        $action = strtolower(trim((string) $request->input('action')));
+
+        if (! in_array($action, ['delete', 'migrate'], true)) {
+            throw ValidationException::withMessages([
+                'action' => 'Choose a valid bulk action.',
+            ]);
+        }
+
+        $targetSource = null;
+
+        if ($action === 'migrate') {
+            $rawTargetSource = strtolower(trim((string) $request->input('target_source')));
+
+            if ($rawTargetSource === '' || ! array_key_exists($rawTargetSource, self::CREATE_SOURCES)) {
+                throw ValidationException::withMessages([
+                    'target_source' => 'Select a valid destination source for the copied listings.',
+                ]);
+            }
+
+            $targetSource = $rawTargetSource;
+
+            if (! $this->canCreateSource($targetSource)) {
+                throw ValidationException::withMessages([
+                    'target_source' => $this->unavailableSourceMessage($targetSource),
+                ]);
+            }
+        }
+
+        $username = Auth::guard('agent')->user()->username;
+        $selections = $this->resolveBulkSelections($request, $username);
+
+        if ($selections->isEmpty()) {
+            throw ValidationException::withMessages([
+                'selected' => 'Select at least one listing first.',
+            ]);
+        }
+
+        $completed = 0;
+        $skipped = [];
+
+        foreach ($selections as $selection) {
+            try {
+                $listing = $this->findOwnedListingOrFail($selection['id'], true, $selection['source']);
+
+                if ($action === 'delete') {
+                    $this->trashListing($listing, $selection['source'], $username);
+                    $completed++;
+                    continue;
+                }
+
+                $this->copyListingToSource($listing, $selection['source'], $targetSource, $username);
+                $completed++;
+            } catch (ValidationException $exception) {
+                $message = collect($exception->errors())->flatten()->first() ?: 'This listing could not be processed.';
+                $skipped[] = $this->bulkSelectionLabel($selection) . ': ' . $message;
+            } catch (Throwable $exception) {
+                $skipped[] = $this->bulkSelectionLabel($selection) . ': This listing could not be processed right now.';
+            }
+        }
+
+        $requestedCount = $selections->count();
+        $success = match ($action) {
+            'delete' => $completed > 0
+                ? 'Moved ' . $completed . ' selected listing' . ($completed === 1 ? '' : 's') . ' to Recently Deleted.'
+                : null,
+            default => $completed > 0
+                ? 'Copied ' . $completed . ' selected listing' . ($completed === 1 ? '' : 's') . ' into ' . strtoupper((string) $targetSource) . '.'
+                : null,
+        };
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'ok' => $completed > 0 || $skipped === [],
+                'action' => $action,
+                'target_source' => $targetSource,
+                'requested' => $requestedCount,
+                'completed' => $completed,
+                'skipped' => $skipped,
+                'message' => $success ?? 'No listings were processed.',
+                'redirect_url' => route('listings.index', $this->bulkReturnQuery($request)),
+            ]);
+        }
+
+        $redirect = redirect()->route('listings.index', $this->bulkReturnQuery($request));
+
+        if ($success !== null) {
+            $redirect->with('success', $success);
+        }
+
+        if ($skipped !== []) {
+            $redirect->withErrors($skipped);
+        }
+
+        return $redirect;
+    }
+
+    private function resolveBulkSelections(Request $request, string $username): Collection
+    {
+        $selectionMode = strtolower(trim((string) $request->input('selection_mode', 'manual')));
+
+        if ($selectionMode === 'all_filtered') {
+            $source = $this->resolveListingSource($request->input('return_source'));
+            $excludedTokens = collect($request->input('excluded', []))
+                ->map(fn (mixed $value) => $this->parseBulkSelectionToken($value))
+                ->filter()
+                ->pluck('token')
+                ->unique()
+                ->values()
+                ->all();
+
+            return $this->resolveFilteredSelections($username, $this->bulkFilterRequest($request, $source), $source)
+                ->reject(fn (array $selection) => in_array($selection['token'], $excludedTokens, true))
+                ->values();
+        }
+
+        return collect($request->input('selected', []))
+            ->map(fn (mixed $value) => $this->parseBulkSelectionToken($value))
+            ->filter()
+            ->unique(fn (array $selection) => $selection['token'])
+            ->values();
     }
 
     private function resolveStates(string $username)
@@ -797,6 +923,28 @@ class ListingController extends Controller
         ];
     }
 
+    private function trashListing(Listing|CondoListing $listing, string $source, string $username): void
+    {
+        $this->recentlyDeletedService->rememberListing($listing, $source, $username);
+
+        if ($source === 'condo') {
+            DB::connection($this->connectionForSource($source))->transaction(function () use ($listing) {
+                $now = now();
+
+                $listing->post_status = 'trash';
+                $listing->post_modified = $now->format('Y-m-d H:i:s');
+                $listing->post_modified_gmt = $now->clone()->utc()->format('Y-m-d H:i:s');
+                $listing->save();
+            });
+
+            return;
+        }
+
+        DB::connection($this->connectionForSource($source))->transaction(function () use ($listing, $source) {
+            $this->retireListing($listing, $source, false);
+        });
+    }
+
     private function persistListing(
         Listing|CondoListing $listing,
         array $validated,
@@ -878,7 +1026,7 @@ class ListingController extends Controller
         string $username
     ): array {
         $propertyId = (string) $listing->propertyid;
-        $createdDate = (string) $listing->getRawOriginal('createddate');
+        $createdDate = $this->legacyCreatedDateFor($listing);
         $baselinePhotoPaths = ListingEditor::photoPaths($listing);
         $uploadedPhotoPaths = [];
         $removedLocalPhotos = [];
@@ -963,6 +1111,55 @@ class ListingController extends Controller
             $uploadedPhotoPaths,
             $removedLocalPhotos,
         ];
+    }
+
+    private function copyListingToSource(
+        Listing|CondoListing $listing,
+        string $currentSource,
+        string $targetSource,
+        string $username
+    ): Listing|CondoListing {
+        if ($currentSource === $targetSource) {
+            throw ValidationException::withMessages([
+                'target_source' => 'This listing is already in ' . strtoupper($targetSource) . '.',
+            ]);
+        }
+
+        $propertyId = (string) $listing->propertyid;
+
+        if ($this->propertyIdExistsInSource($propertyId, $targetSource)) {
+            throw ValidationException::withMessages([
+                'target_source' => 'The target source already contains property ID ' . $propertyId . '.',
+            ]);
+        }
+
+        $targetListing = $this->newListingModelForSource($targetSource);
+        $validated = $this->copyPayloadFromListing($listing, $targetSource);
+
+        DB::connection($this->connectionForSource($targetSource))->transaction(function () use (
+            $targetListing,
+            $validated,
+            $username,
+            $propertyId,
+            $listing
+        ) {
+            $this->persistListing(
+                $targetListing,
+                $validated,
+                $username,
+                true,
+                $propertyId,
+                [],
+                $this->legacyCreatedDateFor($listing),
+                ListingEditor::photoPaths($listing),
+                $listing
+            );
+        });
+
+        /** @var Listing|CondoListing $freshListing */
+        $freshListing = $targetListing->fresh(['details', 'agent.detail']);
+
+        return $this->decorateListing($freshListing, $targetSource, true, $targetSource);
     }
 
     private function retireListing(Listing|CondoListing $listing, string $source, bool $deleteMedia = true): void
@@ -1200,6 +1397,125 @@ class ListingController extends Controller
         return $this->queryForSource($source)
             ->where('propertyid', $propertyId)
             ->exists();
+    }
+
+    private function copyPayloadFromListing(Listing|CondoListing $listing, string $targetSource): array
+    {
+        $payload = ListingEditor::formData($listing);
+        $payload['source'] = $targetSource;
+        $payload['existing_photos'] = ListingEditor::photoPaths($listing);
+        $payload['new_images'] = [];
+        $payload['cobroke'] = (int) ($payload['cobroke'] ?? 0);
+
+        return $payload;
+    }
+
+    private function legacyCreatedDateFor(Listing|CondoListing $listing): string
+    {
+        $createdDate = trim((string) ($listing->createddate ?? $listing->getRawOriginal('createddate')));
+
+        return $createdDate !== '' ? $createdDate : Carbon::now()->format('YmdHis');
+    }
+
+    private function bulkFilterRequest(Request $request, string $source): Request
+    {
+        $payload = collect($request->input('return_filters', []))
+            ->map(function (mixed $value) {
+                if (is_array($value)) {
+                    return array_values(array_filter($value, fn (mixed $item) => $item !== null && $item !== ''));
+                }
+
+                return $value;
+            })
+            ->filter(fn (mixed $value) => $value !== null && $value !== '' && $value !== [])
+            ->all();
+
+        $payload['source'] = $source;
+
+        return Request::create('/listings', 'GET', $payload);
+    }
+
+    private function resolveFilteredSelections(string $username, Request $request, string $source): Collection
+    {
+        if ($source === 'all') {
+            return collect(['ipp', 'icp', 'condo'])
+                ->filter(fn (string $sourceKey) => $this->sourceAvailable($sourceKey) && $this->canManageSource($sourceKey))
+                ->flatMap(fn (string $sourceKey) => $this->filteredSelectionsForSource($username, $request, $sourceKey))
+                ->unique(fn (array $selection) => $selection['token'])
+                ->values();
+        }
+
+        return $this->filteredSelectionsForSource($username, $request, $source)
+            ->unique(fn (array $selection) => $selection['token'])
+            ->values();
+    }
+
+    private function filteredSelectionsForSource(string $username, Request $request, string $source): Collection
+    {
+        if (! $this->sourceAvailable($source) || ! $this->canManageSource($source)) {
+            return collect();
+        }
+
+        if ($source === 'condo') {
+            return $this->applyListingFiltersToCollection($this->ownedCondoListingsCollection($username), $request)
+                ->map(fn (CondoListing $listing) => [
+                    'token' => $source . ':' . $listing->getKey(),
+                    'source' => $source,
+                    'id' => (int) $listing->getKey(),
+                ])
+                ->values();
+        }
+
+        $query = match ($source) {
+            'icp' => $this->ownedIcpListingsQuery($username),
+            default => $this->ownedListingsQuery($username),
+        };
+
+        return $this->applyListingFilters($query, $request)
+            ->get(['id'])
+            ->map(fn ($listing) => [
+                'token' => $source . ':' . $listing->id,
+                'source' => $source,
+                'id' => (int) $listing->id,
+            ])
+            ->values();
+    }
+
+    private function parseBulkSelectionToken(mixed $value): ?array
+    {
+        if (! is_string($value)) {
+            return null;
+        }
+
+        [$source, $id] = array_pad(explode(':', trim($value), 2), 2, null);
+        $source = strtolower(trim((string) $source));
+        $id = trim((string) $id);
+
+        if (! in_array($source, ['ipp', 'icp', 'condo'], true) || ! ctype_digit($id)) {
+            return null;
+        }
+
+        return [
+            'token' => $source . ':' . $id,
+            'source' => $source,
+            'id' => (int) $id,
+        ];
+    }
+
+    private function bulkSelectionLabel(array $selection): string
+    {
+        return strtoupper((string) ($selection['source'] ?? 'listing')) . ' #' . ($selection['id'] ?? '?');
+    }
+
+    private function bulkReturnQuery(Request $request): array
+    {
+        $query = collect($request->input('return_filters', []))
+            ->filter(fn (mixed $value) => $value !== null && $value !== '')
+            ->all();
+
+        $query['source'] = $this->resolveListingSource($request->input('return_source'));
+
+        return $query;
     }
 
     private function nextLegacyPhotoSequence(array $existingPhotoPaths): int

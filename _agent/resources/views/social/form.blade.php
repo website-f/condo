@@ -2,11 +2,14 @@
 @section('title', $pageTitle)
 @section('page-title', $pageTitle)
 @section('topbar-actions')
-    @if($existingGroup)
-        <a href="{{ route('social.index') }}" class="btn btn-secondary btn-sm">Back</a>
-    @else
-        <a href="{{ route('social.index') }}" class="btn btn-secondary btn-sm">All Schedules</a>
-    @endif
+    <div class="btn-group">
+        <a href="{{ route('social.channels.index') }}" class="btn btn-secondary btn-sm">Manage Channels</a>
+        @if($existingGroup)
+            <a href="{{ route('social.index') }}" class="btn btn-secondary btn-sm">Back</a>
+        @else
+            <a href="{{ route('social.index') }}" class="btn btn-secondary btn-sm">All Schedules</a>
+        @endif
+    </div>
 @endsection
 
 @section('content')
@@ -87,6 +90,9 @@
                 <section class="social-form-card">
                     <div class="social-form-title">Pick Channels</div>
                     <div class="social-help" style="margin-bottom:16px;">Each selected channel keeps its current saved configuration. Laravel updates the schedule time and only replaces the message when you explicitly type one below.</div>
+                    <div class="social-callout" style="margin-bottom:16px;">
+                        These checkboxes come from the live FS Poster channel records. If you need to add another social target or edit the connected channel setup, use <a href="{{ route('social.channels.index') }}" style="font-weight:700;color:inherit;">Manage Channels</a> and the same data will show up here automatically.
+                    </div>
                     <div class="social-channel-grid">
                         @foreach($channels as $channel)
                             <label class="social-channel">
@@ -98,6 +104,11 @@
                             </label>
                         @endforeach
                     </div>
+                    @if($channels->isEmpty())
+                        <div class="social-callout" style="margin-top:16px;">
+                            No active channels are available for this agent yet. Add an account or channel first, then come back to queue schedules.
+                        </div>
+                    @endif
                 </section>
 
                 <section class="social-form-card">

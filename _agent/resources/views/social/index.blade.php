@@ -8,7 +8,10 @@
 @endsection
 
 @section('topbar-actions')
-    <a href="{{ route('social.create') }}" class="btn btn-primary btn-sm">New Schedule</a>
+    <div class="btn-group">
+        <a href="{{ route('social.channels.index') }}" class="btn btn-secondary btn-sm">Manage Channels</a>
+        <a href="{{ route('social.create') }}" class="btn btn-primary btn-sm">New Schedule</a>
+    </div>
 @endsection
 
 @section('content')
@@ -102,6 +105,12 @@
         gap: 12px;
         flex-wrap: wrap;
         margin-top: 22px;
+    }
+    .planner-panel-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        align-items: center;
     }
     .planner-panel {
         padding: 22px;
@@ -1104,6 +1113,7 @@
                 <h3>Manage your live social schedule without leaving the agent portal.</h3>
                 <p>This page shows only the channels and schedule groups that can be tied back to the current agent. Condo listing schedules stay editable here, while anything without clear ownership stays hidden.</p>
                 <div class="planner-brand-actions">
+                    <a href="{{ route('social.channels.create') }}" class="btn btn-secondary">Add Channel</a>
                     <a href="{{ route('social.create') }}" class="btn btn-primary">Add Schedule</a>
                 </div>
             </section>
@@ -1170,6 +1180,9 @@
                         <h4>Channel Coverage</h4>
                         <div class="planner-subtle">Active destinations currently linked to this agent.</div>
                     </div>
+                    <div class="planner-panel-actions">
+                        <a href="{{ route('social.channels.create') }}" class="btn btn-secondary btn-sm">Add Channel</a>
+                    </div>
                 </div>
                 @if($networkSummary->count())
                     <div class="planner-channel-list">
@@ -1202,6 +1215,9 @@
                 @else
                     <div class="planner-empty">
                         <p>No active social channels were found for this agent yet.</p>
+                        <div class="planner-brand-actions" style="margin-top: 16px;">
+                            <a href="{{ route('social.channels.create') }}" class="btn btn-secondary">Add Channel</a>
+                        </div>
                     </div>
                 @endif
             </section>

@@ -7,6 +7,7 @@ use App\Models\CondoListing;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
@@ -460,6 +461,460 @@ class FsPosterBridge
     }
 
     /**
+     * @return Collection<int, array{
+     *     id:int,
+     *     blog_id:int,
+     *     created_by:int,
+     *     social_network:string,
+     *     social_network_label:string,
+     *     name:string,
+     *     remote_id:string,
+     *     method:string,
+     *     proxy:string,
+     *     data_json:string,
+     *     total_channels:int,
+     *     active_channels:int,
+     *     inactive_channels:int
+     * }>
+     */
+    public function channelSessionsForAgent(string $username): Collection
+    {
+        $wordpressUserIds = $this->wordpressUserIdsForAgent($username);
+
+        if ($wordpressUserIds === []) {
+            return collect();
+        }
+
+        $channelCounts = collect(DB::connection('condo')
+            ->table('fsp_channels')
+            ->selectRaw('channel_session_id')
+            ->selectRaw('COUNT(*) as total_channels')
+            ->selectRaw('SUM(CASE WHEN is_deleted = 0 AND status = 1 THEN 1 ELSE 0 END) as active_channels')
+            ->selectRaw('SUM(CASE WHEN is_deleted = 0 AND status <> 1 THEN 1 ELSE 0 END) as inactive_channels')
+            ->groupBy('channel_session_id')
+            ->get())
+            ->keyBy(fn (object $row) => (int) $row->channel_session_id);
+
+        return collect(DB::connection('condo')
+            ->table('fsp_channel_sessions')
+            ->whereIn('created_by', $wordpressUserIds)
+            ->orderBy('social_network')
+            ->orderBy('name')
+            ->get([
+                'id',
+                'blog_id',
+                'created_by',
+                'social_network',
+                'name',
+                'remote_id',
+                'method',
+                'proxy',
+                'data',
+            ]))
+            ->map(function (object $session) use ($channelCounts) {
+                $counts = $channelCounts->get((int) $session->id);
+
+                return [
+                    'id' => (int) $session->id,
+                    'blog_id' => (int) $session->blog_id,
+                    'created_by' => (int) $session->created_by,
+                    'social_network' => (string) $session->social_network,
+                    'social_network_label' => $this->socialNetworkLabel((string) $session->social_network),
+                    'name' => trim((string) $session->name) !== '' ? trim((string) $session->name) : '[no account name]',
+                    'remote_id' => (string) $session->remote_id,
+                    'method' => (string) $session->method,
+                    'proxy' => (string) $session->proxy,
+                    'data_json' => $this->prettyJsonString($session->data, ['auth_data' => new \stdClass()]),
+                    'total_channels' => (int) ($counts->total_channels ?? 0),
+                    'active_channels' => (int) ($counts->active_channels ?? 0),
+                    'inactive_channels' => (int) ($counts->inactive_channels ?? 0),
+                ];
+            })
+            ->values();
+    }
+
+    /**
+     * @return Collection<int, array{
+     *     id:int,
+     *     channel_session_id:int,
+     *     name:string,
+     *     channel_type:string,
+     *     remote_id:string,
+     *     picture:string,
+     *     status:bool,
+     *     auto_share:bool,
+     *     is_deleted:bool,
+     *     social_network:string,
+     *     social_network_label:string,
+     *     session_name:string,
+     *     session_method:string,
+     *     session_remote_id:string,
+     *     proxy:string,
+     *     data_json:string,
+     *     custom_settings_json:string,
+     *     label_count:int,
+     *     permission_count:int
+     * }>
+     */
+    public function channelManagerRecordsForAgent(string $username): Collection
+    {
+        $wordpressUserIds = $this->wordpressUserIdsForAgent($username);
+
+        if ($wordpressUserIds === []) {
+            return collect();
+        }
+
+        $labelCounts = DB::connection('condo')
+            ->table('fsp_channel_labels_data')
+            ->selectRaw('channel_id, COUNT(*) as total')
+            ->groupBy('channel_id');
+
+        $permissionCounts = DB::connection('condo')
+            ->table('fsp_channel_permissions')
+            ->selectRaw('channel_id, COUNT(*) as total')
+            ->groupBy('channel_id');
+
+        return collect(DB::connection('condo')
+            ->table('fsp_channels')
+            ->join('fsp_channel_sessions', 'fsp_channel_sessions.id', '=', 'fsp_channels.channel_session_id')
+            ->leftJoinSub($labelCounts, 'label_counts', function ($join) {
+                $join->on('label_counts.channel_id', '=', 'fsp_channels.id');
+            })
+            ->leftJoinSub($permissionCounts, 'permission_counts', function ($join) {
+                $join->on('permission_counts.channel_id', '=', 'fsp_channels.id');
+            })
+            ->whereIn('fsp_channel_sessions.created_by', $wordpressUserIds)
+            ->orderBy('fsp_channel_sessions.social_network')
+            ->orderBy('fsp_channel_sessions.name')
+            ->orderBy('fsp_channels.name')
+            ->get([
+                'fsp_channels.id',
+                'fsp_channels.channel_session_id',
+                'fsp_channels.name',
+                'fsp_channels.channel_type',
+                'fsp_channels.remote_id',
+                'fsp_channels.picture',
+                'fsp_channels.status',
+                'fsp_channels.auto_share',
+                'fsp_channels.is_deleted',
+                'fsp_channels.data',
+                'fsp_channels.custom_settings',
+                'fsp_channel_sessions.social_network',
+                'fsp_channel_sessions.name as session_name',
+                'fsp_channel_sessions.remote_id as session_remote_id',
+                'fsp_channel_sessions.method as session_method',
+                'fsp_channel_sessions.proxy',
+                'label_counts.total as label_count',
+                'permission_counts.total as permission_count',
+            ]))
+            ->map(function (object $channel) {
+                return [
+                    'id' => (int) $channel->id,
+                    'channel_session_id' => (int) $channel->channel_session_id,
+                    'name' => trim((string) $channel->name) !== '' ? trim((string) $channel->name) : '[no name]',
+                    'channel_type' => (string) $channel->channel_type,
+                    'remote_id' => (string) $channel->remote_id,
+                    'picture' => (string) $channel->picture,
+                    'status' => (int) $channel->status === 1,
+                    'auto_share' => (int) $channel->auto_share === 1,
+                    'is_deleted' => (int) $channel->is_deleted === 1,
+                    'social_network' => (string) $channel->social_network,
+                    'social_network_label' => $this->socialNetworkLabel((string) $channel->social_network),
+                    'session_name' => trim((string) $channel->session_name) !== '' ? trim((string) $channel->session_name) : '[no account name]',
+                    'session_method' => (string) $channel->session_method,
+                    'session_remote_id' => (string) $channel->session_remote_id,
+                    'proxy' => (string) $channel->proxy,
+                    'data_json' => $this->prettyJsonString($channel->data),
+                    'custom_settings_json' => $this->prettyJsonString($channel->custom_settings, $this->defaultChannelCustomSettings()),
+                    'label_count' => (int) ($channel->label_count ?? 0),
+                    'permission_count' => (int) ($channel->permission_count ?? 0),
+                ];
+            })
+            ->values();
+    }
+
+    /**
+     * @return array{
+     *     id:int,
+     *     blog_id:int,
+     *     created_by:int,
+     *     social_network:string,
+     *     social_network_label:string,
+     *     name:string,
+     *     remote_id:string,
+     *     method:string,
+     *     proxy:string,
+     *     data_json:string,
+     *     total_channels:int,
+     *     active_channels:int,
+     *     inactive_channels:int
+     * }
+     */
+    public function findChannelSessionForAgent(string $username, int $sessionId): array
+    {
+        $session = $this->channelSessionsForAgent($username)->firstWhere('id', $sessionId);
+
+        if (! is_array($session)) {
+            abort(404);
+        }
+
+        return $session;
+    }
+
+    /**
+     * @return array{
+     *     id:int,
+     *     channel_session_id:int,
+     *     name:string,
+     *     channel_type:string,
+     *     remote_id:string,
+     *     picture:string,
+     *     status:bool,
+     *     auto_share:bool,
+     *     is_deleted:bool,
+     *     social_network:string,
+     *     social_network_label:string,
+     *     session_name:string,
+     *     session_method:string,
+     *     session_remote_id:string,
+     *     proxy:string,
+     *     data_json:string,
+     *     custom_settings_json:string,
+     *     label_count:int,
+     *     permission_count:int
+     * }
+     */
+    public function findChannelForAgent(string $username, int $channelId): array
+    {
+        $channel = $this->channelManagerRecordsForAgent($username)->firstWhere('id', $channelId);
+
+        if (! is_array($channel)) {
+            abort(404);
+        }
+
+        return $channel;
+    }
+
+    public function createChannelSession(string $username, array $attributes): int
+    {
+        $wordpressUserId = $this->resolveWordpressUserId($username);
+        $socialNetwork = trim((string) ($attributes['social_network'] ?? ''));
+        $remoteId = trim((string) ($attributes['remote_id'] ?? ''));
+        $method = trim((string) ($attributes['method'] ?? ''));
+        $name = trim((string) ($attributes['name'] ?? ''));
+        $proxy = trim((string) ($attributes['proxy'] ?? ''));
+        $dataJson = $this->normalizeInputJsonString((string) ($attributes['data_json'] ?? '{}'), ['auth_data' => new \stdClass()]);
+
+        $existingSessionId = DB::connection('condo')
+            ->table('fsp_channel_sessions')
+            ->where('created_by', $wordpressUserId)
+            ->where('social_network', $socialNetwork)
+            ->where('remote_id', $remoteId)
+            ->where('method', $method)
+            ->value('id');
+
+        if ($existingSessionId) {
+            DB::connection('condo')
+                ->table('fsp_channel_sessions')
+                ->where('id', $existingSessionId)
+                ->update([
+                    'name' => $name,
+                    'proxy' => $proxy,
+                    'data' => $dataJson,
+                    'updated_at' => now(),
+                ]);
+
+            return (int) $existingSessionId;
+        }
+
+        return (int) DB::connection('condo')
+            ->table('fsp_channel_sessions')
+            ->insertGetId([
+                'blog_id' => 1,
+                'created_by' => $wordpressUserId,
+                'social_network' => $socialNetwork,
+                'name' => $name,
+                'remote_id' => $remoteId,
+                'method' => $method,
+                'proxy' => $proxy,
+                'data' => $dataJson,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+    }
+
+    public function updateChannelSession(string $username, int $sessionId, array $attributes): void
+    {
+        $this->findChannelSessionForAgent($username, $sessionId);
+
+        DB::connection('condo')
+            ->table('fsp_channel_sessions')
+            ->where('id', $sessionId)
+            ->update([
+                'social_network' => trim((string) ($attributes['social_network'] ?? '')),
+                'name' => trim((string) ($attributes['name'] ?? '')),
+                'remote_id' => trim((string) ($attributes['remote_id'] ?? '')),
+                'method' => trim((string) ($attributes['method'] ?? '')),
+                'proxy' => trim((string) ($attributes['proxy'] ?? '')),
+                'data' => $this->normalizeInputJsonString((string) ($attributes['data_json'] ?? '{}'), ['auth_data' => new \stdClass()]),
+                'updated_at' => now(),
+            ]);
+    }
+
+    public function createChannel(string $username, array $attributes): int
+    {
+        $sessionId = (int) ($attributes['channel_session_id'] ?? 0);
+        $this->findChannelSessionForAgent($username, $sessionId);
+
+        $channelType = trim((string) ($attributes['channel_type'] ?? ''));
+        $remoteId = trim((string) ($attributes['remote_id'] ?? ''));
+        $name = trim((string) ($attributes['name'] ?? ''));
+        $picture = trim((string) ($attributes['picture'] ?? ''));
+        $dataJson = $this->normalizeInputJsonString((string) ($attributes['data_json'] ?? '[]'));
+        $customSettingsJson = $this->normalizeInputJsonString((string) ($attributes['custom_settings_json'] ?? ''), $this->defaultChannelCustomSettings());
+        $status = ! empty($attributes['status']) ? 1 : 0;
+        $autoShare = ! empty($attributes['auto_share']) ? 1 : 0;
+
+        $existingChannelId = DB::connection('condo')
+            ->table('fsp_channels')
+            ->where('channel_session_id', $sessionId)
+            ->where('channel_type', $channelType)
+            ->where('remote_id', $remoteId)
+            ->value('id');
+
+        if ($existingChannelId) {
+            DB::connection('condo')
+                ->table('fsp_channels')
+                ->where('id', $existingChannelId)
+                ->update([
+                    'name' => $name,
+                    'picture' => $picture,
+                    'status' => $status,
+                    'data' => $dataJson,
+                    'auto_share' => $autoShare,
+                    'custom_settings' => $customSettingsJson,
+                    'is_deleted' => 0,
+                    'updated_at' => now(),
+                ]);
+
+            return (int) $existingChannelId;
+        }
+
+        return (int) DB::connection('condo')
+            ->table('fsp_channels')
+            ->insertGetId([
+                'channel_session_id' => $sessionId,
+                'name' => $name,
+                'channel_type' => $channelType,
+                'remote_id' => $remoteId,
+                'picture' => $picture,
+                'status' => $status,
+                'data' => $dataJson,
+                'auto_share' => $autoShare,
+                'custom_settings' => $customSettingsJson,
+                'is_deleted' => 0,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+    }
+
+    public function updateChannel(string $username, int $channelId, array $attributes): void
+    {
+        $channel = $this->findChannelForAgent($username, $channelId);
+
+        DB::connection('condo')
+            ->table('fsp_channels')
+            ->where('id', $channelId)
+            ->update([
+                'name' => trim((string) ($attributes['name'] ?? '')),
+                'picture' => trim((string) ($attributes['picture'] ?? '')),
+                'status' => ! empty($attributes['status']) ? 1 : 0,
+                'data' => $this->normalizeInputJsonString((string) ($attributes['data_json'] ?? '[]')),
+                'auto_share' => ! empty($attributes['auto_share']) ? 1 : 0,
+                'custom_settings' => $this->normalizeInputJsonString((string) ($attributes['custom_settings_json'] ?? ''), $this->defaultChannelCustomSettings()),
+                'is_deleted' => 0,
+                'updated_at' => now(),
+            ]);
+
+        DB::connection('condo')
+            ->table('fsp_channel_sessions')
+            ->where('id', $channel['channel_session_id'])
+            ->update([
+                'proxy' => trim((string) ($attributes['proxy'] ?? '')),
+                'updated_at' => now(),
+            ]);
+    }
+
+    public function deleteChannel(string $username, int $channelId): void
+    {
+        $channel = $this->findChannelForAgent($username, $channelId);
+
+        DB::connection('condo')->transaction(function () use ($channelId, $channel) {
+            if (Schema::connection('condo')->hasTable('fsp_planners')) {
+                DB::connection('condo')
+                    ->table('fsp_planners')
+                    ->update([
+                        'channels' => DB::raw("TRIM(BOTH ',' FROM REPLACE(CONCAT(',', `channels`, ','), '," . $channelId . ",', ','))"),
+                    ]);
+            }
+
+            $sharedSchedulesCount = DB::connection('condo')
+                ->table('fsp_schedules')
+                ->where('channel_id', $channelId)
+                ->whereIn('status', ['success', 'error'])
+                ->count();
+
+            if ($sharedSchedulesCount > 0) {
+                DB::connection('condo')
+                    ->table('fsp_channels')
+                    ->where('id', $channelId)
+                    ->update([
+                        'is_deleted' => 1,
+                        'updated_at' => now(),
+                    ]);
+            } else {
+                DB::connection('condo')
+                    ->table('fsp_channels')
+                    ->where('id', $channelId)
+                    ->delete();
+            }
+
+            DB::connection('condo')
+                ->table('fsp_schedules')
+                ->where('channel_id', $channelId)
+                ->whereNotIn('status', ['success', 'error'])
+                ->delete();
+
+            if (Schema::connection('condo')->hasTable('fsp_channel_labels_data')) {
+                DB::connection('condo')
+                    ->table('fsp_channel_labels_data')
+                    ->whereNotIn('channel_id', DB::connection('condo')->table('fsp_channels')->select('id'))
+                    ->delete();
+            }
+
+            if (Schema::connection('condo')->hasTable('fsp_post_comments')) {
+                DB::connection('condo')
+                    ->table('fsp_post_comments')
+                    ->whereNotIn('channel_id', DB::connection('condo')->table('fsp_channels')->select('id'))
+                    ->delete();
+            }
+
+            if (Schema::connection('condo')->hasTable('fsp_channel_permissions')) {
+                DB::connection('condo')
+                    ->table('fsp_channel_permissions')
+                    ->whereNotIn('channel_id', DB::connection('condo')->table('fsp_channels')->select('id'))
+                    ->delete();
+            }
+
+            DB::connection('condo')
+                ->table('fsp_channel_sessions')
+                ->where('id', $channel['channel_session_id'])
+                ->whereNotIn('id', DB::connection('condo')->table('fsp_channels')->select('channel_session_id'))
+                ->delete();
+        });
+    }
+
+    /**
      * @param  array{id:int,name:string,channel_type:string,social_network:string}  $channel
      * @return array<string, mixed>
      */
@@ -553,7 +1008,7 @@ class FsPosterBridge
                 'source' => 'condo',
                 'return_source' => 'condo',
             ])
-            : route('news.show', (int) $first->wp_post_id);
+            : null;
 
         return [
             'group_id' => (string) $first->group_id,
@@ -562,7 +1017,7 @@ class FsPosterBridge
             'listing_title' => trim((string) $first->post_title) !== '' ? trim((string) $first->post_title) : 'Untitled condo listing',
             'listing_url' => $previewContext['post_url'],
             'content_type' => $contentType,
-            'content_type_label' => $contentType === 'properties' ? 'Listing' : 'News',
+            'content_type_label' => $contentType === 'properties' ? 'Listing' : 'Content',
             'view_url' => $viewUrl,
             'can_manage_in_laravel' => $canManageInLaravel,
             'scheduled_at' => $scheduledAt,
@@ -1361,6 +1816,69 @@ class FsPosterBridge
         }
 
         return in_array(strtolower(trim((string) $value)), ['1', 'true', 'yes', 'on'], true);
+    }
+
+    /**
+     * @return array{post_filter_type:string,post_filter_terms:array<int, int>,custom_post_data:mixed}
+     */
+    private function defaultChannelCustomSettings(): array
+    {
+        return [
+            'post_filter_type' => 'all',
+            'post_filter_terms' => [],
+            'custom_post_data' => new \stdClass(),
+        ];
+    }
+
+    /**
+     * @param  array<string, mixed>  $default
+     */
+    private function prettyJsonString(mixed $value, array $default = []): string
+    {
+        if (! is_string($value) || trim($value) === '') {
+            return json_encode($default, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+        }
+
+        $decoded = json_decode($value, true);
+
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            return trim($value);
+        }
+
+        return json_encode($decoded, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+    }
+
+    /**
+     * @param  array<string, mixed>  $default
+     */
+    private function normalizeInputJsonString(string $value, array $default = []): string
+    {
+        $value = trim($value);
+
+        if ($value === '') {
+            return json_encode($default, JSON_UNESCAPED_SLASHES);
+        }
+
+        $decoded = json_decode($value, true);
+
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            throw ValidationException::withMessages([
+                'data_json' => 'Enter valid JSON so the saved FS Poster record stays usable.',
+            ]);
+        }
+
+        return json_encode($decoded, JSON_UNESCAPED_SLASHES);
+    }
+
+    private function socialNetworkLabel(string $network): string
+    {
+        return match ($network) {
+            'fb' => 'Facebook',
+            'google_b' => 'Google Business',
+            'ok' => 'Odnoklassniki',
+            'truthsocial' => 'Truth Social',
+            default => Str::headline(str_replace('_', ' ', $network)),
+        };
     }
 
     private function resolveWordpressUserId(string $username): int

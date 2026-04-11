@@ -6,8 +6,8 @@ use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\ListingController;
 use App\Http\Controllers\SeoController;
 use App\Http\Controllers\SocialMediaController;
+use App\Http\Controllers\SocialChannelController;
 use App\Http\Controllers\ReportController;
-use App\Http\Controllers\NewsController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RecentlyDeletedController;
 use App\Http\Controllers\BillingController;
@@ -31,6 +31,7 @@ Route::middleware(AgentAuth::class)->group(function () {
     Route::get('/listings', [ListingController::class, 'index'])->name('listings.index');
     Route::get('/listings/create', [ListingController::class, 'create'])->name('listings.create');
     Route::post('/listings', [ListingController::class, 'store'])->name('listings.store');
+    Route::post('/listings/bulk', [ListingController::class, 'bulk'])->name('listings.bulk');
     Route::get('/listings/{id}/edit', [ListingController::class, 'edit'])->name('listings.edit');
     Route::put('/listings/{id}', [ListingController::class, 'update'])->name('listings.update');
     Route::delete('/listings/{id}', [ListingController::class, 'destroy'])->name('listings.destroy');
@@ -45,21 +46,22 @@ Route::middleware(AgentAuth::class)->group(function () {
     Route::get('/social', [SocialMediaController::class, 'index'])->name('social.index');
     Route::get('/social/create', [SocialMediaController::class, 'create'])->name('social.create');
     Route::post('/social', [SocialMediaController::class, 'store'])->name('social.store');
+    Route::get('/social/channels', [SocialChannelController::class, 'index'])->name('social.channels.index');
+    Route::get('/social/channels/create', [SocialChannelController::class, 'createChannel'])->name('social.channels.create');
+    Route::post('/social/channels', [SocialChannelController::class, 'storeChannel'])->name('social.channels.store');
+    Route::get('/social/channels/{channel}/edit', [SocialChannelController::class, 'editChannel'])->name('social.channels.edit');
+    Route::put('/social/channels/{channel}', [SocialChannelController::class, 'updateChannel'])->name('social.channels.update');
+    Route::delete('/social/channels/{channel}', [SocialChannelController::class, 'destroyChannel'])->name('social.channels.destroy');
+    Route::get('/social/accounts/create', [SocialChannelController::class, 'createAccount'])->name('social.accounts.create');
+    Route::post('/social/accounts', [SocialChannelController::class, 'storeAccount'])->name('social.accounts.store');
+    Route::get('/social/accounts/{session}/edit', [SocialChannelController::class, 'editAccount'])->name('social.accounts.edit');
+    Route::put('/social/accounts/{session}', [SocialChannelController::class, 'updateAccount'])->name('social.accounts.update');
     Route::get('/social/{group}/edit', [SocialMediaController::class, 'edit'])->name('social.edit');
     Route::put('/social/{group}', [SocialMediaController::class, 'update'])->name('social.update');
     Route::delete('/social/{group}', [SocialMediaController::class, 'destroy'])->name('social.destroy');
 
     // Reports
     Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
-
-    // News
-    Route::get('/news', [NewsController::class, 'index'])->name('news.index');
-    Route::get('/news/create', [NewsController::class, 'create'])->name('news.create');
-    Route::post('/news', [NewsController::class, 'store'])->name('news.store');
-    Route::get('/news/{id}/edit', [NewsController::class, 'edit'])->name('news.edit');
-    Route::put('/news/{id}', [NewsController::class, 'update'])->name('news.update');
-    Route::delete('/news/{id}', [NewsController::class, 'destroy'])->name('news.destroy');
-    Route::get('/news/{id}', [NewsController::class, 'show'])->name('news.show');
 
     // Recently Deleted
     Route::get('/recently-deleted', [RecentlyDeletedController::class, 'index'])->name('recently-deleted.index');

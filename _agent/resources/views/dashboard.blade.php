@@ -9,9 +9,9 @@
         <div class="stat-value">{{ number_format($totalListings) }}</div>
     </div>
     <div class="stat-card">
-        <div class="stat-label">Total Articles</div>
-        <div class="stat-value">{{ number_format($totalArticles) }}</div>
-        <div class="stat-sub">{{ $publishedArticles }} published · {{ $draftArticles }} drafts</div>
+        <div class="stat-label">Articles</div>
+        <div class="stat-value" style="font-size:20px;">Coming Soon</div>
+        <div class="stat-sub">This content section is being refreshed.</div>
     </div>
     <div class="stat-card">
         <div class="stat-label">Social Posts</div>
@@ -27,27 +27,11 @@
 
 <div class="grid-2" style="margin-bottom:24px;">
     <div class="card">
-        <div class="card-header">Recent Articles</div>
-        @if($recentArticles->count())
-        <div class="table-wrap">
-            <table>
-                <thead>
-                    <tr><th>Title</th><th>Status</th><th>Date</th></tr>
-                </thead>
-                <tbody>
-                @foreach($recentArticles as $article)
-                    <tr>
-                        <td><a href="{{ route('articles.edit', $article) }}" style="color:inherit;text-decoration:none;font-weight:500;">{{ Str::limit($article->title, 40) }}</a></td>
-                        <td><span class="badge {{ $article->status === 'published' ? 'badge-success' : 'badge-default' }}">{{ $article->status }}</span></td>
-                        <td style="color:var(--text-secondary);">{{ $article->created_at?->format('M d') }}</td>
-                    </tr>
-                @endforeach
-                </tbody>
-            </table>
+        <div class="card-header">Articles</div>
+        <div class="empty-state" style="padding:30px;">
+            <p>The article workspace is coming soon.</p>
+            <a href="{{ route('articles.index') }}" class="btn btn-secondary btn-sm">Open Preview</a>
         </div>
-        @else
-        <div class="empty-state" style="padding:30px;"><p>No articles yet</p><a href="{{ route('articles.create') }}" class="btn btn-primary btn-sm">Write your first article</a></div>
-        @endif
     </div>
     <div class="card">
         <div class="card-header">Recent Listings</div>
@@ -99,26 +83,11 @@
         @endif
     </div>
     <div class="card">
-        <div class="card-header">Latest News</div>
-        @if($recentNews->count())
-        <div class="table-wrap">
-            <table>
-                <thead>
-                    <tr><th>Title</th><th>Date</th></tr>
-                </thead>
-                <tbody>
-                @foreach($recentNews as $news)
-                    <tr>
-                        <td><a href="{{ route('news.show', $news->ID) }}" style="color:inherit;text-decoration:none;font-weight:500;">{{ Str::limit($news->post_title, 45) }}</a></td>
-                        <td style="color:var(--text-secondary);">{{ \Carbon\Carbon::parse($news->post_date)->format('M d') }}</td>
-                    </tr>
-                @endforeach
-                </tbody>
-            </table>
+        <div class="card-header">Portal Focus</div>
+        <div class="empty-state" style="padding:30px;">
+            <p>This portal is now focused on listings, SEO, and social tools for agents.</p>
+            <a href="{{ route('social.index') }}" class="btn btn-secondary btn-sm">Open Social Media</a>
         </div>
-        @else
-        <div class="empty-state" style="padding:30px;"><p>No news available</p></div>
-        @endif
     </div>
 </div>
 @endsection

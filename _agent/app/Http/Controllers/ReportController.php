@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Article;
 use App\Models\Listing;
 use App\Models\SocialPost;
 use Illuminate\Http\Request;
@@ -35,13 +34,6 @@ class ReportController extends Controller
             ->take(10)
             ->get();
 
-        // Article stats
-        $totalArticles = Article::where('agent_username', $username)->count();
-        $articlesByStatus = Article::where('agent_username', $username)
-            ->select('status', DB::raw('count(*) as total'))
-            ->groupBy('status')
-            ->get();
-
         // Social media stats
         $totalSocialPosts = SocialPost::where('agent_username', $username)->count();
         $socialByPlatform = SocialPost::where('agent_username', $username)
@@ -55,7 +47,6 @@ class ReportController extends Controller
 
         return view('reports.index', compact(
             'totalListings', 'listingsByType', 'listingsByPropertyType', 'listingsByState',
-            'totalArticles', 'articlesByStatus',
             'totalSocialPosts', 'socialByPlatform', 'socialByStatus', 'period'
         ));
     }

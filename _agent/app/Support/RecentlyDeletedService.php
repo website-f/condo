@@ -172,8 +172,6 @@ class RecentlyDeletedService
         );
 
         return $this->listingItems($username, $registryByLookup)
-            ->concat($this->newsItems($registryByLookup))
-            ->concat($this->articleItems($registry))
             ->concat($this->socialItems($registry))
             ->sortByDesc(fn (array $item) => $item['deleted_at']->timestamp)
             ->values();

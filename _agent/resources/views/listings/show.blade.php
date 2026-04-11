@@ -1,24 +1,35 @@
 @extends('layouts.app')
+@php
+    $editListingUrl = route('listings.edit', array_filter([
+        'id' => $listing->id,
+        'source' => ($listing->source_key ?? 'ipp') === 'ipp' ? null : $listing->source_key,
+        'return_source' => $returnSource,
+    ], static fn ($value) => $value !== null));
+    $backToListingsUrl = route('listings.index', ['source' => $returnSource]);
+    $isCondoListing = ($listing->source_key ?? '') === 'condo';
+@endphp
 @section('title', $listing->propertyname)
 @section('page-title', 'Listing Details')
 @section('topbar-actions')
-    @if($canManageListing)
-        <a href="{{ route('listings.edit', array_filter(['id' => $listing->id, 'source' => $listing->source_key === 'ipp' ? null : $listing->source_key, 'return_source' => $returnSource], static fn ($value) => $value !== null)) }}" class="btn btn-secondary btn-sm">Edit</a>
-        @if(($listing->source_key ?? '') === 'condo')
-            <a href="{{ route('seo.edit', $listing->id) }}" class="btn btn-secondary btn-sm">SEO</a>
-            <a href="{{ route('social.create', ['listing' => $listing->id]) }}" class="btn btn-secondary btn-sm">Schedule</a>
+    <div class="listing-topbar-actions">
+        @if($canManageListing)
+            <a href="{{ $editListingUrl }}" class="btn btn-secondary btn-sm">Edit</a>
+            @if($isCondoListing)
+                <a href="{{ route('seo.edit', $listing->id) }}" class="btn btn-secondary btn-sm">SEO</a>
+                <a href="{{ route('social.create', ['listing' => $listing->id]) }}" class="btn btn-secondary btn-sm">Schedule</a>
+            @endif
+            <form method="POST" action="{{ route('listings.destroy', $listing->id) }}" onsubmit="return confirm('Delete this listing? This action cannot be undone.');" style="margin:0;">
+                @csrf
+                @method('DELETE')
+                <input type="hidden" name="source" value="{{ $listing->source_key }}">
+                <input type="hidden" name="return_source" value="{{ $returnSource }}">
+                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+            </form>
+        @else
+            <span class="badge badge-default">{{ strtoupper($listing->source_key ?? 'ipp') }} Read Only</span>
         @endif
-        <form method="POST" action="{{ route('listings.destroy', $listing->id) }}" onsubmit="return confirm('Delete this listing? This action cannot be undone.');" style="margin:0;">
-            @csrf
-            @method('DELETE')
-            <input type="hidden" name="source" value="{{ $listing->source_key }}">
-            <input type="hidden" name="return_source" value="{{ $returnSource }}">
-            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
-        </form>
-    @else
-        <span class="badge badge-default">{{ strtoupper($listing->source_key ?? 'ipp') }} Read Only</span>
-    @endif
-    <a href="{{ route('listings.index', ['source' => $returnSource]) }}" class="btn btn-secondary btn-sm">Back</a>
+        <a href="{{ $backToListingsUrl }}" class="btn btn-secondary btn-sm">Back</a>
+    </div>
 @endsection
 
 @section('content')
@@ -127,6 +138,18 @@
         max-width: 1200px;
         margin: 0 auto;
         padding-bottom: 40px;
+    }
+
+    .listing-topbar-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+    }
+
+    .listing-topbar-actions form {
+        margin: 0;
     }
 
     .listing-hero-card {
@@ -658,6 +681,88 @@
         background: var(--apple-blue-hover);
     }
 
+    .listing-summary-actions {
+        margin-top: 4px;
+    }
+
+    .listing-mobile-actions-panel {
+        display: none;
+    }
+
+    .listing-mobile-actions-card {
+        padding: 22px;
+        border-radius: 24px;
+        background: linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(248,249,251,0.98) 100%);
+        border: 1px solid var(--apple-border);
+        box-shadow: var(--apple-shadow);
+        display: grid;
+        gap: 18px;
+    }
+
+    .listing-mobile-actions-header {
+        display: grid;
+        gap: 6px;
+    }
+
+    .listing-mobile-actions-kicker {
+        font-size: 11px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        font-weight: 700;
+        color: var(--apple-blue);
+    }
+
+    .listing-mobile-actions-title {
+        font-size: 20px;
+        line-height: 1.15;
+        letter-spacing: -0.03em;
+        color: var(--apple-text);
+        font-weight: 700;
+    }
+
+    .listing-mobile-actions-subtitle {
+        font-size: 14px;
+        line-height: 1.6;
+        color: var(--apple-text-muted);
+    }
+
+    .listing-mobile-actions-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+    }
+
+    .listing-mobile-actions-grid .btn,
+    .listing-mobile-actions-grid form {
+        width: 100%;
+    }
+
+    .listing-mobile-actions-grid .btn {
+        min-height: 48px;
+        border-radius: 16px;
+        font-size: 14px;
+        font-weight: 700;
+    }
+
+    .listing-mobile-actions-grid form {
+        margin: 0;
+    }
+
+    .listing-mobile-readonly {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 44px;
+        padding: 0 14px;
+        border-radius: 16px;
+        background: rgba(0, 102, 204, 0.08);
+        color: var(--apple-blue);
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+        text-transform: uppercase;
+    }
+
     /* Lightbox */
     .lightbox-overlay {
         display: none;
@@ -800,6 +905,10 @@
         .listing-detail-page {
             gap: 24px;
         }
+
+        .listing-topbar-actions {
+            display: none;
+        }
         
         .listing-summary-panel,
         .listing-gallery-shell {
@@ -814,6 +923,14 @@
 
         .listing-section, .listing-side-card {
             padding: 24px;
+        }
+
+        .listing-summary-actions {
+            display: none;
+        }
+
+        .listing-mobile-actions-panel {
+            display: block;
         }
     }
 
@@ -843,6 +960,15 @@
 
         .listing-side-row strong {
             text-align: left;
+        }
+
+        .listing-mobile-actions-card {
+            padding: 18px;
+            border-radius: 20px;
+        }
+
+        .listing-mobile-actions-grid {
+            grid-template-columns: 1fr;
         }
     }
 </style>
@@ -1032,11 +1158,11 @@
                     @endforeach
                 </div>
 
-                <div class="listing-actions">
+                <div class="listing-actions listing-summary-actions">
                     @if($canManageListing)
-                        <a href="{{ route('listings.edit', $listing->id) }}" class="btn btn-primary">Edit</a>
+                        <a href="{{ $editListingUrl }}" class="btn btn-primary">Edit</a>
                     @endif
-                    <a href="{{ route('listings.index', ['source' => $returnSource]) }}" class="btn btn-secondary">Back</a>
+                    <a href="{{ $backToListingsUrl }}" class="btn btn-secondary">Back</a>
                 </div>
 
                 {{-- Managed By --}}
@@ -1062,6 +1188,39 @@
             </section>
         </aside>
     </div>
+
+    <section class="listing-mobile-actions-panel">
+        <div class="listing-mobile-actions-card">
+            <div class="listing-mobile-actions-header">
+                <div class="listing-mobile-actions-kicker">Quick Actions</div>
+                <div class="listing-mobile-actions-title">Manage this listing comfortably on mobile.</div>
+                <div class="listing-mobile-actions-subtitle">The top bar stays clean on smaller screens, so the main actions live here with larger tap targets.</div>
+            </div>
+
+            <div class="listing-mobile-actions-grid">
+                @if($canManageListing)
+                    <a href="{{ $editListingUrl }}" class="btn btn-primary">Edit Listing</a>
+
+                    @if($isCondoListing)
+                        <a href="{{ route('seo.edit', $listing->id) }}" class="btn btn-secondary">SEO</a>
+                        <a href="{{ route('social.create', ['listing' => $listing->id]) }}" class="btn btn-secondary">Schedule</a>
+                    @endif
+
+                    <form method="POST" action="{{ route('listings.destroy', $listing->id) }}" onsubmit="return confirm('Delete this listing? This action cannot be undone.');">
+                        @csrf
+                        @method('DELETE')
+                        <input type="hidden" name="source" value="{{ $listing->source_key }}">
+                        <input type="hidden" name="return_source" value="{{ $returnSource }}">
+                        <button type="submit" class="btn btn-danger">Delete</button>
+                    </form>
+                @else
+                    <div class="listing-mobile-readonly">{{ strtoupper($listing->source_key ?? 'ipp') }} Read Only</div>
+                @endif
+
+                <a href="{{ $backToListingsUrl }}" class="btn btn-secondary">Back to Listings</a>
+            </div>
+        </div>
+    </section>
 </div>
 
 @if(!empty($gallery) && count($gallery) > 0)

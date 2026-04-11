@@ -169,14 +169,14 @@
             <div class="stat-sub">IPP, ICP, and Condo listing records.</div>
         </div>
         <div class="stat-card">
-            <div class="stat-label">News + Articles</div>
-            <div class="stat-value">{{ number_format($stats['news'] + $stats['articles']) }}</div>
-            <div class="stat-sub">WordPress news plus Laravel article content.</div>
-        </div>
-        <div class="stat-card">
             <div class="stat-label">Social</div>
             <div class="stat-value">{{ number_format($stats['social']) }}</div>
             <div class="stat-sub">Deleted FS Poster schedule groups.</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Portal Cleanup</div>
+            <div class="stat-value" style="font-size:20px;">Focused</div>
+            <div class="stat-sub">Recycle bin now highlights listings and social schedules only.</div>
         </div>
     </div>
 
@@ -184,7 +184,7 @@
         <div class="card sql-card">
             <div class="card-header">Run Laravel Migration</div>
             <p style="color: var(--text-secondary); line-height: 1.7;">
-                Listings and news can still show deleted items from their existing source tables, but article restore and social schedule restore need one shared table in the main Laravel database.
+                Listings can still show deleted items from their existing source tables, but social schedule restore still needs one shared table in the main Laravel database.
                 Since this table belongs to the Laravel CMS database, the clean setup is just running the normal migration command from the `_agent` folder.
             </p>
             <pre><code>{{ $migrationCommand }}</code></pre>
