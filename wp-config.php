@@ -45,6 +45,7 @@ define('PATH_CURRENT_SITE', '/');
 define('SITE_ID_CURRENT_SITE', 1);
 define('BLOG_ID_CURRENT_SITE', 1);
 
+define( 'DUPLICATOR_AUTH_KEY', '7E0!lZ*p2TcP[sPZOKj_cbFtHUGJIxNAkm]FVIu`UvtRYY_Q.whJB!Z`rAf3:H] ' );
 /* That's all, stop editing! Happy publishing. */
 
 // Absolute path to WordPress directory

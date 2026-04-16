@@ -1,7 +1,7 @@
 /**
  * WP Reset
  * https://wpreset.com/
- * (c) WebFactory Ltd, 2017-2023
+ * (c) WebFactory Ltd, 2017-2026
  */
 
 body.tools_page_wp-reset {
@@ -1098,8 +1098,8 @@ li .pro-feature {
   }
 }
 
-#wpfssl-ad {
-  border: 3px solid #42982e;
+#wpcaptcha-ad {
+  border: 3px solid #253bac;
   min-width: 280px;
   max-width: 400px;
   padding: 10px 20px;
@@ -1127,12 +1127,13 @@ li .pro-feature {
 
 #wpr-sidebar-ads {
   position: fixed;
+  display: none;
 }
 
-#wpfssl-ad a.button {
+#wpcaptcha-ad a.button {
   padding: 11px 20px;
   color: white;
-  background: #42982e;
+  background: #253bac;
   font-weight: 600;
   border: none;
   line-height: 1.5;
@@ -1142,11 +1143,11 @@ li .pro-feature {
   max-width: 90%;
 }
 
-#wpfssl-ad a.button:hover,
-#wpfssl-ad a.button:active,
-#wpfssl-ad a.button:focus {
+#wpcaptcha-ad a.button:hover,
+#wpcaptcha-ad a.button:active,
+#wpcaptcha-ad a.button:focus {
   box-shadow: 0px 0px 10px 0px rgb(50 138 210 / 52%);
-  background: #42982e;
+  background: #253bac;
   color: white;
   border: none;
 }
@@ -1184,6 +1185,7 @@ li .pro-feature {
 
 .wpr-main-tab li.tab-pro a {
   color: #dd3036 !important;
+  font-weight: 700 !important;
 }
 
 .wpreset-pro-dialog .ui-dialog-titlebar {

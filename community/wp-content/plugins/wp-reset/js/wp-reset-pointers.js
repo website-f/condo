@@ -1,7 +1,7 @@
 /*
  * WP Reset
  * Backend GUI pointers
- * (c) Web factory Ltd, 2017 - 2023
+ * (c) Web factory Ltd, 2017 - 2026
  */
 
 jQuery(document).ready(function($){
