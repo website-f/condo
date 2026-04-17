@@ -1,22 +1,10 @@
 <?php
 define( 'WP_CACHE', true ); // Added by WP Rocket
 
-$condo_request_host = strtolower( preg_replace( '/:\d+$/', '', (string) ( $_SERVER['HTTP_HOST'] ?? '' ) ) );
-$condo_is_local_host = $condo_request_host === 'condo.test'
-    || $condo_request_host === 'www.condo.test'
-    || ( $condo_request_host !== '' && str_ends_with( $condo_request_host, '.condo.test' ) );
-
-define( 'WP_CACHE', ! $condo_is_local_host ); // Keep WP Rocket off local .test hosts.
-
-if ( $condo_is_local_host ) {
-    define( 'WP_HOME', 'https://' . $condo_request_host );
-    define( 'WP_SITEURL', 'https://' . $condo_request_host );
-}
-
 // ** Database settings ** //
-define( 'DB_NAME', 'wp_condo' );
-define( 'DB_USER', 'root' );
-define( 'DB_PASSWORD', 'root' );
+define( 'DB_NAME', 'property_condo1' );
+define( 'DB_USER', 'property_condo1' );
+define( 'DB_PASSWORD', 'hjRh2yW7WffAGTbcaF2L' );
 define( 'DB_HOST', 'localhost' );
 define( 'DB_CHARSET', 'utf8mb4' );
 define( 'DB_COLLATE', '' );
@@ -50,14 +38,14 @@ define( 'WP_DEBUG', false );
 
 // Multisite settings
 define('WP_ALLOW_MULTISITE', true);
-define('SUNRISE', true);
 define('MULTISITE', true);
 define('SUBDOMAIN_INSTALL', true); // true = subdomain multisite
-define('DOMAIN_CURRENT_SITE', 'condo.test');
+define('DOMAIN_CURRENT_SITE', 'condo.com.my');
 define('PATH_CURRENT_SITE', '/');
 define('SITE_ID_CURRENT_SITE', 1);
 define('BLOG_ID_CURRENT_SITE', 1);
 
+define( 'DUPLICATOR_AUTH_KEY', '7E0!lZ*p2TcP[sPZOKj_cbFtHUGJIxNAkm]FVIu`UvtRYY_Q.whJB!Z`rAf3:H] ' );
 /* That's all, stop editing! Happy publishing. */
 
 // Absolute path to WordPress directory
