@@ -1,0 +1,2662 @@
+{
+    "Status": 1,
+    "ARC": {
+        "Size": "1.17GB",
+        "DirCount": "7,229",
+        "FileCount": "38,872",
+        "FullCount": "46,101",
+        "USize": 1253261322,
+        "UDirCount": 7229,
+        "UFileCount": 38872,
+        "UFullCount": 46101,
+        "UnreadableDirCount": 0,
+        "UnreadableFileCount": 0,
+        "FilterDirsAll": [
+            "\/home\/property\/domains\/condo.com.my\/public_html\/.opcache",
+            "\/home\/property\/domains\/condo.com.my\/public_html\/.tmb",
+            "\/home\/property\/domains\/condo.com.my\/public_html\/wp-content\/ai1wm-backups",
+            "\/home\/property\/domains\/condo.com.my\/public_html\/wp-content\/backups-dup-lite",
+            "\/home\/property\/domains\/condo.com.my\/public_html\/wp-content\/backups-dup-pro",
+            "\/home\/property\/domains\/condo.com.my\/public_html\/wp-content\/backupwordpress",
+            "\/home\/property\/domains\/condo.com.my\/public_html\/wp-content\/bps-backup",
+            "\/home\/property\/domains\/condo.com.my\/public_html\/wp-content\/cache",
+            "\/home\/property\/domains\/condo.com.my\/public_html\/wp-content\/content\/cache",
+            "\/home\/property\/domains\/condo.com.my\/public_html\/wp-content\/contents\/cache",
+            "\/home\/property\/domains\/condo.com.my\/public_html\/wp-content\/duplicator-backups",
+            "\/home\/property\/domains\/condo.com.my\/public_html\/wp-content\/infinitewp\/backups",
+            "\/home\/property\/domains\/condo.com.my\/public_html\/wp-content\/managewp\/backups",
+            "\/home\/property\/domains\/condo.com.my\/public_html\/wp-content\/old-cache",
+            "\/home\/property\/domains\/condo.com.my\/public_html\/wp-content\/plugins\/all-in-one-wp-migration\/storage",
+            "\/home\/property\/domains\/condo.com.my\/public_html\/wp-content\/plugins\/really-simple-captcha\/tmp",
+            "\/home\/property\/domains\/condo.com.my\/public_html\/wp-content\/plugins\/wordfence\/tmp",
+            "\/home\/property\/domains\/condo.com.my\/public_html\/wp-content\/updraft",
+            "\/home\/property\/domains\/condo.com.my\/public_html\/wp-content\/uploads\/aiowps_backups",
+            "\/home\/property\/domains\/condo.com.my\/public_html\/wp-content\/uploads\/backup-guard",
+            "\/home\/property\/domains\/condo.com.my\/public_html\/wp-content\/uploads\/backupbuddy_backups",
+            "\/home\/property\/domains\/condo.com.my\/public_html\/wp-content\/uploads\/backupbuddy_temp",
+            "\/home\/property\/domains\/condo.com.my\/public_html\/wp-content\/uploads\/ithemes-security\/backups",
+            "\/home\/property\/domains\/condo.com.my\/public_html\/wp-content\/uploads\/mainwp\/backup",
+            "\/home\/property\/domains\/condo.com.my\/public_html\/wp-content\/uploads\/pb_backupbuddy",
+            "\/home\/property\/domains\/condo.com.my\/public_html\/wp-content\/uploads\/snapshots",
+            "\/home\/property\/domains\/condo.com.my\/public_html\/wp-content\/uploads\/sucuri",
+            "\/home\/property\/domains\/condo.com.my\/public_html\/wp-content\/uploads\/wp-clone",
+            "\/home\/property\/domains\/condo.com.my\/public_html\/wp-content\/uploads\/wp_all_backup",
+            "\/home\/property\/domains\/condo.com.my\/public_html\/wp-content\/uploads\/wpbackitup_backups",
+            "\/home\/property\/domains\/condo.com.my\/public_html\/wp-content\/wfcache",
+            "\/home\/property\/domains\/condo.com.my\/public_html\/wp-content\/wishlist-backup",
+            "\/home\/property\/domains\/condo.com.my\/public_html\/wp-content\/wpvividbackups",
+            "\/home\/property\/domains\/condo.com.my\/public_html\/wp-snapshots"
+        ],
+        "FilterFilesAll": [
+            ".DS_Store",
+            "\/home\/property\/domains\/condo.com.my\/public_html\/.htaccess",
+            "\/home\/property\/domains\/condo.com.my\/public_html\/.user.ini",
+            "\/home\/property\/domains\/condo.com.my\/public_html\/php.ini",
+            "\/home\/property\/domains\/condo.com.my\/public_html\/web.config",
+            "\/home\/property\/domains\/condo.com.my\/public_html\/wp-config.php",
+            "\/home\/property\/domains\/condo.com.my\/public_html\/wp-content\/debug.log",
+            "dbcache",
+            "debug_log",
+            "error_log",
+            "objectcache",
+            "pgcache",
+            "ws_ftp.log"
+        ],
+        "FilterExtsAll": [],
+        "FilteredCoreDirs": [],
+        "RecursiveLinks": [],
+        "UnreadableItems": [],
+        "PathsOutOpenbaseDir": [],
+        "FilteredSites": [],
+        "Subsites": [
+            {
+                "id": 1,
+                "domain": "condo.com.my",
+                "path": "\/",
+                "blogname": "Malaysia Property Condo",
+                "blog_prefix": "cd_",
+                "filteredTables": [],
+                "adminUsers": [
+                    {
+                        "ID": "2",
+                        "user_login": "charles",
+                        "id": "2"
+                    },
+                    {
+                        "ID": "4",
+                        "user_login": "condo",
+                        "id": "4"
+                    },
+                    {
+                        "ID": "1",
+                        "user_login": "Sonny",
+                        "id": "1"
+                    }
+                ],
+                "fullHomeUrl": "https:\/\/condo.com.my",
+                "fullSiteUrl": "https:\/\/condo.com.my",
+                "uploadPath": "wp-content\/uploads",
+                "fullUploadPath": "\/home\/property\/domains\/condo.com.my\/public_html\/wp-content\/uploads",
+                "fullUploadSafePath": "\/home\/property\/domains\/condo.com.my\/public_html\/wp-content\/uploads",
+                "fullUploadUrl": "https:\/\/condo.com.my\/wp-content\/uploads",
+                "filteredPaths": []
+            },
+            {
+                "id": 6,
+                "domain": "newproject.condo.com.my",
+                "path": "\/",
+                "blogname": "Malaysia New Property",
+                "blog_prefix": "cd_6_",
+                "filteredTables": [],
+                "adminUsers": [
+                    {
+                        "ID": "1",
+                        "user_login": "Sonny",
+                        "id": "1"
+                    }
+                ],
+                "fullHomeUrl": "https:\/\/newproject.condo.com.my",
+                "fullSiteUrl": "https:\/\/newproject.condo.com.my",
+                "uploadPath": "wp-content\/uploads\/sites\/6",
+                "fullUploadPath": "\/home\/property\/domains\/condo.com.my\/public_html\/wp-content\/uploads\/sites\/6",
+                "fullUploadSafePath": "\/home\/property\/domains\/condo.com.my\/public_html\/wp-content\/uploads\/sites\/6",
+                "fullUploadUrl": "https:\/\/condo.com.my\/wp-content\/uploads\/sites\/6",
+                "filteredPaths": []
+            },
+            {
+                "id": 9,
+                "domain": "sample.condo.com.my",
+                "path": "\/",
+                "blogname": "Sample website",
+                "blog_prefix": "cd_9_",
+                "filteredTables": [],
+                "adminUsers": [
+                    {
+                        "ID": "1",
+                        "user_login": "Sonny",
+                        "id": "1"
+                    }
+                ],
+                "fullHomeUrl": "https:\/\/sample.condo.com.my",
+                "fullSiteUrl": "https:\/\/sample.condo.com.my",
+                "uploadPath": "wp-content\/uploads\/sites\/9",
+                "fullUploadPath": "\/home\/property\/domains\/condo.com.my\/public_html\/wp-content\/uploads\/sites\/9",
+                "fullUploadSafePath": "\/home\/property\/domains\/condo.com.my\/public_html\/wp-content\/uploads\/sites\/9",
+                "fullUploadUrl": "https:\/\/condo.com.my\/wp-content\/uploads\/sites\/9",
+                "filteredPaths": []
+            },
+            {
+                "id": 11,
+                "domain": "penang.condo.com.my",
+                "path": "\/",
+                "blogname": "Penang Real Estate Property",
+                "blog_prefix": "cd_11_",
+                "filteredTables": [],
+                "adminUsers": [
+                    {
+                        "ID": "1",
+                        "user_login": "Sonny",
+                        "id": "1"
+                    }
+                ],
+                "fullHomeUrl": "https:\/\/penang.condo.com.my",
+                "fullSiteUrl": "https:\/\/penang.condo.com.my",
+                "uploadPath": "wp-content\/uploads\/sites\/11",
+                "fullUploadPath": "\/home\/property\/domains\/condo.com.my\/public_html\/wp-content\/uploads\/sites\/11",
+                "fullUploadSafePath": "\/home\/property\/domains\/condo.com.my\/public_html\/wp-content\/uploads\/sites\/11",
+                "fullUploadUrl": "https:\/\/condo.com.my\/wp-content\/uploads\/sites\/11",
+                "filteredPaths": []
+            },
+            {
+                "id": 13,
+                "domain": "factory.condo.com.my",
+                "path": "\/",
+                "blogname": "Penang Factory land commercial ",
+                "blog_prefix": "cd_13_",
+                "filteredTables": [],
+                "adminUsers": [
+                    {
+                        "ID": "4",
+                        "user_login": "condo",
+                        "id": "4"
+                    }
+                ],
+                "fullHomeUrl": "https:\/\/factory.condo.com.my",
+                "fullSiteUrl": "https:\/\/factory.condo.com.my",
+                "uploadPath": "wp-content\/uploads\/sites\/13",
+                "fullUploadPath": "\/home\/property\/domains\/condo.com.my\/public_html\/wp-content\/uploads\/sites\/13",
+                "fullUploadSafePath": "\/home\/property\/domains\/condo.com.my\/public_html\/wp-content\/uploads\/sites\/13",
+                "fullUploadUrl": "https:\/\/condo.com.my\/wp-content\/uploads\/sites\/13",
+                "filteredPaths": []
+            },
+            {
+                "id": 22,
+                "domain": "demo.condo.com.my",
+                "path": "\/",
+                "blogname": "Welcome to Iclick Demo site",
+                "blog_prefix": "cd_22_",
+                "filteredTables": [],
+                "adminUsers": [
+                    {
+                        "ID": "7",
+                        "user_login": "demo",
+                        "id": "7"
+                    },
+                    {
+                        "ID": "9",
+                        "user_login": "mohdfitri",
+                        "id": "9"
+                    },
+                    {
+                        "ID": "1",
+                        "user_login": "Sonny",
+                        "id": "1"
+                    }
+                ],
+                "fullHomeUrl": "https:\/\/demo.condo.com.my",
+                "fullSiteUrl": "https:\/\/demo.condo.com.my",
+                "uploadPath": "wp-content\/uploads\/sites\/22",
+                "fullUploadPath": "\/home\/property\/domains\/condo.com.my\/public_html\/wp-content\/uploads\/sites\/22",
+                "fullUploadSafePath": "\/home\/property\/domains\/condo.com.my\/public_html\/wp-content\/uploads\/sites\/22",
+                "fullUploadUrl": "https:\/\/condo.com.my\/wp-content\/uploads\/sites\/22",
+                "filteredPaths": []
+            }
+        ],
+        "Status": {
+            "Size": false,
+            "Big": false,
+            "AddonSites": false,
+            "UnreadableItems": true,
+            "showCreateFuncStatus": true,
+            "showCreateFunc": true,
+            "HasImportableSites": true,
+            "HasNotImportableSites": false,
+            "HasFilteredCoreFolders": false,
+            "HasFilteredSiteTables": false,
+            "HasFilteredSites": false,
+            "IsDBOnly": false,
+            "Network": true,
+            "PackageIsNotImportable": false
+        }
+    },
+    "DB": {
+        "Status": {
+            "Success": true,
+            "Size": false,
+            "Rows": false,
+            "Excluded": true,
+            "Triggers": true,
+            "mysqlDumpMemoryCheck": false,
+            "requiredMysqlDumpLimit": "701.42MB"
+        },
+        "SizeInBytes": 683064864,
+        "Size": "651.42MB",
+        "Rows": "1,401,431",
+        "TableCount": 394,
+        "TableList": {
+            "cd_11_actionscheduler_actions": {
+                "Case": 0,
+                "Rows": "226",
+                "Size": "272KB",
+                "USize": 278528
+            },
+            "cd_11_actionscheduler_claims": {
+                "Case": 0,
+                "Rows": "122",
+                "Size": "32KB",
+                "USize": 32768
+            },
+            "cd_11_actionscheduler_groups": {
+                "Case": 0,
+                "Rows": "6",
+                "Size": "32KB",
+                "USize": 32768
+            },
+            "cd_11_actionscheduler_logs": {
+                "Case": 0,
+                "Rows": "646",
+                "Size": "112KB",
+                "USize": 114688
+            },
+            "cd_11_commentmeta": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "48KB",
+                "USize": 49152
+            },
+            "cd_11_comments": {
+                "Case": 0,
+                "Rows": "1",
+                "Size": "96KB",
+                "USize": 98304
+            },
+            "cd_11_estatik_fb_fields": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "16KB",
+                "USize": 16384
+            },
+            "cd_11_estatik_fb_sections": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "16KB",
+                "USize": 16384
+            },
+            "cd_11_fifu_invalid_media_su": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "32KB",
+                "USize": 32768
+            },
+            "cd_11_fifu_meta_in": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "16KB",
+                "USize": 16384
+            },
+            "cd_11_fifu_meta_out": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "16KB",
+                "USize": 16384
+            },
+            "cd_11_links": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "32KB",
+                "USize": 32768
+            },
+            "cd_11_options": {
+                "Case": 0,
+                "Rows": "440",
+                "Size": "1.53MB",
+                "USize": 1605632
+            },
+            "cd_11_pms_member_subscriptionmeta": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "48KB",
+                "USize": 49152
+            },
+            "cd_11_pms_member_subscriptions": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "48KB",
+                "USize": 49152
+            },
+            "cd_11_pms_paymentmeta": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "48KB",
+                "USize": 49152
+            },
+            "cd_11_pms_payments": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "32KB",
+                "USize": 32768
+            },
+            "cd_11_postmeta": {
+                "Case": 0,
+                "Rows": "5",
+                "Size": "48KB",
+                "USize": 49152
+            },
+            "cd_11_posts": {
+                "Case": 0,
+                "Rows": "4",
+                "Size": "96KB",
+                "USize": 98304
+            },
+            "cd_11_rank_math_analytics_ga": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "32KB",
+                "USize": 32768
+            },
+            "cd_11_rank_math_analytics_gsc": {
+                "Case": 0,
+                "Rows": "225",
+                "Size": "112KB",
+                "USize": 114688
+            },
+            "cd_11_rank_math_analytics_inspections": {
+                "Case": 0,
+                "Rows": "2",
+                "Size": "112KB",
+                "USize": 114688
+            },
+            "cd_11_rank_math_analytics_keyword_manager": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "16KB",
+                "USize": 16384
+            },
+            "cd_11_rank_math_analytics_objects": {
+                "Case": 0,
+                "Rows": "2",
+                "Size": "32KB",
+                "USize": 32768
+            },
+            "cd_11_rank_math_internal_links": {
+                "Case": 0,
+                "Rows": "2",
+                "Size": "48KB",
+                "USize": 49152
+            },
+            "cd_11_rank_math_internal_meta": {
+                "Case": 0,
+                "Rows": "2",
+                "Size": "16KB",
+                "USize": 16384
+            },
+            "cd_11_termmeta": {
+                "Case": 0,
+                "Rows": "34",
+                "Size": "48KB",
+                "USize": 49152
+            },
+            "cd_11_terms": {
+                "Case": 0,
+                "Rows": "75",
+                "Size": "48KB",
+                "USize": 49152
+            },
+            "cd_11_term_relationships": {
+                "Case": 0,
+                "Rows": "1",
+                "Size": "32KB",
+                "USize": 32768
+            },
+            "cd_11_term_taxonomy": {
+                "Case": 0,
+                "Rows": "75",
+                "Size": "48KB",
+                "USize": 49152
+            },
+            "cd_11_wpr_above_the_fold": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "80KB",
+                "USize": 81920
+            },
+            "cd_11_wpr_lazy_render_content": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "80KB",
+                "USize": 81920
+            },
+            "cd_11_wpr_performance_monitoring": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "112KB",
+                "USize": 114688
+            },
+            "cd_11_wpr_preconnect_external_domains": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "80KB",
+                "USize": 81920
+            },
+            "cd_11_wpr_preload_fonts": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "80KB",
+                "USize": 81920
+            },
+            "cd_11_wpr_rocket_cache": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "64KB",
+                "USize": 65536
+            },
+            "cd_11_wpr_rucss_used_css": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "112KB",
+                "USize": 114688
+            },
+            "cd_12_fifu_invalid_media_su": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "32KB",
+                "USize": 32768
+            },
+            "cd_12_fifu_meta_in": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "16KB",
+                "USize": 16384
+            },
+            "cd_12_fifu_meta_out": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "16KB",
+                "USize": 16384
+            },
+            "cd_13_actionscheduler_actions": {
+                "Case": 0,
+                "Rows": "34",
+                "Size": "160KB",
+                "USize": 163840
+            },
+            "cd_13_actionscheduler_claims": {
+                "Case": 0,
+                "Rows": "112",
+                "Size": "32KB",
+                "USize": 32768
+            },
+            "cd_13_actionscheduler_groups": {
+                "Case": 0,
+                "Rows": "4",
+                "Size": "32KB",
+                "USize": 32768
+            },
+            "cd_13_actionscheduler_logs": {
+                "Case": 0,
+                "Rows": "95",
+                "Size": "48KB",
+                "USize": 49152
+            },
+            "cd_13_commentmeta": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "48KB",
+                "USize": 49152
+            },
+            "cd_13_comments": {
+                "Case": 0,
+                "Rows": "1",
+                "Size": "96KB",
+                "USize": 98304
+            },
+            "cd_13_estatik_fb_fields": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "16KB",
+                "USize": 16384
+            },
+            "cd_13_estatik_fb_sections": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "16KB",
+                "USize": 16384
+            },
+            "cd_13_fifu_invalid_media_su": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "32KB",
+                "USize": 32768
+            },
+            "cd_13_fifu_meta_in": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "16KB",
+                "USize": 16384
+            },
+            "cd_13_fifu_meta_out": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "16KB",
+                "USize": 16384
+            },
+            "cd_13_links": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "32KB",
+                "USize": 32768
+            },
+            "cd_13_options": {
+                "Case": 0,
+                "Rows": "285",
+                "Size": "1.5MB",
+                "USize": 1572864
+            },
+            "cd_13_pms_member_subscriptionmeta": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "48KB",
+                "USize": 49152
+            },
+            "cd_13_pms_member_subscriptions": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "48KB",
+                "USize": 49152
+            },
+            "cd_13_pms_paymentmeta": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "48KB",
+                "USize": 49152
+            },
+            "cd_13_pms_payments": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "32KB",
+                "USize": 32768
+            },
+            "cd_13_postmeta": {
+                "Case": 0,
+                "Rows": "7",
+                "Size": "48KB",
+                "USize": 49152
+            },
+            "cd_13_posts": {
+                "Case": 0,
+                "Rows": "4",
+                "Size": "96KB",
+                "USize": 98304
+            },
+            "cd_13_rank_math_404_logs": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "32KB",
+                "USize": 32768
+            },
+            "cd_13_rank_math_analytics_ga": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "32KB",
+                "USize": 32768
+            },
+            "cd_13_rank_math_analytics_gsc": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "80KB",
+                "USize": 81920
+            },
+            "cd_13_rank_math_analytics_inspections": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "112KB",
+                "USize": 114688
+            },
+            "cd_13_rank_math_analytics_keyword_manager": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "16KB",
+                "USize": 16384
+            },
+            "cd_13_rank_math_analytics_objects": {
+                "Case": 0,
+                "Rows": "2",
+                "Size": "32KB",
+                "USize": 32768
+            },
+            "cd_13_rank_math_internal_links": {
+                "Case": 0,
+                "Rows": "1",
+                "Size": "256KB",
+                "USize": 262144
+            },
+            "cd_13_rank_math_internal_meta": {
+                "Case": 0,
+                "Rows": "2",
+                "Size": "16KB",
+                "USize": 16384
+            },
+            "cd_13_rank_math_link_genius_audit": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "128KB",
+                "USize": 131072
+            },
+            "cd_13_rank_math_link_genius_history": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "112KB",
+                "USize": 114688
+            },
+            "cd_13_rank_math_link_genius_maps": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "80KB",
+                "USize": 81920
+            },
+            "cd_13_rank_math_link_genius_map_variations": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "64KB",
+                "USize": 65536
+            },
+            "cd_13_rank_math_link_genius_snapshots": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "64KB",
+                "USize": 65536
+            },
+            "cd_13_rank_math_redirections": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "48KB",
+                "USize": 49152
+            },
+            "cd_13_rank_math_redirections_cache": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "32KB",
+                "USize": 32768
+            },
+            "cd_13_termmeta": {
+                "Case": 0,
+                "Rows": "34",
+                "Size": "48KB",
+                "USize": 49152
+            },
+            "cd_13_terms": {
+                "Case": 0,
+                "Rows": "75",
+                "Size": "48KB",
+                "USize": 49152
+            },
+            "cd_13_term_relationships": {
+                "Case": 0,
+                "Rows": "2",
+                "Size": "32KB",
+                "USize": 32768
+            },
+            "cd_13_term_taxonomy": {
+                "Case": 0,
+                "Rows": "75",
+                "Size": "48KB",
+                "USize": 49152
+            },
+            "cd_13_wpr_above_the_fold": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "80KB",
+                "USize": 81920
+            },
+            "cd_13_wpr_lazy_render_content": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "80KB",
+                "USize": 81920
+            },
+            "cd_13_wpr_performance_monitoring": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "112KB",
+                "USize": 114688
+            },
+            "cd_13_wpr_preconnect_external_domains": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "80KB",
+                "USize": 81920
+            },
+            "cd_13_wpr_preload_fonts": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "80KB",
+                "USize": 81920
+            },
+            "cd_13_wpr_rocket_cache": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "64KB",
+                "USize": 65536
+            },
+            "cd_13_wpr_rucss_used_css": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "112KB",
+                "USize": 114688
+            },
+            "cd_22_actionscheduler_actions": {
+                "Case": 0,
+                "Rows": "1,446",
+                "Size": "1.5MB",
+                "USize": 1572864
+            },
+            "cd_22_actionscheduler_claims": {
+                "Case": 0,
+                "Rows": "153",
+                "Size": "32KB",
+                "USize": 32768
+            },
+            "cd_22_actionscheduler_groups": {
+                "Case": 0,
+                "Rows": "5",
+                "Size": "32KB",
+                "USize": 32768
+            },
+            "cd_22_actionscheduler_logs": {
+                "Case": 0,
+                "Rows": "4,352",
+                "Size": "592KB",
+                "USize": 606208
+            },
+            "cd_22_commentmeta": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "48KB",
+                "USize": 49152
+            },
+            "cd_22_comments": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "96KB",
+                "USize": 98304
+            },
+            "cd_22_estatik_fb_fields": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "16KB",
+                "USize": 16384
+            },
+            "cd_22_estatik_fb_sections": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "16KB",
+                "USize": 16384
+            },
+            "cd_22_fifu_invalid_media_su": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "32KB",
+                "USize": 32768
+            },
+            "cd_22_fifu_meta_in": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "16KB",
+                "USize": 16384
+            },
+            "cd_22_fifu_meta_out": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "16KB",
+                "USize": 16384
+            },
+            "cd_22_links": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "32KB",
+                "USize": 32768
+            },
+            "cd_22_options": {
+                "Case": 0,
+                "Rows": "333",
+                "Size": "1.5MB",
+                "USize": 1572864
+            },
+            "cd_22_pms_member_subscriptionmeta": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "48KB",
+                "USize": 49152
+            },
+            "cd_22_pms_member_subscriptions": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "48KB",
+                "USize": 49152
+            },
+            "cd_22_pms_paymentmeta": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "48KB",
+                "USize": 49152
+            },
+            "cd_22_pms_payments": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "32KB",
+                "USize": 32768
+            },
+            "cd_22_postmeta": {
+                "Case": 0,
+                "Rows": "35",
+                "Size": "48KB",
+                "USize": 49152
+            },
+            "cd_22_posts": {
+                "Case": 0,
+                "Rows": "15",
+                "Size": "96KB",
+                "USize": 98304
+            },
+            "cd_22_rank_math_404_logs": {
+                "Case": 0,
+                "Rows": "25",
+                "Size": "32KB",
+                "USize": 32768
+            },
+            "cd_22_rank_math_analytics_gsc": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "80KB",
+                "USize": 81920
+            },
+            "cd_22_rank_math_analytics_inspections": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "112KB",
+                "USize": 114688
+            },
+            "cd_22_rank_math_analytics_keyword_manager": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "16KB",
+                "USize": 16384
+            },
+            "cd_22_rank_math_analytics_objects": {
+                "Case": 0,
+                "Rows": "2",
+                "Size": "32KB",
+                "USize": 32768
+            },
+            "cd_22_rank_math_internal_links": {
+                "Case": 0,
+                "Rows": "1",
+                "Size": "240KB",
+                "USize": 245760
+            },
+            "cd_22_rank_math_internal_meta": {
+                "Case": 0,
+                "Rows": "2",
+                "Size": "16KB",
+                "USize": 16384
+            },
+            "cd_22_rank_math_link_genius_audit": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "128KB",
+                "USize": 131072
+            },
+            "cd_22_rank_math_link_genius_history": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "112KB",
+                "USize": 114688
+            },
+            "cd_22_rank_math_link_genius_maps": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "80KB",
+                "USize": 81920
+            },
+            "cd_22_rank_math_link_genius_map_variations": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "64KB",
+                "USize": 65536
+            },
+            "cd_22_rank_math_link_genius_snapshots": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "64KB",
+                "USize": 65536
+            },
+            "cd_22_rank_math_redirections": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "48KB",
+                "USize": 49152
+            },
+            "cd_22_rank_math_redirections_cache": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "32KB",
+                "USize": 32768
+            },
+            "cd_22_termmeta": {
+                "Case": 0,
+                "Rows": "34",
+                "Size": "48KB",
+                "USize": 49152
+            },
+            "cd_22_terms": {
+                "Case": 0,
+                "Rows": "76",
+                "Size": "48KB",
+                "USize": 49152
+            },
+            "cd_22_term_relationships": {
+                "Case": 0,
+                "Rows": "2",
+                "Size": "32KB",
+                "USize": 32768
+            },
+            "cd_22_term_taxonomy": {
+                "Case": 0,
+                "Rows": "76",
+                "Size": "48KB",
+                "USize": 49152
+            },
+            "cd_22_wpr_above_the_fold": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "80KB",
+                "USize": 81920
+            },
+            "cd_22_wpr_lazy_render_content": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "80KB",
+                "USize": 81920
+            },
+            "cd_22_wpr_performance_monitoring": {
+                "Case": 0,
+                "Rows": "1",
+                "Size": "112KB",
+                "USize": 114688
+            },
+            "cd_22_wpr_preconnect_external_domains": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "80KB",
+                "USize": 81920
+            },
+            "cd_22_wpr_preload_fonts": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "80KB",
+                "USize": 81920
+            },
+            "cd_22_wpr_rocket_cache": {
+                "Case": 0,
+                "Rows": "1",
+                "Size": "64KB",
+                "USize": 65536
+            },
+            "cd_22_wpr_rucss_used_css": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "112KB",
+                "USize": 114688
+            },
+            "cd_24_estatik_fb_fields": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "16KB",
+                "USize": 16384
+            },
+            "cd_24_estatik_fb_sections": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "16KB",
+                "USize": 16384
+            },
+            "cd_24_rank_math_link_genius_maps": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "80KB",
+                "USize": 81920
+            },
+            "cd_6_actionscheduler_actions": {
+                "Case": 0,
+                "Rows": "50",
+                "Size": "208KB",
+                "USize": 212992
+            },
+            "cd_6_actionscheduler_claims": {
+                "Case": 0,
+                "Rows": "249",
+                "Size": "32KB",
+                "USize": 32768
+            },
+            "cd_6_actionscheduler_groups": {
+                "Case": 0,
+                "Rows": "9",
+                "Size": "32KB",
+                "USize": 32768
+            },
+            "cd_6_actionscheduler_logs": {
+                "Case": 0,
+                "Rows": "147",
+                "Size": "48KB",
+                "USize": 49152
+            },
+            "cd_6_aioseo_cache": {
+                "Case": 0,
+                "Rows": "8",
+                "Size": "64KB",
+                "USize": 65536
+            },
+            "cd_6_aioseo_crawl_cleanup_blocked_args": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "48KB",
+                "USize": 49152
+            },
+            "cd_6_aioseo_crawl_cleanup_logs": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "32KB",
+                "USize": 32768
+            },
+            "cd_6_aioseo_notifications": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "80KB",
+                "USize": 81920
+            },
+            "cd_6_aioseo_posts": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "32KB",
+                "USize": 32768
+            },
+            "cd_6_aioseo_writing_assistant_keywords": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "48KB",
+                "USize": 49152
+            },
+            "cd_6_aioseo_writing_assistant_posts": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "48KB",
+                "USize": 49152
+            },
+            "cd_6_commentmeta": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "48KB",
+                "USize": 49152
+            },
+            "cd_6_comments": {
+                "Case": 0,
+                "Rows": "1",
+                "Size": "96KB",
+                "USize": 98304
+            },
+            "cd_6_estatik_fb_fields": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "16KB",
+                "USize": 16384
+            },
+            "cd_6_estatik_fb_sections": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "16KB",
+                "USize": 16384
+            },
+            "cd_6_fed_menu": {
+                "Case": 0,
+                "Rows": "1",
+                "Size": "32KB",
+                "USize": 32768
+            },
+            "cd_6_fed_menu_meta": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "32KB",
+                "USize": 32768
+            },
+            "cd_6_fed_payment": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "32KB",
+                "USize": 32768
+            },
+            "cd_6_fed_payment_items": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "32KB",
+                "USize": 32768
+            },
+            "cd_6_fed_post": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "32KB",
+                "USize": 32768
+            },
+            "cd_6_fed_user_profile": {
+                "Case": 0,
+                "Rows": "11",
+                "Size": "32KB",
+                "USize": 32768
+            },
+            "cd_6_fifu_invalid_media_su": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "32KB",
+                "USize": 32768
+            },
+            "cd_6_fifu_meta_in": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "16KB",
+                "USize": 16384
+            },
+            "cd_6_fifu_meta_out": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "16KB",
+                "USize": 16384
+            },
+            "cd_6_hmwp_ip_countries": {
+                "Case": 0,
+                "Rows": "2",
+                "Size": "4.06KB",
+                "USize": 4160
+            },
+            "cd_6_links": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "32KB",
+                "USize": 32768
+            },
+            "cd_6_options": {
+                "Case": 0,
+                "Rows": "496",
+                "Size": "2.55MB",
+                "USize": 2670592
+            },
+            "cd_6_pms_member_subscriptionmeta": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "48KB",
+                "USize": 49152
+            },
+            "cd_6_pms_member_subscriptions": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "48KB",
+                "USize": 49152
+            },
+            "cd_6_pms_paymentmeta": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "48KB",
+                "USize": 49152
+            },
+            "cd_6_pms_payments": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "32KB",
+                "USize": 32768
+            },
+            "cd_6_postmeta": {
+                "Case": 0,
+                "Rows": "58",
+                "Size": "48KB",
+                "USize": 49152
+            },
+            "cd_6_posts": {
+                "Case": 0,
+                "Rows": "26",
+                "Size": "96KB",
+                "USize": 98304
+            },
+            "cd_6_rank_math_analytics_keyword_manager": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "16KB",
+                "USize": 16384
+            },
+            "cd_6_rank_math_analytics_objects": {
+                "Case": 0,
+                "Rows": "3",
+                "Size": "32KB",
+                "USize": 32768
+            },
+            "cd_6_rank_math_internal_links": {
+                "Case": 0,
+                "Rows": "2",
+                "Size": "48KB",
+                "USize": 49152
+            },
+            "cd_6_rank_math_internal_meta": {
+                "Case": 0,
+                "Rows": "3",
+                "Size": "16KB",
+                "USize": 16384
+            },
+            "cd_6_termmeta": {
+                "Case": 0,
+                "Rows": "34",
+                "Size": "48KB",
+                "USize": 49152
+            },
+            "cd_6_terms": {
+                "Case": 0,
+                "Rows": "76",
+                "Size": "48KB",
+                "USize": 49152
+            },
+            "cd_6_term_relationships": {
+                "Case": 0,
+                "Rows": "3",
+                "Size": "32KB",
+                "USize": 32768
+            },
+            "cd_6_term_taxonomy": {
+                "Case": 0,
+                "Rows": "76",
+                "Size": "48KB",
+                "USize": 49152
+            },
+            "cd_6_to_buffer_log": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "80KB",
+                "USize": 81920
+            },
+            "cd_6_wpr_above_the_fold": {
+                "Case": 0,
+                "Rows": "2",
+                "Size": "80KB",
+                "USize": 81920
+            },
+            "cd_6_wpr_lazy_render_content": {
+                "Case": 0,
+                "Rows": "2",
+                "Size": "80KB",
+                "USize": 81920
+            },
+            "cd_6_wpr_performance_monitoring": {
+                "Case": 0,
+                "Rows": "1",
+                "Size": "112KB",
+                "USize": 114688
+            },
+            "cd_6_wpr_preconnect_external_domains": {
+                "Case": 0,
+                "Rows": "2",
+                "Size": "80KB",
+                "USize": 81920
+            },
+            "cd_6_wpr_preload_fonts": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "80KB",
+                "USize": 81920
+            },
+            "cd_6_wpr_rocket_cache": {
+                "Case": 0,
+                "Rows": "6",
+                "Size": "64KB",
+                "USize": 65536
+            },
+            "cd_6_wpr_rucss_used_css": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "112KB",
+                "USize": 114688
+            },
+            "cd_7_aioseo_cache": {
+                "Case": 0,
+                "Rows": "2",
+                "Size": "64KB",
+                "USize": 65536
+            },
+            "cd_7_aioseo_crawl_cleanup_blocked_args": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "48KB",
+                "USize": 49152
+            },
+            "cd_7_aioseo_crawl_cleanup_logs": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "32KB",
+                "USize": 32768
+            },
+            "cd_7_aioseo_notifications": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "80KB",
+                "USize": 81920
+            },
+            "cd_7_aioseo_posts": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "32KB",
+                "USize": 32768
+            },
+            "cd_7_aioseo_writing_assistant_keywords": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "48KB",
+                "USize": 49152
+            },
+            "cd_7_aioseo_writing_assistant_posts": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "48KB",
+                "USize": 49152
+            },
+            "cd_8_hmwp_blocked_ips": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "1KB",
+                "USize": 1024
+            },
+            "cd_8_hmwp_ip_countries": {
+                "Case": 0,
+                "Rows": "2",
+                "Size": "4.06KB",
+                "USize": 4160
+            },
+            "cd_8_hmwp_ms_intrusions": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "1KB",
+                "USize": 1024
+            },
+            "cd_9_actionscheduler_actions": {
+                "Case": 0,
+                "Rows": "15",
+                "Size": "128KB",
+                "USize": 131072
+            },
+            "cd_9_actionscheduler_claims": {
+                "Case": 0,
+                "Rows": "2",
+                "Size": "32KB",
+                "USize": 32768
+            },
+            "cd_9_actionscheduler_groups": {
+                "Case": 0,
+                "Rows": "7",
+                "Size": "32KB",
+                "USize": 32768
+            },
+            "cd_9_actionscheduler_logs": {
+                "Case": 0,
+                "Rows": "44",
+                "Size": "48KB",
+                "USize": 49152
+            },
+            "cd_9_commentmeta": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "48KB",
+                "USize": 49152
+            },
+            "cd_9_comments": {
+                "Case": 0,
+                "Rows": "1",
+                "Size": "96KB",
+                "USize": 98304
+            },
+            "cd_9_estatik_fb_fields": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "16KB",
+                "USize": 16384
+            },
+            "cd_9_estatik_fb_sections": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "16KB",
+                "USize": 16384
+            },
+            "cd_9_fifu_invalid_media_su": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "32KB",
+                "USize": 32768
+            },
+            "cd_9_fifu_meta_in": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "16KB",
+                "USize": 16384
+            },
+            "cd_9_fifu_meta_out": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "16KB",
+                "USize": 16384
+            },
+            "cd_9_hmwp_ip_countries": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "1KB",
+                "USize": 1024
+            },
+            "cd_9_links": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "32KB",
+                "USize": 32768
+            },
+            "cd_9_options": {
+                "Case": 0,
+                "Rows": "398",
+                "Size": "1.5MB",
+                "USize": 1572864
+            },
+            "cd_9_pms_member_subscriptionmeta": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "48KB",
+                "USize": 49152
+            },
+            "cd_9_pms_member_subscriptions": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "48KB",
+                "USize": 49152
+            },
+            "cd_9_pms_paymentmeta": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "48KB",
+                "USize": 49152
+            },
+            "cd_9_pms_payments": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "32KB",
+                "USize": 32768
+            },
+            "cd_9_postmeta": {
+                "Case": 0,
+                "Rows": "25",
+                "Size": "48KB",
+                "USize": 49152
+            },
+            "cd_9_posts": {
+                "Case": 0,
+                "Rows": "10",
+                "Size": "96KB",
+                "USize": 98304
+            },
+            "cd_9_rank_math_internal_links": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "48KB",
+                "USize": 49152
+            },
+            "cd_9_rank_math_internal_meta": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "16KB",
+                "USize": 16384
+            },
+            "cd_9_termmeta": {
+                "Case": 0,
+                "Rows": "35",
+                "Size": "48KB",
+                "USize": 49152
+            },
+            "cd_9_terms": {
+                "Case": 0,
+                "Rows": "76",
+                "Size": "48KB",
+                "USize": 49152
+            },
+            "cd_9_term_relationships": {
+                "Case": 0,
+                "Rows": "1",
+                "Size": "32KB",
+                "USize": 32768
+            },
+            "cd_9_term_taxonomy": {
+                "Case": 0,
+                "Rows": "76",
+                "Size": "48KB",
+                "USize": 49152
+            },
+            "cd_9_wpr_above_the_fold": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "80KB",
+                "USize": 81920
+            },
+            "cd_9_wpr_lazy_render_content": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "80KB",
+                "USize": 81920
+            },
+            "cd_9_wpr_performance_monitoring": {
+                "Case": 0,
+                "Rows": "1",
+                "Size": "112KB",
+                "USize": 114688
+            },
+            "cd_9_wpr_preconnect_external_domains": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "80KB",
+                "USize": 81920
+            },
+            "cd_9_wpr_preload_fonts": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "80KB",
+                "USize": 81920
+            },
+            "cd_9_wpr_rocket_cache": {
+                "Case": 0,
+                "Rows": "1",
+                "Size": "64KB",
+                "USize": 65536
+            },
+            "cd_9_wpr_rucss_used_css": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "112KB",
+                "USize": 114688
+            },
+            "cd_actionscheduler_actions": {
+                "Case": 0,
+                "Rows": "4,552",
+                "Size": "21.58MB",
+                "USize": 22626304
+            },
+            "cd_actionscheduler_claims": {
+                "Case": 0,
+                "Rows": "164",
+                "Size": "32KB",
+                "USize": 32768
+            },
+            "cd_actionscheduler_groups": {
+                "Case": 0,
+                "Rows": "10",
+                "Size": "32KB",
+                "USize": 32768
+            },
+            "cd_actionscheduler_logs": {
+                "Case": 0,
+                "Rows": "14,288",
+                "Size": "7.05MB",
+                "USize": 7389184
+            },
+            "cd_aioseo_cache": {
+                "Case": 0,
+                "Rows": "18",
+                "Size": "480KB",
+                "USize": 491520
+            },
+            "cd_aioseo_crawl_cleanup_blocked_args": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "48KB",
+                "USize": 49152
+            },
+            "cd_aioseo_crawl_cleanup_logs": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "32KB",
+                "USize": 32768
+            },
+            "cd_aioseo_notifications": {
+                "Case": 0,
+                "Rows": "3",
+                "Size": "96KB",
+                "USize": 98304
+            },
+            "cd_aioseo_posts": {
+                "Case": 0,
+                "Rows": "3,689",
+                "Size": "3.63MB",
+                "USize": 3801088
+            },
+            "cd_aioseo_writing_assistant_keywords": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "48KB",
+                "USize": 49152
+            },
+            "cd_aioseo_writing_assistant_posts": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "48KB",
+                "USize": 49152
+            },
+            "cd_b2s_network_insights": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "32KB",
+                "USize": 32768
+            },
+            "cd_b2s_posts": {
+                "Case": 0,
+                "Rows": "1",
+                "Size": "192KB",
+                "USize": 196608
+            },
+            "cd_b2s_posts_drafts": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "48KB",
+                "USize": 49152
+            },
+            "cd_b2s_posts_favorites": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "48KB",
+                "USize": 49152
+            },
+            "cd_b2s_posts_insights": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "48KB",
+                "USize": 49152
+            },
+            "cd_b2s_posts_network_details": {
+                "Case": 0,
+                "Rows": "1",
+                "Size": "16KB",
+                "USize": 16384
+            },
+            "cd_b2s_posts_sched_details": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "16KB",
+                "USize": 16384
+            },
+            "cd_b2s_user": {
+                "Case": 0,
+                "Rows": "1",
+                "Size": "64KB",
+                "USize": 65536
+            },
+            "cd_b2s_user_contact": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "32KB",
+                "USize": 32768
+            },
+            "cd_b2s_user_network_settings": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "48KB",
+                "USize": 49152
+            },
+            "cd_b2s_user_tool": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "64KB",
+                "USize": 65536
+            },
+            "cd_blogmeta": {
+                "Case": 0,
+                "Rows": "11",
+                "Size": "48KB",
+                "USize": 49152
+            },
+            "cd_blogs": {
+                "Case": 0,
+                "Rows": "6",
+                "Size": "48KB",
+                "USize": 49152
+            },
+            "cd_chaty_contact_form_leads": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "16KB",
+                "USize": 16384
+            },
+            "cd_commentmeta": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "48KB",
+                "USize": 49152
+            },
+            "cd_comments": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "96KB",
+                "USize": 98304
+            },
+            "cd_duplicator_activity_logs": {
+                "Case": 0,
+                "Rows": "1",
+                "Size": "112KB",
+                "USize": 114688
+            },
+            "cd_duplicator_backups": {
+                "Case": 0,
+                "Rows": "1",
+                "Size": "192KB",
+                "USize": 196608
+            },
+            "cd_duplicator_entities": {
+                "Case": 0,
+                "Rows": "8",
+                "Size": "160KB",
+                "USize": 163840
+            },
+            "cd_ere_save_search": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "16KB",
+                "USize": 16384
+            },
+            "cd_estatik_fb_fields": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "16KB",
+                "USize": 16384
+            },
+            "cd_estatik_fb_sections": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "16KB",
+                "USize": 16384
+            },
+            "cd_fed_menu": {
+                "Case": 0,
+                "Rows": "1",
+                "Size": "32KB",
+                "USize": 32768
+            },
+            "cd_fed_menu_meta": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "32KB",
+                "USize": 32768
+            },
+            "cd_fed_payment": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "32KB",
+                "USize": 32768
+            },
+            "cd_fed_payment_items": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "32KB",
+                "USize": 32768
+            },
+            "cd_fed_post": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "32KB",
+                "USize": 32768
+            },
+            "cd_fed_user_profile": {
+                "Case": 0,
+                "Rows": "11",
+                "Size": "32KB",
+                "USize": 32768
+            },
+            "cd_fifu_invalid_media_su": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "32KB",
+                "USize": 32768
+            },
+            "cd_fifu_meta_in": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "16KB",
+                "USize": 16384
+            },
+            "cd_fifu_meta_out": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "16KB",
+                "USize": 16384
+            },
+            "cd_fsp_ai_logs": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "16KB",
+                "USize": 16384
+            },
+            "cd_fsp_ai_templates": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "16KB",
+                "USize": 16384
+            },
+            "cd_fsp_apps": {
+                "Case": 0,
+                "Rows": "10",
+                "Size": "16KB",
+                "USize": 16384
+            },
+            "cd_fsp_channels": {
+                "Case": 0,
+                "Rows": "21",
+                "Size": "16KB",
+                "USize": 16384
+            },
+            "cd_fsp_channel_labels": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "16KB",
+                "USize": 16384
+            },
+            "cd_fsp_channel_labels_data": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "16KB",
+                "USize": 16384
+            },
+            "cd_fsp_channel_permissions": {
+                "Case": 0,
+                "Rows": "178",
+                "Size": "16KB",
+                "USize": 16384
+            },
+            "cd_fsp_channel_sessions": {
+                "Case": 0,
+                "Rows": "14",
+                "Size": "16KB",
+                "USize": 16384
+            },
+            "cd_fsp_data": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "16KB",
+                "USize": 16384
+            },
+            "cd_fsp_notifications": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "16KB",
+                "USize": 16384
+            },
+            "cd_fsp_planners": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "16KB",
+                "USize": 16384
+            },
+            "cd_fsp_post_comments": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "16KB",
+                "USize": 16384
+            },
+            "cd_fsp_schedules": {
+                "Case": 0,
+                "Rows": "1,037",
+                "Size": "1.02MB",
+                "USize": 1064960
+            },
+            "cd_fsp_workflows": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "16KB",
+                "USize": 16384
+            },
+            "cd_fsp_workflow_actions": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "16KB",
+                "USize": 16384
+            },
+            "cd_fsp_workflow_logs": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "16KB",
+                "USize": 16384
+            },
+            "cd_hmwp_blocked_ips": {
+                "Case": 0,
+                "Rows": "28",
+                "Size": "3.2KB",
+                "USize": 3272
+            },
+            "cd_hmwp_ip_countries": {
+                "Case": 0,
+                "Rows": "16,488",
+                "Size": "1.12MB",
+                "USize": 1176220
+            },
+            "cd_hmwp_ms_intrusions": {
+                "Case": 0,
+                "Rows": "86",
+                "Size": "52.56KB",
+                "USize": 53820
+            },
+            "cd_links": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "32KB",
+                "USize": 32768
+            },
+            "cd_ns_cloner_logs": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "16KB",
+                "USize": 16384
+            },
+            "cd_options": {
+                "Case": 0,
+                "Rows": "2,231",
+                "Size": "11.58MB",
+                "USize": 12140544
+            },
+            "cd_pms_member_subscriptionmeta": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "48KB",
+                "USize": 49152
+            },
+            "cd_pms_member_subscriptions": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "48KB",
+                "USize": 49152
+            },
+            "cd_pms_paymentmeta": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "48KB",
+                "USize": 49152
+            },
+            "cd_pms_payments": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "32KB",
+                "USize": 32768
+            },
+            "cd_postmeta": {
+                "Case": 0,
+                "Rows": "498,514",
+                "Size": "74.69MB",
+                "USize": 78315520
+            },
+            "cd_posts": {
+                "Case": 0,
+                "Rows": "45,884",
+                "Size": "118.19MB",
+                "USize": 123928576
+            },
+            "cd_rank_math_404_logs": {
+                "Case": 0,
+                "Rows": "50",
+                "Size": "32KB",
+                "USize": 32768
+            },
+            "cd_rank_math_analytics_ga": {
+                "Case": 0,
+                "Rows": "631",
+                "Size": "128KB",
+                "USize": 131072
+            },
+            "cd_rank_math_analytics_gsc": {
+                "Case": 0,
+                "Rows": "25,816",
+                "Size": "10.94MB",
+                "USize": 11468800
+            },
+            "cd_rank_math_analytics_inspections": {
+                "Case": 0,
+                "Rows": "1,498",
+                "Size": "5.56MB",
+                "USize": 5832704
+            },
+            "cd_rank_math_analytics_keyword_manager": {
+                "Case": 0,
+                "Rows": "2",
+                "Size": "16KB",
+                "USize": 16384
+            },
+            "cd_rank_math_analytics_objects": {
+                "Case": 0,
+                "Rows": "22,883",
+                "Size": "7.03MB",
+                "USize": 7372800
+            },
+            "cd_rank_math_internal_links": {
+                "Case": 0,
+                "Rows": "68,323",
+                "Size": "56.77MB",
+                "USize": 59523072
+            },
+            "cd_rank_math_internal_meta": {
+                "Case": 0,
+                "Rows": "23,429",
+                "Size": "1.52MB",
+                "USize": 1589248
+            },
+            "cd_rank_math_link_genius_audit": {
+                "Case": 0,
+                "Rows": "66,662",
+                "Size": "22.13MB",
+                "USize": 23199744
+            },
+            "cd_rank_math_link_genius_history": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "112KB",
+                "USize": 114688
+            },
+            "cd_rank_math_link_genius_maps": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "80KB",
+                "USize": 81920
+            },
+            "cd_rank_math_link_genius_map_variations": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "64KB",
+                "USize": 65536
+            },
+            "cd_rank_math_link_genius_snapshots": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "64KB",
+                "USize": 65536
+            },
+            "cd_rank_math_redirections": {
+                "Case": 0,
+                "Rows": "4",
+                "Size": "48KB",
+                "USize": 49152
+            },
+            "cd_rank_math_redirections_cache": {
+                "Case": 0,
+                "Rows": "5",
+                "Size": "32KB",
+                "USize": 32768
+            },
+            "cd_registration_log": {
+                "Case": 0,
+                "Rows": "23",
+                "Size": "32KB",
+                "USize": 32768
+            },
+            "cd_signups": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "80KB",
+                "USize": 81920
+            },
+            "cd_site": {
+                "Case": 0,
+                "Rows": "1",
+                "Size": "32KB",
+                "USize": 32768
+            },
+            "cd_sitemeta": {
+                "Case": 0,
+                "Rows": "162",
+                "Size": "1.08MB",
+                "USize": 1130496
+            },
+            "cd_termmeta": {
+                "Case": 0,
+                "Rows": "34",
+                "Size": "48KB",
+                "USize": 49152
+            },
+            "cd_terms": {
+                "Case": 0,
+                "Rows": "2,155",
+                "Size": "336KB",
+                "USize": 344064
+            },
+            "cd_term_relationships": {
+                "Case": 0,
+                "Rows": "101,600",
+                "Size": "8.03MB",
+                "USize": 8421376
+            },
+            "cd_term_taxonomy": {
+                "Case": 0,
+                "Rows": "2,156",
+                "Size": "368KB",
+                "USize": 376832
+            },
+            "cd_to_buffer_log": {
+                "Case": 0,
+                "Rows": "48",
+                "Size": "80KB",
+                "USize": 81920
+            },
+            "cd_userfeedback_heatmaps": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "16KB",
+                "USize": 16384
+            },
+            "cd_userfeedback_heatmap_recordings": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "16KB",
+                "USize": 16384
+            },
+            "cd_userfeedback_surveys": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "16KB",
+                "USize": 16384
+            },
+            "cd_userfeedback_survey_responses": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "32KB",
+                "USize": 32768
+            },
+            "cd_usermeta": {
+                "Case": 0,
+                "Rows": "300",
+                "Size": "128KB",
+                "USize": 131072
+            },
+            "cd_users": {
+                "Case": 0,
+                "Rows": "6",
+                "Size": "64KB",
+                "USize": 65536
+            },
+            "cd_wfauditevents": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "16KB",
+                "USize": 16384
+            },
+            "cd_wfblockediplog": {
+                "Case": 0,
+                "Rows": "68",
+                "Size": "16KB",
+                "USize": 16384
+            },
+            "cd_wfblocks7": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "64KB",
+                "USize": 65536
+            },
+            "cd_wfconfig": {
+                "Case": 0,
+                "Rows": "286",
+                "Size": "1.3MB",
+                "USize": 1359872
+            },
+            "cd_wfcrawlers": {
+                "Case": 0,
+                "Rows": "5",
+                "Size": "16KB",
+                "USize": 16384
+            },
+            "cd_wffilechanges": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "16KB",
+                "USize": 16384
+            },
+            "cd_wffilemods": {
+                "Case": 0,
+                "Rows": "11,304",
+                "Size": "6.52MB",
+                "USize": 6832128
+            },
+            "cd_wfhits": {
+                "Case": 0,
+                "Rows": "717",
+                "Size": "1.11MB",
+                "USize": 1163264
+            },
+            "cd_wfhoover": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "32KB",
+                "USize": 32768
+            },
+            "cd_wfissues": {
+                "Case": 0,
+                "Rows": "2",
+                "Size": "80KB",
+                "USize": 81920
+            },
+            "cd_wfknownfilelist": {
+                "Case": 0,
+                "Rows": "11,422",
+                "Size": "3.52MB",
+                "USize": 3686400
+            },
+            "cd_wflivetraffichuman": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "32KB",
+                "USize": 32768
+            },
+            "cd_wflocs": {
+                "Case": 0,
+                "Rows": "57",
+                "Size": "16KB",
+                "USize": 16384
+            },
+            "cd_wflogins": {
+                "Case": 0,
+                "Rows": "66",
+                "Size": "48KB",
+                "USize": 49152
+            },
+            "cd_wfls_2fa_secrets": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "32KB",
+                "USize": 32768
+            },
+            "cd_wfls_role_counts": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "0B",
+                "USize": 0
+            },
+            "cd_wfls_settings": {
+                "Case": 0,
+                "Rows": "28",
+                "Size": "16KB",
+                "USize": 16384
+            },
+            "cd_wfnotifications": {
+                "Case": 0,
+                "Rows": "19",
+                "Size": "16KB",
+                "USize": 16384
+            },
+            "cd_wfpendingissues": {
+                "Case": 0,
+                "Rows": "1",
+                "Size": "80KB",
+                "USize": 81920
+            },
+            "cd_wfreversecache": {
+                "Case": 0,
+                "Rows": "2",
+                "Size": "16KB",
+                "USize": 16384
+            },
+            "cd_wfsecurityevents": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "16KB",
+                "USize": 16384
+            },
+            "cd_wfsnipcache": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "64KB",
+                "USize": 65536
+            },
+            "cd_wfstatus": {
+                "Case": 0,
+                "Rows": "1,438",
+                "Size": "304KB",
+                "USize": 311296
+            },
+            "cd_wftrafficrates": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "16KB",
+                "USize": 16384
+            },
+            "cd_wfwaffailures": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "16KB",
+                "USize": 16384
+            },
+            "cd_wpforms_logs": {
+                "Case": 0,
+                "Rows": "1",
+                "Size": "16KB",
+                "USize": 16384
+            },
+            "cd_wpforms_payments": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "160KB",
+                "USize": 163840
+            },
+            "cd_wpforms_payment_meta": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "64KB",
+                "USize": 65536
+            },
+            "cd_wpforms_tasks_meta": {
+                "Case": 0,
+                "Rows": "9",
+                "Size": "16KB",
+                "USize": 16384
+            },
+            "cd_wpr_above_the_fold": {
+                "Case": 0,
+                "Rows": "42,170",
+                "Size": "41.69MB",
+                "USize": 43712512
+            },
+            "cd_wpr_lazy_render_content": {
+                "Case": 0,
+                "Rows": "42,127",
+                "Size": "16.58MB",
+                "USize": 17383424
+            },
+            "cd_wpr_performance_monitoring": {
+                "Case": 0,
+                "Rows": "1",
+                "Size": "112KB",
+                "USize": 114688
+            },
+            "cd_wpr_preconnect_external_domains": {
+                "Case": 0,
+                "Rows": "41,825",
+                "Size": "22.61MB",
+                "USize": 23707648
+            },
+            "cd_wpr_preload_fonts": {
+                "Case": 0,
+                "Rows": "42,291",
+                "Size": "25.64MB",
+                "USize": 26886144
+            },
+            "cd_wpr_rocket_cache": {
+                "Case": 0,
+                "Rows": "17,926",
+                "Size": "6.44MB",
+                "USize": 6750208
+            },
+            "cd_wpr_rucss_used_css": {
+                "Case": 0,
+                "Rows": "46,761",
+                "Size": "34.28MB",
+                "USize": 35946496
+            },
+            "cd_xhaitoolbox_cron": {
+                "Case": 0,
+                "Rows": "2",
+                "Size": "32KB",
+                "USize": 32768
+            },
+            "cd_yoast_indexable": {
+                "Case": 0,
+                "Rows": "63,072",
+                "Size": "73.69MB",
+                "USize": 77266944
+            },
+            "cd_yoast_indexable_hierarchy": {
+                "Case": 0,
+                "Rows": "68,352",
+                "Size": "8.06MB",
+                "USize": 8454144
+            },
+            "cd_yoast_migrations": {
+                "Case": 0,
+                "Rows": "24",
+                "Size": "32KB",
+                "USize": 32768
+            },
+            "cd_yoast_primary_term": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "48KB",
+                "USize": 49152
+            },
+            "cd_yoast_seo_links": {
+                "Case": 0,
+                "Rows": "96,944",
+                "Size": "26.58MB",
+                "USize": 27869184
+            },
+            "wp_2_commentmeta": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "48KB",
+                "USize": 49152
+            },
+            "wp_2_comments": {
+                "Case": 0,
+                "Rows": "1",
+                "Size": "96KB",
+                "USize": 98304
+            },
+            "wp_2_links": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "32KB",
+                "USize": 32768
+            },
+            "wp_2_options": {
+                "Case": 0,
+                "Rows": "104",
+                "Size": "64KB",
+                "USize": 65536
+            },
+            "wp_2_postmeta": {
+                "Case": 0,
+                "Rows": "1",
+                "Size": "48KB",
+                "USize": 49152
+            },
+            "wp_2_posts": {
+                "Case": 0,
+                "Rows": "2",
+                "Size": "80KB",
+                "USize": 81920
+            },
+            "wp_2_termmeta": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "48KB",
+                "USize": 49152
+            },
+            "wp_2_terms": {
+                "Case": 0,
+                "Rows": "1",
+                "Size": "48KB",
+                "USize": 49152
+            },
+            "wp_2_term_relationships": {
+                "Case": 0,
+                "Rows": "1",
+                "Size": "32KB",
+                "USize": 32768
+            },
+            "wp_2_term_taxonomy": {
+                "Case": 0,
+                "Rows": "1",
+                "Size": "48KB",
+                "USize": 49152
+            },
+            "wp_blogmeta": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "48KB",
+                "USize": 49152
+            },
+            "wp_blogs": {
+                "Case": 0,
+                "Rows": "2",
+                "Size": "48KB",
+                "USize": 49152
+            },
+            "wp_commentmeta": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "48KB",
+                "USize": 49152
+            },
+            "wp_comments": {
+                "Case": 0,
+                "Rows": "1",
+                "Size": "96KB",
+                "USize": 98304
+            },
+            "wp_links": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "32KB",
+                "USize": 32768
+            },
+            "wp_options": {
+                "Case": 0,
+                "Rows": "151",
+                "Size": "1.55MB",
+                "USize": 1622016
+            },
+            "wp_postmeta": {
+                "Case": 0,
+                "Rows": "2",
+                "Size": "48KB",
+                "USize": 49152
+            },
+            "wp_posts": {
+                "Case": 0,
+                "Rows": "5",
+                "Size": "80KB",
+                "USize": 81920
+            },
+            "wp_registration_log": {
+                "Case": 0,
+                "Rows": "1",
+                "Size": "32KB",
+                "USize": 32768
+            },
+            "wp_signups": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "80KB",
+                "USize": 81920
+            },
+            "wp_site": {
+                "Case": 0,
+                "Rows": "1",
+                "Size": "32KB",
+                "USize": 32768
+            },
+            "wp_sitemeta": {
+                "Case": 0,
+                "Rows": "42",
+                "Size": "144KB",
+                "USize": 147456
+            },
+            "wp_termmeta": {
+                "Case": 0,
+                "Rows": "0",
+                "Size": "48KB",
+                "USize": 49152
+            },
+            "wp_terms": {
+                "Case": 0,
+                "Rows": "1",
+                "Size": "48KB",
+                "USize": 49152
+            },
+            "wp_term_relationships": {
+                "Case": 0,
+                "Rows": "1",
+                "Size": "32KB",
+                "USize": 32768
+            },
+            "wp_term_taxonomy": {
+                "Case": 0,
+                "Rows": "1",
+                "Size": "48KB",
+                "USize": 49152
+            },
+            "wp_usermeta": {
+                "Case": 0,
+                "Rows": "22",
+                "Size": "48KB",
+                "USize": 49152
+            },
+            "wp_users": {
+                "Case": 0,
+                "Rows": "1",
+                "Size": "64KB",
+                "USize": 65536
+            }
+        },
+        "FilteredTables": [],
+        "DBExcluded": false
+    },
+    "SRV": {
+        "Brand": {
+            "LogoAttachmentExists": false,
+            "LogoCount": 0,
+            "LogoFinded": 0,
+            "LogoImageExists": true,
+            "LogoImages": [],
+            "Name": "Default",
+            "Notes": "The default content used when a brand is not defined"
+        },
+        "HOST": [],
+        "PHP": {
+            "websrv": true,
+            "openbase": false,
+            "maxtime": true,
+            "mysqli": true,
+            "allowurlfopen": true,
+            "curlavailable": true,
+            "arch64bit": true,
+            "minMemory": true,
+            "version": true,
+            "ALL": false
+        },
+        "WP": {
+            "version": true,
+            "core": true,
+            "ismu": true,
+            "ismuplus": true,
+            "ALL": true
+        }
+    },
+    "RPT": {
+        "ScanCreated": "2026-04-14 11:35:14",
+        "ScanTime": "0.038 sec.",
+        "ScanPath": "\/home\/property\/domains\/condo.com.my\/public_html\/wp-content\/duplicator-backups\/tmp\/20260414_malaysiapropertycondo_5b0a30a908ff5aef5811_20260414113502_scan.json",
+        "ScanFile": "20260414_malaysiapropertycondo_5b0a30a908ff5aef5811_20260414113502_scan.json"
+    }
+}

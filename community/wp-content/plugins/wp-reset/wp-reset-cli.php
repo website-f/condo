@@ -3,7 +3,7 @@
 /**
  * WP Reset
  * https://wpreset.com/
- * (c) WebFactory Ltd, 2017-2023
+ * (c) WebFactory Ltd, 2017-2026
  */
 
 

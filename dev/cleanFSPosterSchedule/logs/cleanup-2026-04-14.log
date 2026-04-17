@@ -1,0 +1,154 @@
+================================================================================
+SCHEDULE CLEANUP - 2026-04-14 03:51:22
+================================================================================
+
+[03:51:22] [INFO] Nightly cleanup cron job started
+[03:51:22] [INFO] Configuration:
+[03:51:22] [INFO]   - Keep Latest: 300 schedules
+[03:51:22] [INFO]   - Dry Run: No
+
+--------------------------------------------------------------------------------
+PRE-CLEANUP STATISTICS
+--------------------------------------------------------------------------------
+  Total Schedules                : 6011
+  Not Sent                       : 0
+  Sending                        : 0
+  Success                        : 4655
+  Error                          : 1356
+  Draft                          : 0
+  Oldest Schedule ID             : 48631
+  Newest Schedule ID             : 54641
+
+--------------------------------------------------------------------------------
+COUNTING SCHEDULES
+--------------------------------------------------------------------------------
+[03:51:22] [INFO] Total Schedules: 6011
+[03:51:22] [INFO] To Delete: 5711
+
+--------------------------------------------------------------------------------
+FINDING THRESHOLD
+--------------------------------------------------------------------------------
+[03:51:22] [INFO] Threshold ID: 54341
+[03:51:22] [INFO] Will delete all schedules with ID < 54341
+
+--------------------------------------------------------------------------------
+RETRIEVING SCHEDULES TO DELETE
+--------------------------------------------------------------------------------
+[03:51:22] [INFO] Found 5710 schedules to delete (excluding 'sending' status)
+
+--------------------------------------------------------------------------------
+ANALYSIS
+--------------------------------------------------------------------------------
+[03:51:23] [INFO] By Status:
+[03:51:23] [INFO]   - success: 4415
+[03:51:23] [INFO]   - error: 1295
+[03:51:23] [INFO] Affected WordPress Posts: 575
+[03:51:23] [INFO] Affected FSP Posts: 0
+[03:51:23] [INFO] NOTE: Posts will NOT be deleted, only schedule records
+
+--------------------------------------------------------------------------------
+STARTING DELETION
+--------------------------------------------------------------------------------
+[03:51:24] [INFO] Batch 1/58: Deleted 100 schedules (Total: 100)
+[03:51:24] [INFO] Batch 2/58: Deleted 100 schedules (Total: 200)
+[03:51:24] [INFO] Batch 3/58: Deleted 100 schedules (Total: 300)
+[03:51:24] [INFO] Batch 4/58: Deleted 100 schedules (Total: 400)
+[03:51:24] [INFO] Batch 5/58: Deleted 100 schedules (Total: 500)
+[03:51:24] [INFO] Batch 6/58: Deleted 100 schedules (Total: 600)
+[03:51:24] [INFO] Batch 7/58: Deleted 100 schedules (Total: 700)
+[03:51:24] [INFO] Batch 8/58: Deleted 100 schedules (Total: 800)
+[03:51:24] [INFO] Batch 9/58: Deleted 100 schedules (Total: 900)
+[03:51:24] [INFO] Batch 10/58: Deleted 100 schedules (Total: 1000)
+[03:51:24] [INFO] Batch 11/58: Deleted 100 schedules (Total: 1100)
+[03:51:24] [INFO] Batch 12/58: Deleted 100 schedules (Total: 1200)
+[03:51:24] [INFO] Batch 13/58: Deleted 100 schedules (Total: 1300)
+[03:51:24] [INFO] Batch 14/58: Deleted 100 schedules (Total: 1400)
+[03:51:24] [INFO] Batch 15/58: Deleted 100 schedules (Total: 1500)
+[03:51:24] [INFO] Batch 16/58: Deleted 100 schedules (Total: 1600)
+[03:51:24] [INFO] Batch 17/58: Deleted 100 schedules (Total: 1700)
+[03:51:24] [INFO] Batch 18/58: Deleted 100 schedules (Total: 1800)
+[03:51:24] [INFO] Batch 19/58: Deleted 100 schedules (Total: 1900)
+[03:51:24] [INFO] Batch 20/58: Deleted 100 schedules (Total: 2000)
+[03:51:24] [INFO] Batch 21/58: Deleted 100 schedules (Total: 2100)
+[03:51:24] [INFO] Batch 22/58: Deleted 100 schedules (Total: 2200)
+[03:51:24] [INFO] Batch 23/58: Deleted 100 schedules (Total: 2300)
+[03:51:24] [INFO] Batch 24/58: Deleted 100 schedules (Total: 2400)
+[03:51:24] [INFO] Batch 25/58: Deleted 100 schedules (Total: 2500)
+[03:51:24] [INFO] Batch 26/58: Deleted 100 schedules (Total: 2600)
+[03:51:24] [INFO] Batch 27/58: Deleted 100 schedules (Total: 2700)
+[03:51:24] [INFO] Batch 28/58: Deleted 100 schedules (Total: 2800)
+[03:51:24] [INFO] Batch 29/58: Deleted 100 schedules (Total: 2900)
+[03:51:24] [INFO] Batch 30/58: Deleted 100 schedules (Total: 3000)
+[03:51:24] [INFO] Batch 31/58: Deleted 100 schedules (Total: 3100)
+[03:51:24] [INFO] Batch 32/58: Deleted 100 schedules (Total: 3200)
+[03:51:24] [INFO] Batch 33/58: Deleted 100 schedules (Total: 3300)
+[03:51:24] [INFO] Batch 34/58: Deleted 100 schedules (Total: 3400)
+[03:51:24] [INFO] Batch 35/58: Deleted 100 schedules (Total: 3500)
+[03:51:24] [INFO] Batch 36/58: Deleted 100 schedules (Total: 3600)
+[03:51:24] [INFO] Batch 37/58: Deleted 100 schedules (Total: 3700)
+[03:51:24] [INFO] Batch 38/58: Deleted 100 schedules (Total: 3800)
+[03:51:24] [INFO] Batch 39/58: Deleted 100 schedules (Total: 3900)
+[03:51:24] [INFO] Batch 40/58: Deleted 100 schedules (Total: 4000)
+[03:51:24] [INFO] Batch 41/58: Deleted 100 schedules (Total: 4100)
+[03:51:24] [INFO] Batch 42/58: Deleted 100 schedules (Total: 4200)
+[03:51:24] [INFO] Batch 43/58: Deleted 100 schedules (Total: 4300)
+[03:51:24] [INFO] Batch 44/58: Deleted 100 schedules (Total: 4400)
+[03:51:24] [INFO] Batch 45/58: Deleted 100 schedules (Total: 4500)
+[03:51:24] [INFO] Batch 46/58: Deleted 100 schedules (Total: 4600)
+[03:51:24] [INFO] Batch 47/58: Deleted 100 schedules (Total: 4700)
+[03:51:24] [INFO] Batch 48/58: Deleted 100 schedules (Total: 4800)
+[03:51:24] [INFO] Batch 49/58: Deleted 100 schedules (Total: 4900)
+[03:51:24] [INFO] Batch 50/58: Deleted 100 schedules (Total: 5000)
+[03:51:24] [INFO] Batch 51/58: Deleted 100 schedules (Total: 5100)
+[03:51:24] [INFO] Batch 52/58: Deleted 100 schedules (Total: 5200)
+[03:51:24] [INFO] Batch 53/58: Deleted 100 schedules (Total: 5300)
+[03:51:24] [INFO] Batch 54/58: Deleted 100 schedules (Total: 5400)
+[03:51:24] [INFO] Batch 55/58: Deleted 100 schedules (Total: 5500)
+[03:51:24] [INFO] Batch 56/58: Deleted 100 schedules (Total: 5600)
+[03:51:24] [INFO] Batch 57/58: Deleted 100 schedules (Total: 5700)
+[03:51:24] [INFO] Batch 58/58: Deleted 10 schedules (Total: 5710)
+[03:51:24] [SUCCESS] Deleted 5710 schedule records
+[03:51:24] [INFO] Skipping post cleanup - only schedule records deleted
+
+--------------------------------------------------------------------------------
+VERIFICATION
+--------------------------------------------------------------------------------
+[03:51:24] [INFO] Before: 6011
+[03:51:24] [INFO] After: 301
+[03:51:24] [INFO] Deleted: 5710
+[03:51:24] [WARNING] Final count (301) still exceeds target (300)
+[03:51:24] [INFO] This may be due to 'sending' status schedules being excluded
+
+--------------------------------------------------------------------------------
+EXECUTION SUMMARY
+--------------------------------------------------------------------------------
+  Status                         : ✅ SUCCESS
+  Mode                           : LIVE (Actual Deletions)
+  Keep Limit                     : 300
+  Initial Count                  : 6011
+  Final Count                    : 301
+  Deleted Count                  : 5710
+  Orphaned Posts Removed         : 0
+  Execution Time                 : 1.77 seconds
+
+[03:51:24] [INFO] Deletion Analysis:
+  By Status:
+    - success: 4415
+    - error: 1295
+  Affected WordPress Posts: 575
+  Affected FSP Posts: 0
+
+================================================================================
+
+
+--------------------------------------------------------------------------------
+POST-CLEANUP STATISTICS
+--------------------------------------------------------------------------------
+  Total Schedules                : 301
+  Not Sent                       : 0
+  Sending                        : 0
+  Success                        : 240
+  Error                          : 61
+  Draft                          : 0
+[03:51:24] [SUCCESS] Nightly cleanup completed successfully
+[03:51:24] [INFO] Log file: /home/property/domains/condo.com.my/public_html/dev/cleanFSPosterSchedule/logs/cleanup-2026-04-14.log

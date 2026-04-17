@@ -18,7 +18,7 @@ FileETag None
 <IfModule mod_alias.c>
 <FilesMatch "\.(html|htm|rtf|rtx|txt|xsd|xsl|xml)$">
 <IfModule mod_headers.c>
-Header set X-Powered-By "WP Rocket/3.21.0.1"
+Header set X-Powered-By "WP Rocket/3.21.1"
 Header unset Pragma
 Header append Cache-Control "public"
 Header unset Last-Modified

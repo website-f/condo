@@ -3,16 +3,16 @@
   Plugin Name: WP Reset
   Plugin URI: https://wpreset.com/
   Description: Reset the entire site or just selected parts while reserving the option to undo by using snapshots.
-  Version: 2.06
+  Version: 2.07
   Requires at least: 4.0
   Requires PHP: 5.2
-  Tested up to: 6.9
+  Tested up to: 7.0
   License: GPLv2 or later
   Author: WebFactory Ltd
   Author URI: https://www.webfactoryltd.com/
   Text Domain: wp-reset
 
-  Copyright 2015 - 2025  WebFactory Ltd  (email: wpreset@webfactoryltd.com)
+  Copyright 2015 - 2026  WebFactory Ltd  (email: wpreset@webfactoryltd.com)
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License, version 2, as
@@ -107,7 +107,7 @@ class WP_Reset
         add_action('wp_ajax_wp_reset_dismiss_notice', array($this, 'ajax_dismiss_notice'));
         add_action('wp_ajax_wp_reset_run_tool', array($this, 'ajax_run_tool'));
         add_action('admin_print_scripts', array($this, 'remove_admin_notices'));
-        add_action('admin_action_wpr_install_wpfssl', array($this, 'install_wpfssl'));
+        add_action('admin_action_wpr_install_wpcaptcha', array($this, 'install_wpcaptcha'));
 
         add_filter('plugin_action_links_' . plugin_basename(__FILE__), array($this, 'plugin_action_links'));
         add_filter('plugin_row_meta', array($this, 'plugin_meta_links'), 10, 2);
@@ -376,7 +376,7 @@ class WP_Reset
             'documented_error' => __('An error has occurred.', 'wp-reset'),
             'plugin_name' => __('WP Reset', 'wp-reset'),
             'settings_url' => admin_url('tools.php?page=wp-reset'),
-            'wpfssl_install_url' => add_query_arg(array('action' => 'wpr_install_wpfssl', '_wpnonce' => wp_create_nonce('install_wpfssl'), 'rnd' => wp_rand()), admin_url('admin.php')),
+            'wpcaptcha_install_url' => add_query_arg(array('action' => 'wpr_install_wpcaptcha', '_wpnonce' => wp_create_nonce('install_wpcaptcha'), 'rnd' => wp_rand()), admin_url('admin.php')),
             'icon_url' => $this->plugin_url . 'img/wp-reset-icon.png',
             'invalid_confirmation' => __('Please type "reset" in the confirmation field.', 'wp-reset'),
             'invalid_confirmation_title' => __('Invalid confirmation', 'wp-reset'),
@@ -594,7 +594,7 @@ class WP_Reset
     {
         global $wp_filesystem;
 		$this->wp_init_filesystem();
-        
+
         $upload_dir = wp_get_upload_dir();
         $this->delete_count = 0;
 
@@ -602,7 +602,7 @@ class WP_Reset
 
             // Get all files and directories in the folder.
             $files = $wp_filesystem->dirlist( $upload_dir['basedir'] );
-        
+
             // Loop through the files and delete them.
             foreach ( $files as $file => $details ) {
                 $file_path = trailingslashit( $upload_dir['basedir'] ) . $file;
@@ -945,7 +945,7 @@ class WP_Reset
             if(!isset($_GET['slug'])){
                 wp_send_json_success('unknown plugin');
             }
-            
+
             $slug = sanitize_text_field(wp_unslash($_GET['slug']));
             $path = $this->get_plugin_path($slug);
 
@@ -968,7 +968,7 @@ class WP_Reset
             if(!isset($_GET['slug'])){
                 wp_send_json_success('unknown plugin');
             }
-            
+
             $slug = sanitize_text_field(wp_unslash($_GET['slug']));
 
             @include_once ABSPATH . 'wp-admin/includes/plugin.php';
@@ -995,7 +995,7 @@ class WP_Reset
             if(!isset($_GET['slug'])){
                 wp_send_json_success('unknown plugin');
             }
-            
+
             $slug = sanitize_text_field(wp_unslash($_GET['slug']));
 
             $path = $this->get_plugin_path($slug);
@@ -1193,7 +1193,7 @@ class WP_Reset
 
 
     /**
-     * Add "Open WP Reset Tools" action link to plugins table, left part
+     * Add action links to plugins table, left part
      *
      * @param array  $links  Initial list of links.
      *
@@ -1203,6 +1203,9 @@ class WP_Reset
     {
         $settings_link = '<a href="' . esc_url(admin_url('tools.php?page=wp-reset')) . '" title="' . esc_attr(__('Open WP Reset Tools', 'wp-reset')) . '">' . esc_html(__('Open WP Reset Tools', 'wp-reset')) . '</a>';
 
+        $upgrade_link = '<a href="' . esc_url(admin_url('tools.php?page=wp-reset#open-pro-dialog')) . '" title="' . esc_attr(__('Get WP Reset PRO', 'wp-reset')) . '"><b>' . esc_html(__('Get PRO', 'wp-reset')) . '</b></a>';
+
+        array_unshift($links, $upgrade_link);
         array_unshift($links, $settings_link);
 
         return $links;
@@ -1511,14 +1514,14 @@ class WP_Reset
     <li>Licenses &amp; Sites Manager (remote SaaS dashboard)</li>
     <li>Friendly email support from plugin developers</li>
   </ul>';
-        echo '<p class="textcenter"><a href="#" data-feature="sidebar-button" class="button-pro-feature button button-primary">Get PRO now</a></p>';
+        echo '<p class="textcenter"><a href="#" data-feature="sidebar-button" class="button-pro-feature button button-primary">Get PRO Now</a></p>';
         echo '</div>';
 
-        if (!defined('WPFSSL_OPTIONS_KEY')) {
-            echo '<div id="wpfssl-ad">';
-            echo '<h3 class="textcenter"><b>Problems with SSL certificate?<br>Moving a site from HTTP to HTTPS?<br>Mixed content giving you troubles?<br><br><u>Fix all SSL problems with one plugin!</u></b></h3>';
-            echo '<p class="textcenter"><a href="#" class="textcenter install-wpfssl"><img style="max-width: 90%;" src="' . esc_url($this->plugin_url) . '/img/wp-force-ssl-logo.png" alt="WP Force SSL" title="WP Force SSL"></a></p>';
-            echo '<p class="textcenter"><br><a href="#" class="install-wpfssl button button-primary">Install &amp; activate the free WP Force SSL plugin</a></p><p><a href="https://wordpress.org/plugins/wp-force-ssl/" target="_blank">WP Force SSL</a> is a free WP plugin maintained by the same team as this Maintenance plugin. It has <b>+150,000 users, 5-star rating</b>, and is hosted on the official WP repository.</p>';
+        if (!defined('WPCAPTCHA_PLUGIN_FILE')) {
+            echo '<div id="wpcaptcha-ad">';
+            echo '<h3 class="textcenter"><b>Having problems with spam or bots? AI scapers giving you troubles?<br><br><u>Fix all your spam problems with one plugin!</u></b></h3>';
+            echo '<p class="textcenter"><a href="#" class="textcenter install-wpcaptcha"><img style="max-width: 90%;" src="' . esc_url($this->plugin_url) . '/img/wp-captcha-logo.png" alt="Advanced Google ReCaptcha" title="Advanced Google ReCaptcha"></a></p>';
+            echo '<p class="textcenter"><br><a href="#" class="install-wpcaptcha button button-primary">Install &amp; activate the free Google ReCaptcha plugin</a></p><p><a href="https://wordpress.org/plugins/advanced-google-recaptcha/" target="_blank">Advanced Google ReCaptcha</a> is a free WP plugin maintained by the same team as WP Reset. It has <b>+200,000 users, 5-star rating</b>, and is hosted on the official WP repository.</p>';
             echo '</div>';
         }
         echo '</div>';
@@ -1684,6 +1687,27 @@ class WP_Reset
         }
         $active_plugins = get_option('active_plugins');
 
+        // nuclear reset
+        echo '<div class="card">';
+        WP_Reset_Utility::wp_kses_wf($this->get_card_header(__('Nuclear Site Reset', 'wp-reset'), 'tool-nuclear-reset', array('collapse_button' => true, 'pro' => true)));
+        echo '<div class="card-body">';
+        echo '<p>All data will be deleted or reset (see the <a href="#reset-details" class="scrollto">explanation table</a> for details). All data stored in the database including custom tables with <code>' . esc_html($wpdb->prefix) . '</code> prefix, as well as all files in wp-content, themes and plugins folders. The only thing restored after reset will be your user account so you can log in again, and the basic WP settings like site URL. Please see the <a href="#reset-details" class="scrollto">table above</a> for details.</p>';
+
+        WP_Reset_Utility::wp_kses_wf($this->get_tool_icons(true, true));
+
+        if (is_multisite()) {
+            echo '<p class="mb0 wpmu-error">This tool is <b>not compatible</b> with WP multisite (WPMU). Using it would delete files shared by multiple sites in the WP network.</p>';
+        } else {
+            echo '<p><br><label for="nuclear-reset-reactivate-wpreset"><input type="checkbox" id="nuclear-reset-reactivate-wpreset" value="1" checked> ' . esc_html__('Reactivate WP Reset plugin', 'wp-reset') . '</label></p>';
+
+            WP_Reset_Utility::wp_kses_wf('<p>' . __('Type <b>reset</b> in the confirmation field to confirm the reset and then click the "Reset WordPress &amp; Delete All Custom Files &amp; Data" button. <b>There is NO UNDO.', 'wp-reset') . '</b></p>');
+
+            echo '<p class="mb0"><input id="nuclear_reset_confirm" type="text" placeholder="' . esc_html__('Type in "reset"', 'wp-reset') . '" value="" autocomplete="off"> &nbsp;';
+            echo '<a class="button button-delete button-pro-feature" href="#">' . esc_html__('Reset WordPress &amp; Delete All Custom Files &amp; Data', 'wp-reset') . ' - <span data-feature="tool-nuclear-reset" class="pro-feature"><span class="pro">PRO</span> tool</span></a></p>';
+        }
+        echo '</div>';
+        echo '</div>'; // nuclear reset
+
         // options reset
         echo '<div class="card">';
         WP_Reset_Utility::wp_kses_wf($this->get_card_header(__('Options Reset', 'wp-reset'), 'tool-options-reset', array('collapse_button' => true, 'pro' => true)));
@@ -1716,27 +1740,6 @@ class WP_Reset
         echo '</p>';
         echo '</div>';
         echo '</div>'; // card reset
-
-        // nuclear reset
-        echo '<div class="card">';
-        WP_Reset_Utility::wp_kses_wf($this->get_card_header(__('Nuclear Site Reset', 'wp-reset'), 'tool-nuclear-reset', array('collapse_button' => true, 'pro' => true)));
-        echo '<div class="card-body">';
-        echo '<p>All data will be deleted or reset (see the <a href="#reset-details" class="scrollto">explanation table</a> for details). All data stored in the database including custom tables with <code>' . esc_html($wpdb->prefix) . '</code> prefix, as well as all files in wp-content, themes and plugins folders. The only thing restored after reset will be your user account so you can log in again, and the basic WP settings like site URL. Please see the <a href="#reset-details" class="scrollto">table above</a> for details.</p>';
-
-        WP_Reset_Utility::wp_kses_wf($this->get_tool_icons(true, true));
-
-        if (is_multisite()) {
-            echo '<p class="mb0 wpmu-error">This tool is <b>not compatible</b> with WP multisite (WPMU). Using it would delete files shared by multiple sites in the WP network.</p>';
-        } else {
-            echo '<p><br><label for="nuclear-reset-reactivate-wpreset"><input type="checkbox" id="nuclear-reset-reactivate-wpreset" value="1" checked> ' . esc_html__('Reactivate WP Reset plugin', 'wp-reset') . '</label></p>';
-
-            WP_Reset_Utility::wp_kses_wf('<p>' . __('Type <b>reset</b> in the confirmation field to confirm the reset and then click the "Reset WordPress &amp; Delete All Custom Files &amp; Data" button. <b>There is NO UNDO.', 'wp-reset') . '</b></p>');
-
-            echo '<p class="mb0"><input id="nuclear_reset_confirm" type="text" placeholder="' . esc_html__('Type in "reset"', 'wp-reset') . '" value="" autocomplete="off"> &nbsp;';
-            echo '<a class="button button-delete button-pro-feature" href="#">' . esc_html__('Reset WordPress &amp; Delete All Custom Files &amp; Data', 'wp-reset') . ' - <span data-feature="tool-nuclear-reset" class="pro-feature"><span class="pro">PRO</span> tool</span></a></p>';
-        }
-        echo '</div>';
-        echo '</div>'; // nuclear reset
     } // tab_reset
 
 
@@ -2580,7 +2583,7 @@ class WP_Reset
 
                 $wpdb->wpreset_snapshot_table_name = $table->Name;
                 $wpdb->wpreset_snapshot_table_copy_name = $uid . '_' . $table->Name;
-                
+
                 // phpcs:ignore db call warning as we are using uncommon queries
                 $wpdb->query("OPTIMIZE TABLE " . $wpdb->wpreset_snapshot_table_name); // phpcs:ignore
                 $wpdb->query("CREATE TABLE " . $wpdb->wpreset_snapshot_table_copy_name . " LIKE " . $wpdb->wpreset_snapshot_table_name); // phpcs:ignore
@@ -2653,7 +2656,7 @@ class WP_Reset
     {
         global $wp_filesystem;
 		$this->wp_init_filesystem();
-        
+
         $snapshots = $this->get_snapshots();
 
         if (strlen($uid) != 6) {
@@ -3051,17 +3054,17 @@ class WP_Reset
     } // generate_snapshot_uid
 
 
-    // auto download / install / activate WP Force SSL plugin
-    function install_wpfssl()
+    // auto download / install / activate WP Captcha plugin
+    function install_wpcaptcha()
     {
-        check_ajax_referer('install_wpfssl');
+        check_ajax_referer('install_wpcaptcha');
 
         if (false === current_user_can('manage_options')) {
             wp_die('Sorry, you have to be an admin to run this action.');
         }
 
-        $plugin_slug = 'wp-force-ssl/wp-force-ssl.php';
-        $plugin_zip = 'https://downloads.wordpress.org/plugin/wp-force-ssl.latest-stable.zip';
+        $plugin_slug = 'advanced-google-recaptcha/advanced-google-recaptcha.php';
+        $plugin_zip = 'https://downloads.wordpress.org/plugin/advanced-google-recaptcha.latest-stable.zip';
 
         @include_once ABSPATH . 'wp-admin/includes/plugin.php';
         @include_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
@@ -3078,38 +3081,38 @@ class WP_Reset
 		</style>';
 
         echo '<div style="margin: 20px; color:#444;">';
-        echo 'If things are not done in a minute <a target="_parent" href="' . esc_url(admin_url('plugin-install.php?s=force%20ssl%20webfactory&tab=search&type=term')) . '">install the plugin manually via Plugins page</a><br><br>';
+        echo 'If things are not done in a minute <a target="_parent" href="' . esc_url(admin_url('plugin-install.php?s=google%20recaptcha%20webfactory&tab=search&type=term')) . '">install the plugin manually via Plugins page</a><br><br>';
         echo 'Starting ...<br><br>';
 
         wp_cache_flush();
         $upgrader = new Plugin_Upgrader();
-        echo 'Check if WP Force SSL is already installed ... <br />';
+        echo 'Check if Advanced Google ReCaptcha is already installed ... <br />';
         if ($this->is_plugin_installed($plugin_slug)) {
-            echo 'WP Force SSL is already installed! <br /><br />Making sure it\'s the latest version.<br />';
+            echo 'Advanced Google ReCaptcha is already installed! <br /><br />Making sure it\'s the latest version.<br />';
             $upgrader->upgrade($plugin_slug);
             $installed = true;
         } else {
-            echo 'Installing WP Force SSL.<br />';
+            echo 'Installing Advanced Google ReCaptcha.<br />';
             $installed = $upgrader->install($plugin_zip);
         }
         wp_cache_flush();
 
         if (!is_wp_error($installed) && $installed) {
-            echo 'Activating WP Force SSL.<br />';
+            echo 'Activating Advanced Google ReCaptcha.<br />';
             $activate = activate_plugin($plugin_slug);
 
             if (is_null($activate)) {
-                echo 'WP Force SSL Activated.<br />';
+                echo 'Advanced Google ReCaptcha Activated.<br />';
 
                 echo '<script>setTimeout(function() { top.location = "tools.php?page=wp-reset"; }, 1000);</script>';
                 echo '<br>If you are not redirected in a few seconds - <a href="tools.php?page=wp-reset" target="_parent">click here</a>.';
             }
         } else {
-            echo 'Could not install WP Force SSL. You\'ll have to <a target="_parent" href="' . esc_url(admin_url('plugin-install.php?s=force%20ssl%20webfactory&tab=search&type=term')) . '">download and install manually</a>.';
+            echo 'Could not install Advanced Google ReCaptcha. You\'ll have to <a target="_parent" href="' . esc_url(admin_url('plugin-install.php?s=google%20recaptcha%20webfactory&tab=search&type=term')) . '">download and install manually</a>.';
         }
 
         echo '</div>';
-    } // install_wpfssl
+    } // install_wpcaptcha
 
     /**
      * Initializes the WordPress filesystem.

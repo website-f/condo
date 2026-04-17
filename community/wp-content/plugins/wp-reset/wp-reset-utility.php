@@ -2,7 +2,7 @@
 /*
  * WP Reset
  * Utility & Helper functions
- * (c) WebFactory Ltd, 2015 - 2023
+ * (c) WebFactory Ltd, 2015 - 2026
  */
 
 // include only file
@@ -94,7 +94,7 @@ class WP_Reset_Utility
     global $wpdb, $wp_reset;
 
     $tbl_core = $tbl_custom = $tbl_size = $tbl_rows = 0;
-    
+
     // phpcs:ignore db call warning as we are using uncommon queries
     $table_status = $wpdb->get_results('SHOW TABLE STATUS'); // phpcs:ignore
     if (is_array($table_status)) {
