@@ -15,7 +15,7 @@
         @if($canManageListing)
             <a href="{{ $editListingUrl }}" class="btn btn-secondary btn-sm">Edit</a>
             @if($isCondoListing)
-                <a href="{{ route('seo.edit', $listing->id) }}" class="btn btn-secondary btn-sm">SEO</a>
+                <span class="btn btn-secondary btn-sm" style="pointer-events:none;opacity:.68;">SEO Coming Soon</span>
                 <a href="{{ route('social.create', ['listing' => $listing->id]) }}" class="btn btn-secondary btn-sm">Schedule</a>
             @endif
             <form method="POST" action="{{ route('listings.destroy', $listing->id) }}" onsubmit="return confirm('Delete this listing? This action cannot be undone.');" style="margin:0;">
@@ -1201,10 +1201,10 @@
                 @if($canManageListing)
                     <a href="{{ $editListingUrl }}" class="btn btn-primary">Edit Listing</a>
 
-                    @if($isCondoListing)
-                        <a href="{{ route('seo.edit', $listing->id) }}" class="btn btn-secondary">SEO</a>
-                        <a href="{{ route('social.create', ['listing' => $listing->id]) }}" class="btn btn-secondary">Schedule</a>
-                    @endif
+                @if($isCondoListing)
+                    <span class="btn btn-secondary" style="pointer-events:none;opacity:.68;">SEO Coming Soon</span>
+                    <a href="{{ route('social.create', ['listing' => $listing->id]) }}" class="btn btn-secondary">Schedule</a>
+                @endif
 
                     <form method="POST" action="{{ route('listings.destroy', $listing->id) }}" onsubmit="return confirm('Delete this listing? This action cannot be undone.');">
                         @csrf

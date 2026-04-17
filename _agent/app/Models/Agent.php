@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -17,6 +18,7 @@ class Agent extends Authenticatable
     protected $fillable = [
         'id', 'username', 'password', 'package', 'createddate',
         'lastlogindate', 'enddate', 'activated', 'adminaccess', 'promotioncode',
+        'credit', 'resetcredit', 'upgradecredit', 'creditenddate',
     ];
 
     protected $hidden = ['password'];
@@ -77,5 +79,66 @@ class Agent extends Authenticatable
     public function getPhotoUrlAttribute(): ?string
     {
         return $this->detail?->photo_url;
+    }
+
+    public function getHasCondoPackageAccessAttribute(): bool
+    {
+        $this->loadMissing('subscription');
+
+        return (bool) $this->subscription?->is_condo_package;
+    }
+
+    public function getCurrentDailyCreditAttribute(): int
+    {
+        return max(0, (int) ($this->attributes['credit'] ?? 0));
+    }
+
+    public function getDailyCreditResetLabelAttribute(): ?string
+    {
+        $value = trim((string) ($this->attributes['creditenddate'] ?? ''));
+
+        return $value !== '' ? $value : null;
+    }
+
+    public function getFormattedCreatedDateAttribute(): ?string
+    {
+        return $this->formatLegacyDateValue($this->attributes['createddate'] ?? null);
+    }
+
+    public function getFormattedEndDateAttribute(): ?string
+    {
+        return $this->formatLegacyDateValue($this->attributes['enddate'] ?? null);
+    }
+
+    public function getFormattedLastLoginDateAttribute(): ?string
+    {
+        return $this->formatLegacyDateValue($this->attributes['lastlogindate'] ?? null);
+    }
+
+    protected function formatLegacyDateValue(mixed $value): ?string
+    {
+        $value = trim((string) $value);
+
+        if ($value === '') {
+            return null;
+        }
+
+        try {
+            if (ctype_digit($value) && strlen($value) === 14) {
+                return Carbon::createFromFormat('YmdHis', $value, config('app.timezone'))->format('M d, Y h:i A');
+            }
+
+            if (ctype_digit($value) && strlen($value) === 10) {
+                return Carbon::createFromTimestamp((int) $value, config('app.timezone'))->format('M d, Y h:i A');
+            }
+
+            if (ctype_digit($value) && strlen($value) === 8) {
+                return Carbon::createFromFormat('Ymd', $value, config('app.timezone'))->format('M d, Y');
+            }
+
+            return Carbon::parse($value, config('app.timezone'))->format('M d, Y h:i A');
+        } catch (\Throwable) {
+            return $value;
+        }
     }
 }

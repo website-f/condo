@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Concerns\InteractsWithCondoFeatureGate;
 use App\Models\CondoListing;
+use App\Support\CondoPackageManager;
 use App\Support\FsPosterBridge;
 use App\Support\RecentlyDeletedService;
 use Illuminate\Http\Request;
@@ -14,7 +16,10 @@ use Illuminate\Validation\ValidationException;
 
 class SocialMediaController extends Controller
 {
+    use InteractsWithCondoFeatureGate;
+
     public function __construct(
+        private readonly CondoPackageManager $condoPackageManager,
         private readonly FsPosterBridge $fsPosterBridge,
         private readonly RecentlyDeletedService $recentlyDeletedService,
     )
@@ -23,6 +28,20 @@ class SocialMediaController extends Controller
 
     public function index(Request $request)
     {
+        if ($response = $this->condoFeatureAccessResponse(
+            $this->condoPackageManager,
+            'Social Media',
+            'Social Media',
+            'FS Poster scheduling is only available on the condo packages.',
+            [
+                'Condo Premium and Condo Premium Lite unlock the Laravel social calendar and channel manager.',
+                'Each scheduled social send uses 1 daily credit from the package allowance.',
+            ]
+        )) {
+            return $response;
+        }
+
+        $this->condoPackageManager->syncDailyCredits(Auth::guard('agent')->user());
         $username = Auth::guard('agent')->user()->username;
         $channels = $this->fsPosterBridge->availableChannels($username);
         $schedules = $this->fsPosterBridge->scheduleDisplayGroupsForAgent($username);
@@ -57,20 +76,73 @@ class SocialMediaController extends Controller
             })
             ->values();
 
-        $posts = $this->paginateCollection($filtered, $request, 10);
-        $calendarEvents = $filtered
-            ->map(function (array $schedule) use ($listings) {
-                $start = $schedule['scheduled_at']->copy();
-                $end = $start->copy()->addMinutes(45);
-                $messagePreview = $schedule['message_preview'] !== ''
-                    ? $schedule['message_preview']
+        $listingIndex = $listings->keyBy('id');
+        $scheduleRows = $filtered
+            ->map(function (array $schedule) use ($listingIndex) {
+                $listingData = $listingIndex->get($schedule['listing_id']);
+                $scheduledAt = $schedule['scheduled_at']->copy();
+                $messagePreview = trim((string) ($schedule['message_preview'] ?? '')) !== ''
+                    ? trim((string) $schedule['message_preview'])
                     : 'Using the saved channel template for this schedule group.';
-
-                $listingData = $listings->firstWhere('id', $schedule['listing_id']);
-                $imageUrl = is_array($listingData) && isset($listingData['image_url']) ? $listingData['image_url'] : null;
+                $channelNames = collect($schedule['channels'])
+                    ->pluck('name')
+                    ->map(fn (mixed $name) => trim((string) $name))
+                    ->filter()
+                    ->values()
+                    ->all();
+                $networkLabels = collect($schedule['social_networks'])
+                    ->map(function (string $network) {
+                        return match ($network) {
+                            'google_b' => 'Google Business',
+                            'fb' => 'Facebook',
+                            default => Str::headline(str_replace('_', ' ', $network)),
+                        };
+                    })
+                    ->values()
+                    ->all();
 
                 return [
-                    'id' => ($schedule['display_key'] ?? $schedule['group_id']) . '_' . $schedule['listing_id'] . '_' . $start->timestamp,
+                    'group_id' => $schedule['group_id'],
+                    'display_key' => $schedule['display_key'] ?? $schedule['group_id'],
+                    'listing_id' => $schedule['listing_id'],
+                    'listing_title' => $schedule['listing_title'],
+                    'scheduled_at' => $scheduledAt,
+                    'scheduled_at_date' => $scheduledAt->format('d M Y'),
+                    'scheduled_at_time' => $scheduledAt->format('h:i A'),
+                    'scheduled_at_full' => $scheduledAt->format('D, d M Y h:i A'),
+                    'status' => $schedule['status'],
+                    'status_label' => $schedule['status_label'],
+                    'status_color' => $schedule['status_color'],
+                    'content_type_label' => $schedule['content_type_label'],
+                    'view_url' => $schedule['view_url'],
+                    'edit_url' => $schedule['can_manage_in_laravel'] && $schedule['is_mutable']
+                        ? route('social.edit', $schedule['group_id'])
+                        : null,
+                    'can_manage_in_laravel' => $schedule['can_manage_in_laravel'],
+                    'is_mutable' => $schedule['is_mutable'],
+                    'network_keys' => collect($schedule['social_networks'])->values()->all(),
+                    'network_badges' => collect($schedule['social_networks'])->map(fn (string $network) => strtoupper($network))->values()->all(),
+                    'network_labels' => $networkLabels,
+                    'channels' => $schedule['total_channels'],
+                    'channel_names' => $channelNames,
+                    'message' => Str::limit($messagePreview, 160),
+                    'message_preview' => $messagePreview,
+                    'error_messages' => $schedule['error_messages'],
+                    'action_label' => $schedule['is_mutable'] ? 'Edit Schedule' : 'View ' . $schedule['content_type_label'],
+                    'image_url' => is_array($listingData) ? ($listingData['image_url'] ?? null) : null,
+                    'formatted_price' => is_array($listingData) ? ($listingData['formatted_price'] ?? null) : null,
+                    'has_active_schedule' => is_array($listingData) ? (bool) ($listingData['has_active_schedule'] ?? false) : false,
+                ];
+            })
+            ->values();
+        $posts = $this->paginateCollection($scheduleRows, $request, 10);
+        $calendarEvents = $scheduleRows
+            ->map(function (array $schedule) {
+                $start = $schedule['scheduled_at']->copy();
+                $end = $start->copy()->addMinutes(45);
+
+                return [
+                    'id' => $schedule['display_key'] . '_' . $schedule['listing_id'] . '_' . $start->timestamp,
                     'title' => $schedule['listing_title'],
                     'start' => $start->toIso8601String(),
                     'end' => $end->toIso8601String(),
@@ -83,26 +155,26 @@ class SocialMediaController extends Controller
                         'status_label' => $schedule['status_label'],
                         'content_type_label' => $schedule['content_type_label'],
                         'view_url' => $schedule['view_url'],
-                        'edit_url' => $schedule['can_manage_in_laravel'] && $schedule['is_mutable']
-                            ? route('social.edit', $schedule['group_id'])
-                            : null,
+                        'edit_url' => $schedule['edit_url'],
                         'can_manage_in_laravel' => $schedule['can_manage_in_laravel'],
                         'is_mutable' => $schedule['is_mutable'],
-                        'networks' => collect($schedule['social_networks'])->map(fn (string $network) => strtoupper($network))->values()->all(),
-                        'channels' => $schedule['total_channels'],
-                        'channel_names' => collect($schedule['channels'])->pluck('name')->values()->all(),
-                        'message' => Str::limit($messagePreview, 160),
-                        'message_full' => $messagePreview,
+                        'networks' => $schedule['network_badges'],
+                        'network_labels' => $schedule['network_labels'],
+                        'channels' => $schedule['channels'],
+                        'channel_names' => $schedule['channel_names'],
+                        'message' => $schedule['message'],
+                        'message_full' => $schedule['message_preview'],
                         'error_messages' => $schedule['error_messages'],
-                        'time_label' => $schedule['scheduled_at']->format('D, d M Y h:i A'),
-                        'action_label' => $schedule['is_mutable'] ? 'Edit Schedule' : 'View ' . $schedule['content_type_label'],
-                        'image_url' => $imageUrl,
+                        'time_label' => $schedule['scheduled_at_full'],
+                        'action_label' => $schedule['action_label'],
+                        'image_url' => $schedule['image_url'],
+                        'formatted_price' => $schedule['formatted_price'],
                     ],
                 ];
             })
             ->values();
 
-        $upcomingSchedules = $filtered
+        $upcomingSchedules = $scheduleRows
             ->filter(fn (array $schedule) => $schedule['scheduled_at']->isFuture())
             ->sortBy(fn (array $schedule) => $schedule['scheduled_at']->timestamp)
             ->take(6)
@@ -148,6 +220,15 @@ class SocialMediaController extends Controller
 
     public function create(Request $request)
     {
+        if ($response = $this->condoFeatureAccessResponse(
+            $this->condoPackageManager,
+            'Social Media',
+            'Social Media',
+            'FS Poster scheduling is only available on the condo packages.'
+        )) {
+            return $response;
+        }
+
         $username = Auth::guard('agent')->user()->username;
         $channels = $this->fsPosterBridge->availableChannels($username);
         $listings = $this->fsPosterBridge->availableListings($username);
@@ -162,12 +243,13 @@ class SocialMediaController extends Controller
         }
 
         $defaultScheduledAt = now()->addMinutes(15)->format('Y-m-d\TH:i');
+        $defaultUploadMedia = is_array($selectedListing) && ! empty($selectedListing['image_url']) ? '1' : '0';
 
         return view('social.form', [
             'pageTitle' => 'Create Social Schedule',
             'formAction' => route('social.store'),
             'formMethod' => 'POST',
-            'submitLabel' => 'Queue Schedule',
+            'submitLabel' => 'Schedule',
             'channels' => $channels,
             'listings' => $listings,
             'schedule' => [
@@ -175,6 +257,9 @@ class SocialMediaController extends Controller
                 'channel_ids' => old('channel_ids', []),
                 'scheduled_at_form' => old('scheduled_at', $defaultScheduledAt),
                 'message' => old('message', ''),
+                'upload_media' => old('upload_media', $defaultUploadMedia),
+                'first_comment_enabled' => old('first_comment_enabled', '0'),
+                'first_comment' => old('first_comment', ''),
             ],
             'existingGroup' => null,
         ]);
@@ -182,9 +267,21 @@ class SocialMediaController extends Controller
 
     public function store(Request $request)
     {
-        $username = Auth::guard('agent')->user()->username;
+        if ($response = $this->condoFeatureAccessResponse(
+            $this->condoPackageManager,
+            'Social Media',
+            'Social Media',
+            'FS Poster scheduling is only available on the condo packages.'
+        )) {
+            return $response;
+        }
+
+        $agent = Auth::guard('agent')->user();
+        $username = $agent->username;
         $validated = $this->validateSchedule($request);
+        $validated['channel_customizations'] = $this->buildChannelCustomizations($username, $validated);
         $listing = $this->findOwnedCondoListingOrFail((int) $validated['listing_id'], $username);
+        $this->condoPackageManager->consumeCredit($agent, 1);
         $groupId = $this->fsPosterBridge->storeScheduleGroup($listing, $username, $validated);
 
         return redirect()
@@ -194,6 +291,15 @@ class SocialMediaController extends Controller
 
     public function edit(string $groupId)
     {
+        if ($response = $this->condoFeatureAccessResponse(
+            $this->condoPackageManager,
+            'Social Media',
+            'Social Media',
+            'FS Poster scheduling is only available on the condo packages.'
+        )) {
+            return $response;
+        }
+
         $username = Auth::guard('agent')->user()->username;
         $group = $this->fsPosterBridge->findScheduleGroupForAgent($username, $groupId);
 
@@ -208,7 +314,7 @@ class SocialMediaController extends Controller
             'pageTitle' => 'Edit Social Schedule',
             'formAction' => route('social.update', $groupId),
             'formMethod' => 'PUT',
-            'submitLabel' => 'Update Schedule',
+            'submitLabel' => 'Save Schedule',
             'channels' => $channels,
             'listings' => $listings,
             'schedule' => [
@@ -216,6 +322,9 @@ class SocialMediaController extends Controller
                 'channel_ids' => old('channel_ids', $group['channel_ids']),
                 'scheduled_at_form' => old('scheduled_at', $group['scheduled_at_form']),
                 'message' => old('message', $group['message']),
+                'upload_media' => old('upload_media', $this->scheduleUsesUploadMedia($group) ? '1' : '0'),
+                'first_comment_enabled' => old('first_comment_enabled', $this->scheduleFirstCommentText($group) !== '' ? '1' : '0'),
+                'first_comment' => old('first_comment', $this->scheduleFirstCommentText($group)),
             ],
             'existingGroup' => $group,
         ]);
@@ -223,6 +332,15 @@ class SocialMediaController extends Controller
 
     public function update(Request $request, string $groupId)
     {
+        if ($response = $this->condoFeatureAccessResponse(
+            $this->condoPackageManager,
+            'Social Media',
+            'Social Media',
+            'FS Poster scheduling is only available on the condo packages.'
+        )) {
+            return $response;
+        }
+
         $username = Auth::guard('agent')->user()->username;
         $group = $this->fsPosterBridge->findScheduleGroupForAgent($username, $groupId);
 
@@ -237,6 +355,7 @@ class SocialMediaController extends Controller
         }
 
         $validated = $this->validateSchedule($request);
+        $validated['channel_customizations'] = $this->buildChannelCustomizations($username, $validated, $group);
         $listing = $this->findOwnedCondoListingOrFail((int) $validated['listing_id'], $username);
         $this->fsPosterBridge->storeScheduleGroup($listing, $username, $validated, $groupId);
 
@@ -247,6 +366,15 @@ class SocialMediaController extends Controller
 
     public function destroy(string $groupId)
     {
+        if ($response = $this->condoFeatureAccessResponse(
+            $this->condoPackageManager,
+            'Social Media',
+            'Social Media',
+            'FS Poster scheduling is only available on the condo packages.'
+        )) {
+            return $response;
+        }
+
         $username = Auth::guard('agent')->user()->username;
 
         if (! $this->recentlyDeletedService->registryAvailable()) {
@@ -293,7 +421,115 @@ class SocialMediaController extends Controller
             'channel_ids.*' => ['integer'],
             'scheduled_at' => ['required', 'date', 'after:now'],
             'message' => ['nullable', 'string', 'max:4000'],
+            'upload_media' => ['nullable', 'in:0,1'],
+            'first_comment_enabled' => ['nullable', 'in:0,1'],
+            'first_comment' => ['nullable', 'string', 'max:2000'],
         ]);
+    }
+
+    /**
+     * @param  array{
+     *     channel_ids:array<int, int|string>,
+     *     message?:string|null,
+     *     upload_media?:string|null,
+     *     first_comment_enabled?:string|null,
+     *     first_comment?:string|null
+     * }  $validated
+     * @param  array{
+     *     channel_customizations?:array<int, array<string, mixed>>
+     * }|null  $existingGroup
+     * @return array<int, array<string, mixed>>
+     */
+    private function buildChannelCustomizations(string $username, array $validated, ?array $existingGroup = null): array
+    {
+        $channelIds = collect((array) ($validated['channel_ids'] ?? []))
+            ->map(fn (mixed $id) => (int) $id)
+            ->unique()
+            ->values();
+        $channels = $this->fsPosterBridge->availableChannels($username)
+            ->whereIn('id', $channelIds)
+            ->keyBy('id');
+        $message = trim((string) ($validated['message'] ?? ''));
+        $useMedia = ($validated['upload_media'] ?? '0') === '1';
+        $firstCommentEnabled = ($validated['first_comment_enabled'] ?? '0') === '1';
+        $firstComment = trim((string) ($validated['first_comment'] ?? ''));
+
+        return $channelIds
+            ->mapWithKeys(function (int $channelId) use ($channels, $existingGroup, $message, $useMedia, $firstCommentEnabled, $firstComment) {
+                $channel = $channels->get($channelId);
+
+                if (! is_array($channel)) {
+                    return [];
+                }
+
+                $customization = is_array($existingGroup['channel_customizations'][$channelId] ?? null)
+                    ? $existingGroup['channel_customizations'][$channelId]
+                    : $this->fsPosterBridge->scheduleCustomizationDefaultsForChannel($channel, '');
+
+                if ($message !== '') {
+                    $customization['post_content'] = $message;
+                } elseif (! array_key_exists('post_content', $customization)) {
+                    $defaults = $this->fsPosterBridge->scheduleCustomizationDefaultsForChannel($channel, '');
+
+                    if (array_key_exists('post_content', $defaults)) {
+                        $customization['post_content'] = $defaults['post_content'];
+                    }
+                }
+
+                $customization['upload_media'] = $useMedia;
+
+                if ($useMedia && ! isset($customization['upload_media_type'])) {
+                    $customization['upload_media_type'] = 'featured_image';
+                }
+
+                if ($firstCommentEnabled && $firstComment !== '' && $this->channelSupportsFirstComment($channel)) {
+                    $customization['first_comment'] = $firstComment;
+                } else {
+                    unset($customization['first_comment']);
+                }
+
+                return [$channelId => $customization];
+            })
+            ->all();
+    }
+
+    /**
+     * @param  array{social_network:string,channel_type:string}  $channel
+     */
+    private function channelSupportsFirstComment(array $channel): bool
+    {
+        return in_array($channel['social_network'], ['fb', 'instagram'], true)
+            && ! str_contains((string) $channel['channel_type'], 'story');
+    }
+
+    /**
+     * @param  array{channel_customizations?:array<int, array<string, mixed>>}  $group
+     */
+    private function scheduleUsesUploadMedia(array $group): bool
+    {
+        return collect((array) ($group['channel_customizations'] ?? []))
+            ->contains(function (mixed $customization) {
+                if (! is_array($customization)) {
+                    return false;
+                }
+
+                return in_array($customization['upload_media'] ?? false, [true, 1, '1'], true);
+            });
+    }
+
+    /**
+     * @param  array{channel_customizations?:array<int, array<string, mixed>>}  $group
+     */
+    private function scheduleFirstCommentText(array $group): string
+    {
+        return (string) collect((array) ($group['channel_customizations'] ?? []))
+            ->map(function (mixed $customization) {
+                return is_array($customization)
+                    ? trim((string) ($customization['first_comment'] ?? ''))
+                    : '';
+            })
+            ->filter()
+            ->first();
     }
 
     private function paginateCollection(Collection $items, Request $request, int $perPage): LengthAwarePaginator

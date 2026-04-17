@@ -251,7 +251,7 @@ class BackEnd
             exit;
         }
 
-        $app = App::where( 'id', $appId )->where( 'social_network', $socialNetwork )->where( 'slug', 'is', null )->fetch();
+        $app = App::where( 'id', $appId )->where( 'social_network', $socialNetwork )->fetch();
 
         if ( empty( $app ) ) {
             return;

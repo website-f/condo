@@ -8,6 +8,8 @@ use FSPoster\App\Providers\DB\DB;
 use FSPoster\App\Providers\Helpers\Date;
 use FSPoster\App\Providers\Helpers\Helper;
 use FSPoster\App\Providers\Helpers\PluginHelper;
+use FSPoster\App\Providers\Helpers\Session;
+use FSPoster\App\Providers\Core\Settings;
 use FSPoster\App\Providers\Schedules\SocialNetworkApiException;
 use FSPoster\App\Providers\SocialNetwork\AuthWindowController;
 use FSPoster\App\Providers\SocialNetwork\SocialNetworkAddon;
@@ -17,9 +19,10 @@ class FrontEnd
 {
     public function __construct ()
     {
-        if ( ! PluginHelper::isPluginActivated() )
+        if ( ! PluginHelper::isPluginActivated() && ! $this->isAuthBootstrapRequest() )
 			return;
 
+        $this->startAuthRedirect();
         $this->addSocialMetaTags();
         add_action( 'wp', [ $this, 'bootWp' ] );
     }
@@ -28,6 +31,59 @@ class FrontEnd
     {
         $this->checkVisits();
         $this->standardFSApp();
+    }
+
+    public function startAuthRedirect ()
+    {
+        $shouldStart = Request::get( 'fsp_auth_start', '0', 'num', [ '1' ] );
+        $appId = Request::get( 'app_id', 0, Request::TYPE_INTEGER );
+        $socialNetwork = Request::get( 'social_network', '', Request::TYPE_STRING, array_keys( SocialNetworkAddon::getSocialNetworks() ) );
+        $proxy = Request::get( 'proxy', '', Request::TYPE_STRING );
+
+        if ( (int) $shouldStart !== 1 || empty( $socialNetwork ) ) {
+            return;
+        }
+
+        Helper::setCrossOriginOpenerPolicyHeaderIfNeed();
+
+        if ( empty( $appId ) ) {
+            $fsPurchaseKey = Settings::get( 'license_code', '', true );
+
+            $authUrl = FSP_OAUTH_API_URL . rawurlencode( $socialNetwork ) . '/auth?' . http_build_query( [
+                'license_code' => $fsPurchaseKey,
+                'domain' => network_site_url(),
+                'proxy' => $proxy,
+                'r_url' => site_url() . '/?fsp_app_redirect=1&sn=' . $socialNetwork,
+                'plugin_version' => PluginHelper::getVersion(),
+            ] );
+
+            wp_redirect( $authUrl );
+            exit;
+        }
+
+        $app = App::where( 'id', $appId )->where( 'social_network', $socialNetwork )->fetch();
+
+        if ( empty( $app ) ) {
+            AuthWindowController::error( 'The selected app could not be found.' );
+        }
+
+        Session::set( 'app_id', $appId );
+        Session::set( 'proxy', $proxy );
+
+        try {
+            $authUrl = apply_filters( 'fsp_auth_get_url', '', $socialNetwork, $app, $proxy );
+        } catch ( \Exception $e ) {
+            AuthWindowController::error( $e->getMessage() );
+        }
+
+        wp_redirect( $authUrl );
+        exit;
+    }
+
+    private function isAuthBootstrapRequest (): bool
+    {
+        return Request::get( 'fsp_auth_start', 0, Request::TYPE_INTEGER ) === 1
+            || Request::get( 'fsp_app_redirect', 0, Request::TYPE_INTEGER ) === 1;
     }
 
     public function addSocialMetaTags ()

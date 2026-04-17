@@ -11,6 +11,7 @@ use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RecentlyDeletedController;
 use App\Http\Controllers\BillingController;
+use App\Http\Controllers\TutorialController;
 use App\Http\Middleware\AgentAuth;
 use Illuminate\Support\Facades\Route;
 
@@ -48,7 +49,9 @@ Route::middleware(AgentAuth::class)->group(function () {
     Route::post('/social', [SocialMediaController::class, 'store'])->name('social.store');
     Route::get('/social/channels', [SocialChannelController::class, 'index'])->name('social.channels.index');
     Route::get('/social/channels/create', [SocialChannelController::class, 'createChannel'])->name('social.channels.create');
+    Route::get('/social/channels/oauth-start/{network}', [SocialChannelController::class, 'oauthStart'])->name('social.channels.oauth-start');
     Route::post('/social/channels', [SocialChannelController::class, 'storeChannel'])->name('social.channels.store');
+    Route::post('/social/channels/oauth-import', [SocialChannelController::class, 'importOauthChannels'])->name('social.channels.oauth-import');
     Route::get('/social/channels/{channel}/edit', [SocialChannelController::class, 'editChannel'])->name('social.channels.edit');
     Route::put('/social/channels/{channel}', [SocialChannelController::class, 'updateChannel'])->name('social.channels.update');
     Route::delete('/social/channels/{channel}', [SocialChannelController::class, 'destroyChannel'])->name('social.channels.destroy');
@@ -75,4 +78,11 @@ Route::middleware(AgentAuth::class)->group(function () {
 
     // Billing
     Route::get('/billing', [BillingController::class, 'index'])->name('billing.index');
+    Route::get('/billing/history/export', [BillingController::class, 'exportHistory'])->name('billing.history.export');
+    Route::get('/billing/history/{record}/invoice', [BillingController::class, 'invoice'])->name('billing.history.invoice');
+    Route::get('/billing/history/{record}/invoice/export', [BillingController::class, 'exportInvoice'])->name('billing.history.invoice.export');
+
+    // Tutorials
+    Route::get('/tutorials', [TutorialController::class, 'index'])->name('tutorials.index');
+    Route::get('/tutorials/{topic}', [TutorialController::class, 'show'])->name('tutorials.show');
 });

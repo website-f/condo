@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Concerns\InteractsWithCondoFeatureGate;
 use App\Models\CondoListing;
 use App\Models\IcpListing;
 use App\Models\Listing;
 use App\Models\State;
+use App\Support\CondoPackageManager;
 use App\Support\CondoWordpressBridge;
 use App\Support\ListingEditor;
 use App\Support\RecentlyDeletedService;
@@ -24,6 +26,8 @@ use Throwable;
 
 class ListingController extends Controller
 {
+    use InteractsWithCondoFeatureGate;
+
     private const INDEX_SOURCES = [
         'all' => 'All',
         'ipp' => 'IPP',
@@ -39,15 +43,34 @@ class ListingController extends Controller
 
     private const INDEX_PER_PAGE = 12;
 
-    public function __construct(private readonly RecentlyDeletedService $recentlyDeletedService)
+    public function __construct(
+        private readonly CondoPackageManager $condoPackageManager,
+        private readonly RecentlyDeletedService $recentlyDeletedService
+    )
     {
     }
 
     public function index(Request $request)
     {
-        $username = Auth::guard('agent')->user()->username;
+        $agent = Auth::guard('agent')->user();
+        $username = $agent->username;
         $activeSource = $this->resolveListingSource($request->query('source'));
         [$sortBy, $sortDir] = $this->resolveSortOptions($request);
+
+        if ($activeSource === 'condo' && ! $this->canManageSource('condo')) {
+            return $this->condoFeatureAccessResponse(
+                $this->condoPackageManager,
+                'Condo Listings',
+                'Condo Listings',
+                'Syncing and managing condo listings from Laravel requires Condo Premium Package or Condo Premium Lite Package.',
+                [
+                    'Condo Premium Package gives 500 listing spaces and 100 daily credits.',
+                    'Condo Premium Lite Package gives 100 listing spaces and 50 daily credits.',
+                    'Social schedules use 1 daily credit each. Condo Premium Lite also uses daily credit when an article is published or scheduled.',
+                    'Delete a condo listing and the slot is returned automatically.',
+                ]
+            );
+        }
 
         $listings = $this->resolveIndexListings($username, $request, $activeSource, $sortBy, $sortDir);
         [$listingTypes, $propertyTypes, $states] = $this->resolveIndexFilters($username, $activeSource);
@@ -59,12 +82,14 @@ class ListingController extends Controller
                 'key' => $key,
                 'label' => $label,
                 'count' => $sourceCounts[$key] ?? null,
+                'locked' => $key === 'condo' && ! $this->canManageSource('condo'),
             ])
             ->values();
         $bulkTargetSources = collect($this->createSourceTabs())
             ->filter(fn (array $tab) => $tab['enabled'])
             ->values()
             ->all();
+        $condoPackageSummary = $this->condoPackageManager->summaryForAgent($agent);
 
         return view('listings.index', compact(
             'listings',
@@ -73,13 +98,24 @@ class ListingController extends Controller
             'states',
             'activeSource',
             'sourceTabs',
-            'bulkTargetSources'
+            'bulkTargetSources',
+            'condoPackageSummary'
         ));
     }
 
     public function create(Request $request)
     {
         $activeCreateSource = $this->resolveCreateSource($request->query('source'));
+
+        if ($activeCreateSource === 'condo' && ! $this->canCreateSource('condo')) {
+            return $this->condoFeatureAccessResponse(
+                $this->condoPackageManager,
+                'Condo Listings',
+                'Condo Listings',
+                'Adding condo listings is locked until this account has a condo package.'
+            );
+        }
+
         $form = ListingEditor::formData();
 
         if ($activeCreateSource === 'icp') {
@@ -100,7 +136,13 @@ class ListingController extends Controller
         }
 
         $validated = $this->validateListing($request, $source);
-        $username = Auth::guard('agent')->user()->username;
+        $agent = Auth::guard('agent')->user();
+        $username = $agent->username;
+
+        if ($source === 'condo') {
+            $this->condoPackageManager->ensureCondoListingCapacity($agent);
+        }
+
         $listing = $this->newListingModelForSource($source);
         $uploadedPhotoPaths = [];
 
@@ -135,6 +177,16 @@ class ListingController extends Controller
     public function show(Request $request, $id)
     {
         $source = $this->resolveDetailSource($request->query('source'));
+
+        if ($source === 'condo' && ! $this->canManageSource('condo')) {
+            return $this->condoFeatureAccessResponse(
+                $this->condoPackageManager,
+                'Condo Listings',
+                'Condo Listings',
+                'Viewing condo listings is locked until this account has a condo package.'
+            );
+        }
+
         $returnSource = $this->resolveListingSource($request->query('return_source', $source));
         $listing = $this->findOwnedListingOrFail($id, true, $source);
 
@@ -148,6 +200,16 @@ class ListingController extends Controller
     public function edit(Request $request, $id)
     {
         $source = $this->resolveDetailSource($request->query('source'));
+
+        if ($source === 'condo' && ! $this->canManageSource('condo')) {
+            return $this->condoFeatureAccessResponse(
+                $this->condoPackageManager,
+                'Condo Listings',
+                'Condo Listings',
+                'Editing condo listings is locked until this account has a condo package.'
+            );
+        }
+
         $returnSource = $this->resolveListingSource($request->query('return_source', $source));
         $listing = $this->findOwnedListingOrFail($id, true, $source);
 
@@ -166,6 +228,18 @@ class ListingController extends Controller
         $targetSource = $this->resolveCreateSource($request->input('source', $currentSource));
         $returnSource = $this->resolveListingSource($request->input('return_source', $request->query('return_source', $currentSource)));
 
+        if (
+            (($currentSource === 'condo') || ($targetSource === 'condo'))
+            && ! $this->canCreateSource('condo')
+        ) {
+            return $this->condoFeatureAccessResponse(
+                $this->condoPackageManager,
+                'Condo Listings',
+                'Condo Listings',
+                'Updating condo listings is locked until this account has a condo package.'
+            );
+        }
+
         if (! $this->canCreateSource($targetSource)) {
             throw ValidationException::withMessages([
                 'source' => $this->unavailableSourceMessage($targetSource),
@@ -174,10 +248,15 @@ class ListingController extends Controller
 
         $validated = $this->validateListing($request, $targetSource);
         $listing = $this->findOwnedListingOrFail($id, true, $currentSource);
-        $username = Auth::guard('agent')->user()->username;
+        $agent = Auth::guard('agent')->user();
+        $username = $agent->username;
         $uploadedPhotoPaths = [];
         $removedLocalPhotos = [];
         $activeListing = $listing;
+
+        if ($currentSource !== 'condo' && $targetSource === 'condo') {
+            $this->condoPackageManager->ensureCondoListingCapacity($agent);
+        }
 
         if ($targetSource === $currentSource) {
             try {
@@ -234,6 +313,16 @@ class ListingController extends Controller
     public function destroy(Request $request, $id)
     {
         $source = $this->resolveDetailSource($request->input('source', $request->query('source')));
+
+        if ($source === 'condo' && ! $this->canManageSource('condo')) {
+            return $this->condoFeatureAccessResponse(
+                $this->condoPackageManager,
+                'Condo Listings',
+                'Condo Listings',
+                'Managing condo listings is locked until this account has a condo package.'
+            );
+        }
+
         $returnSource = $this->resolveListingSource($request->input('return_source', $request->query('return_source', $source)));
         $listing = $this->findOwnedListingOrFail($id, true, $source);
 
@@ -482,7 +571,7 @@ class ListingController extends Controller
         if ($source === 'all') {
             $merged = collect([
                 'ipp' => $this->ownedListingsQuery($username),
-                'icp' => $this->sourceAvailable('icp') ? $this->ownedIcpListingsQuery($username) : null,
+                'icp' => $this->canManageSource('icp') ? $this->ownedIcpListingsQuery($username) : null,
             ])->filter();
 
             $listings = $merged->flatMap(function ($query, string $sourceKey) use ($request) {
@@ -491,7 +580,7 @@ class ListingController extends Controller
                     ->map(fn ($listing) => $this->decorateListing($listing, $sourceKey, true, 'all'));
             });
 
-            if ($this->sourceAvailable('condo')) {
+            if ($this->canManageSource('condo')) {
                 $listings = $listings->concat(
                     $this->applyListingFiltersToCollection($this->ownedCondoListingsCollection($username), $request)
                         ->map(fn ($listing) => $this->decorateListing($listing, 'condo', true, 'all'))
@@ -504,7 +593,7 @@ class ListingController extends Controller
             );
         }
 
-        if (! $this->sourceAvailable($source)) {
+        if (! $this->canManageSource($source)) {
             return $this->emptyIndexPaginator($request);
         }
 
@@ -548,17 +637,17 @@ class ListingController extends Controller
     {
         $queries = match ($source) {
             'ipp' => [$this->ownedListingsQuery($username)],
-            'icp' => $this->sourceAvailable('icp') ? [$this->ownedIcpListingsQuery($username)] : [],
+            'icp' => $this->canManageSource('icp') ? [$this->ownedIcpListingsQuery($username)] : [],
             'all' => array_values(array_filter([
                 $this->ownedListingsQuery($username),
-                $this->sourceAvailable('icp') ? $this->ownedIcpListingsQuery($username) : null,
+                $this->canManageSource('icp') ? $this->ownedIcpListingsQuery($username) : null,
             ])),
             default => [],
         };
 
         $collections = match ($source) {
-            'condo' => $this->sourceAvailable('condo') ? [$this->ownedCondoListingsCollection($username)] : [],
-            'all' => $this->sourceAvailable('condo') ? [$this->ownedCondoListingsCollection($username)] : [],
+            'condo' => $this->canManageSource('condo') ? [$this->ownedCondoListingsCollection($username)] : [],
+            'all' => $this->canManageSource('condo') ? [$this->ownedCondoListingsCollection($username)] : [],
             default => [],
         };
 
@@ -697,11 +786,11 @@ class ListingController extends Controller
     {
         $ippCount = $this->ownedListingsQuery($username)->count();
 
-        $icpCount = $this->sourceAvailable('icp')
+        $icpCount = $this->canManageSource('icp')
             ? $this->ownedIcpListingsQuery($username)->count()
             : 0;
 
-        $condoCount = $this->sourceAvailable('condo')
+        $condoCount = $this->canManageSource('condo')
             ? $this->ownedCondoListingsCollection($username)->count()
             : 0;
 
@@ -748,19 +837,28 @@ class ListingController extends Controller
     {
         return match ($source) {
             'icp' => 'ICP listing tables are not available on this environment right now.',
-            'condo' => 'The WordPress condo property tables are not available on this environment right now.',
+            'condo' => ! $this->sourceAvailable('condo')
+                ? 'The WordPress condo property tables are not available on this environment right now.'
+                : 'Subscribe to Condo Premium Package or Condo Premium Lite Package to unlock condo listings.',
             default => 'The selected listing source is not available right now.',
         };
     }
 
     private function canManageSource(string $source): bool
     {
-        return in_array($source, ['ipp', 'icp', 'condo'], true);
+        return match ($source) {
+            'ipp' => true,
+            'icp' => $this->sourceAvailable('icp'),
+            'condo' => $this->sourceAvailable('condo')
+                && Auth::guard('agent')->check()
+                && $this->condoPackageManager->hasAccess(Auth::guard('agent')->user()),
+            default => false,
+        };
     }
 
     private function canCreateSource(string $source): bool
     {
-        return $this->sourceAvailable($source);
+        return $this->canManageSource($source);
     }
 
     private function decorateListing(Listing|CondoListing $listing, string $source, bool $canManage, string $returnSource): Listing|CondoListing
@@ -1133,6 +1231,10 @@ class ListingController extends Controller
             ]);
         }
 
+        if ($targetSource === 'condo') {
+            $this->condoPackageManager->ensureCondoListingCapacity(Auth::guard('agent')->user());
+        }
+
         $targetListing = $this->newListingModelForSource($targetSource);
         $validated = $this->copyPayloadFromListing($listing, $targetSource);
 
@@ -1333,6 +1435,7 @@ class ListingController extends Controller
         return collect(self::CREATE_SOURCES)
             ->map(function (string $label, string $key) {
                 $enabled = $this->canCreateSource($key);
+                $sourceAvailable = $this->sourceAvailable($key);
 
                 return [
                     'key' => $key,
@@ -1344,7 +1447,9 @@ class ListingController extends Controller
                             : 'ICP listing tables are not available on this environment right now.',
                         'condo' => $enabled
                             ? 'Writes to WordPress properties in wp_condo so Estatik and Rank Math can use the same listings.'
-                            : 'The WordPress condo property tables are not available on this environment right now.',
+                            : ($sourceAvailable
+                                ? 'Requires Condo Premium Package or Condo Premium Lite Package before condo listings can be added here.'
+                                : 'The WordPress condo property tables are not available on this environment right now.'),
                         default => 'Writes to Posts and keeps the same legacy Database/Images photo path contract.',
                     },
                 ];

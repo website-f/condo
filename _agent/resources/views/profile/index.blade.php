@@ -62,7 +62,7 @@
                 </div>
                 <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border);padding:2px 0;">
                     <span style="color:var(--text-secondary);">Package</span>
-                    <span style="font-weight:500;">{{ $agent->subscription?->name ?? 'N/A' }}</span>
+                    <span style="font-weight:500;">{{ $agent->subscription?->display_name ?? 'N/A' }}</span>
                 </div>
                 <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border);padding:2px 0;">
                     <span style="color:var(--text-secondary);">Status</span>

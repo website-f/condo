@@ -57,9 +57,49 @@
             font-weight: 500; transition: all 0.2s ease; border-radius: var(--radius-sm);
             margin-bottom: 2px;
         }
+        .sidebar-nav .nav-disabled {
+            display: flex; align-items: center; gap: 12px; padding: 10px 14px;
+            color: var(--sidebar-text); font-size: 14px; font-weight: 500;
+            border-radius: var(--radius-sm); margin-bottom: 2px;
+            opacity: 0.72; cursor: default;
+        }
+        .sidebar-nav .nav-disabled.is-current {
+            color: var(--sidebar-active-text);
+            background: rgba(0,0,0,0.03);
+            opacity: 1;
+        }
         .sidebar-nav a:hover { color: var(--text); background: rgba(0,0,0,0.03); }
         .sidebar-nav a.active { color: var(--sidebar-active-text); background: var(--sidebar-active-bg); font-weight: 600; }
         .sidebar-nav a svg { width: 18px; height: 18px; flex-shrink: 0; stroke-width: 2px; }
+        .sidebar-nav .nav-disabled svg { width: 18px; height: 18px; flex-shrink: 0; stroke-width: 2px; }
+        .sidebar-soon-badge {
+            margin-left: auto;
+            display: inline-flex;
+            align-items: center;
+            padding: 3px 8px;
+            border-radius: 999px;
+            background: #fff2d6;
+            border: 1px solid #ffe1a1;
+            color: #995c00;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+        .sidebar-lock-badge {
+            margin-left: auto;
+            display: inline-flex;
+            align-items: center;
+            padding: 3px 8px;
+            border-radius: 999px;
+            background: #f5ecff;
+            border: 1px solid #e1d0ff;
+            color: #5f3aa5;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
         .sidebar-section { padding: 24px 14px 8px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-secondary); font-weight: 600; }
         .sidebar-footer { padding: 16px 24px; border-top: 1px solid var(--border-light); background: var(--sidebar-bg); }
         .sidebar-footer .user-info { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
@@ -249,6 +289,13 @@
     </style>
 </head>
 <body>
+    @php
+        $layoutAgent = auth('agent')->user();
+        $hasCondoPackageAccess = (bool) ($layoutAgent?->has_condo_package_access ?? false);
+        $articlesNavUrl = $hasCondoPackageAccess ? route('articles.index') : route('billing.index');
+        $socialNavUrl = $hasCondoPackageAccess ? route('social.index') : route('billing.index');
+    @endphp
+
     <!-- Sidebar -->
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-brand">
@@ -263,9 +310,12 @@
             </a>
 
             <div class="sidebar-section">Content</div>
-            <a href="{{ route('articles.index') }}" class="{{ request()->routeIs('articles.*') ? 'active' : '' }}">
+            <a href="{{ $articlesNavUrl }}" class="{{ request()->routeIs('articles.*') ? 'active' : '' }}" @if(! $hasCondoPackageAccess) title="Unlock Articles with a condo package" @endif>
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" /></svg>
                 Articles
+                @if(! $hasCondoPackageAccess)
+                    <span class="sidebar-lock-badge">Locked</span>
+                @endif
             </a>
             <a href="{{ route('listings.index') }}" class="{{ request()->routeIs('listings.*') ? 'active' : '' }}">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-6h.75m-.75 3h.75m-.75 3h.75M6.75 21v-3.375c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21M3 3h12m-.75 4.5H21m-3.75 3H21m-3.75 3H21" /></svg>
@@ -277,19 +327,29 @@
             </a>
 
             <div class="sidebar-section">Marketing</div>
-            <a href="{{ route('seo.index') }}" class="{{ request()->routeIs('seo.*') ? 'active' : '' }}">
+            <span class="nav-disabled {{ request()->routeIs('seo.*') ? 'is-current' : '' }}">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" /></svg>
                 SEO
-            </a>
-            <a href="{{ route('social.index') }}" class="{{ request()->routeIs('social.*') ? 'active' : '' }}">
+                <span class="sidebar-soon-badge">Soon</span>
+            </span>
+            <a href="{{ $socialNavUrl }}" class="{{ request()->routeIs('social.*') ? 'active' : '' }}" @if(! $hasCondoPackageAccess) title="Unlock Social Media with a condo package" @endif>
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M7.217 10.907a2.25 2.25 0 100 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186l9.566-5.314m-9.566 7.5l9.566 5.314m0 0a2.25 2.25 0 103.935 2.186 2.25 2.25 0 00-3.935-2.186zm0-12.814a2.25 2.25 0 103.933-2.185 2.25 2.25 0 00-3.933 2.185z" /></svg>
                 Social Media
+                @if(! $hasCondoPackageAccess)
+                    <span class="sidebar-lock-badge">Locked</span>
+                @endif
             </a>
 
             <div class="sidebar-section">Analytics</div>
             <a href="{{ route('reports.index') }}" class="{{ request()->routeIs('reports.*') ? 'active' : '' }}">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" /></svg>
                 Reports
+            </a>
+
+            <div class="sidebar-section">Help</div>
+            <a href="{{ route('tutorials.index') }}" class="{{ request()->routeIs('tutorials.*') ? 'active' : '' }}">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z" /></svg>
+                Tutorial
             </a>
 
             <div class="sidebar-section">Account</div>

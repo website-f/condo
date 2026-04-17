@@ -914,6 +914,65 @@ class FsPosterBridge
         });
     }
 
+    public function wordpressChannelsManagerUrl(): string
+    {
+        $siteUrl = $this->wordpressSiteUrl();
+        $path = '/wp-admin/admin.php?page=fs-poster#/channels/all';
+
+        if ($siteUrl === '') {
+            return $path;
+        }
+
+        return $siteUrl . $path;
+    }
+
+    public function preferredOauthAppId(string $socialNetwork): int
+    {
+        $appId = DB::connection('condo')
+            ->table('fsp_apps')
+            ->where('social_network', trim($socialNetwork))
+            ->whereNotNull('data')
+            ->where('data', '!=', '')
+            ->orderByRaw('CASE WHEN slug IS NULL THEN 0 ELSE 1 END')
+            ->orderByDesc('id')
+            ->value('id');
+
+        return $appId ? (int) $appId : 0;
+    }
+
+    public function wordpressPublicAuthStartUrl(string $socialNetwork, int $appId = 0, ?string $proxy = null): string
+    {
+        $siteUrl = $this->wordpressSiteUrl();
+        $query = [
+            'fsp_auth_start' => '1',
+            'social_network' => $socialNetwork,
+            'app_id' => (string) $appId,
+        ];
+
+        $proxy = trim((string) $proxy);
+
+        if ($proxy !== '') {
+            $query['proxy'] = $proxy;
+        }
+
+        $path = '/?' . http_build_query($query);
+
+        if ($siteUrl === '') {
+            return $path;
+        }
+
+        return $siteUrl . $path;
+    }
+
+    /**
+     * @param  array{id:int,name:string,channel_type:string,social_network:string}  $channel
+     * @return array<string, mixed>
+     */
+    public function scheduleCustomizationDefaultsForChannel(array $channel, string $message = ''): array
+    {
+        return $this->customizationDataForChannel($channel, $message);
+    }
+
     /**
      * @param  array{id:int,name:string,channel_type:string,social_network:string}  $channel
      * @return array<string, mixed>
@@ -941,6 +1000,17 @@ class FsPosterBridge
         }
 
         return $defaults;
+    }
+
+    private function wordpressSiteUrl(): string
+    {
+        $siteUrl = rtrim(CondoWordpressBridge::siteBaseUrl(), '/');
+
+        if ($siteUrl === '') {
+            $siteUrl = rtrim((string) config('services.shared_assets.wordpress_site_url'), '/');
+        }
+
+        return $siteUrl;
     }
 
     /**

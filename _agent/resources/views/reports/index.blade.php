@@ -15,18 +15,28 @@
     </form>
 </div>
 
+<div class="card" style="margin-bottom:24px;padding:18px 20px;">
+    <div class="stat-sub" style="margin-top:0;">
+        This report window uses listing created dates, article last-updated times, and social schedule times so the selected period matches the numbers shown here.
+    </div>
+</div>
+
 <div class="stats-grid" style="margin-bottom:24px;">
     <div class="stat-card">
-        <div class="stat-label">Total Listings</div>
+        <div class="stat-label">Listings In Period</div>
         <div class="stat-value">{{ number_format($totalListings) }}</div>
     </div>
     <div class="stat-card">
-        <div class="stat-label">Articles</div>
-        <div class="stat-value" style="font-size:20px;">Coming Soon</div>
-        <div class="stat-sub">Article analytics will return with the new content flow.</div>
+        <div class="stat-label">Articles In Period</div>
+        <div class="stat-value">{{ number_format($totalArticles) }}</div>
+        <div class="stat-sub">{{ number_format($publishedArticles) }} published, {{ number_format($scheduledArticles) }} scheduled</div>
     </div>
     <div class="stat-card">
-        <div class="stat-label">Social Posts</div>
+        <div class="stat-label">Draft Articles In Period</div>
+        <div class="stat-value">{{ number_format($draftArticles) }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Social Schedules In Period</div>
         <div class="stat-value">{{ number_format($totalSocialPosts) }}</div>
     </div>
 </div>
@@ -87,6 +97,51 @@
 
 <div class="grid-2" style="margin-bottom:24px;">
     <div class="card">
+        <div class="card-header">Article Status</div>
+        @if($articlesByStatus->count())
+        <div class="table-wrap">
+            <table>
+                <thead><tr><th>Status</th><th style="text-align:right;">Count</th></tr></thead>
+                <tbody>
+                @foreach($articlesByStatus as $item)
+                    <tr>
+                        <td>{{ $item->post_status === 'future' ? 'Scheduled' : Str::headline($item->post_status) }}</td>
+                        <td style="text-align:right;font-weight:500;">{{ number_format($item->total) }}</td>
+                    </tr>
+                @endforeach
+                </tbody>
+            </table>
+        </div>
+        @else
+        <p style="font-size:13px;color:var(--text-secondary);">No articles yet</p>
+        @endif
+    </div>
+
+    <div class="card">
+        <div class="card-header">Recent Articles In Period</div>
+        @if($recentArticles->count())
+        <div class="table-wrap">
+            <table>
+                <thead><tr><th>Title</th><th>Status</th><th>Go Live</th></tr></thead>
+                <tbody>
+                @foreach($recentArticles as $article)
+                    <tr>
+                        <td style="font-weight:500;">{{ Str::limit($article->post_title, 44) }}</td>
+                        <td>{{ $article->status_label }}</td>
+                        <td style="color:var(--text-secondary);">{{ $article->formatted_publish_at ?? 'Not set' }}</td>
+                    </tr>
+                @endforeach
+                </tbody>
+            </table>
+        </div>
+        @else
+        <p style="font-size:13px;color:var(--text-secondary);">No articles yet</p>
+        @endif
+    </div>
+</div>
+
+<div class="grid-2" style="margin-bottom:24px;">
+    <div class="card">
         <div class="card-header">Top States</div>
         @if($listingsByState->count())
         <div class="table-wrap">
@@ -108,7 +163,7 @@
     </div>
 
     <div class="card">
-        <div class="card-header">Social Posts by Platform</div>
+        <div class="card-header">Social Schedules by Network</div>
         @if($socialByPlatform->count())
         <div class="table-wrap">
             <table>

@@ -9,619 +9,991 @@
     $selectedSourceMeta = $createSourceTabs->firstWhere('key', $selectedFormSource)
         ?? ['key' => 'ipp', 'label' => 'IPP', 'enabled' => true, 'description' => ''];
     $selectedSourceEnabled = (bool) ($selectedSourceMeta['enabled'] ?? false);
+    $hasExtras = count($generalFieldGroups) > 0;
+    // Total steps: 1) Where? 2) Photos 3) Basics 4) Description (+ extras) 5) Review
+    $stepLabels = [
+        1 => 'Where',
+        2 => 'Photos',
+        3 => 'Basics',
+        4 => 'Details',
+        5 => 'Review',
+    ];
 @endphp
 
 <style>
-    /* Styling strictly minimal, clean, Apple-like */
+    /* Apple-like minimal palette */
     :root {
         --apple-bg: #fbfbfd;
         --apple-card: #ffffff;
         --apple-text: #1d1d1f;
-        --apple-text-secondary: #86868b;
+        --apple-text-secondary: #6e6e73;
         --apple-border: rgba(0, 0, 0, 0.08);
-        --apple-border-light: rgba(0, 0, 0, 0.04);
         --apple-accent: #f5f5f7;
         --apple-blue: #0066cc;
         --apple-blue-hover: #0077ed;
+        --apple-green: #34c759;
         --apple-danger: #ff3b30;
-        --apple-danger-hover: #ff453a;
-        --apple-radius: 20px;
-        --apple-radius-sm: 12px;
+        --apple-radius: 22px;
+        --apple-radius-sm: 14px;
         --apple-shadow: 0 4px 24px rgba(0,0,0,0.04);
-        --apple-shadow-sm: 0 2px 12px rgba(0,0,0,0.03);
         --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
     }
-    .lf-page{display:grid;gap:32px;max-width:1200px;margin:0 auto;padding-bottom:40px;color:var(--apple-text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
-    .lf-hero,.lf-card{background:var(--apple-card);border:1px solid var(--apple-border);border-radius:var(--apple-radius);box-shadow:var(--apple-shadow);transition:var(--transition)}
-    .lf-hero{padding:40px}
-    .lf-hero-grid,.lf-grid{display:grid;gap:32px}
-    .lf-hero-grid{grid-template-columns:minmax(0,1.2fr) minmax(300px,.8fr)}
-    .lf-grid{grid-template-columns:minmax(0,1.15fr) minmax(360px,.85fr);align-items:start}
-    .lf-main,.lf-side,.lf-fields{display:grid;gap:24px}
-    .lf-card{padding:32px}
-    .lf-kicker{font-size:13px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:var(--apple-blue);margin-bottom:12px}
-    .lf-hero h3,.lf-card h4,.lf-side h5{color:var(--apple-text);letter-spacing:-0.02em;font-weight:700;margin:0}
-    .lf-hero h3{font-size:clamp(28px,4vw,36px);line-height:1.15;margin-bottom:16px}
-    .lf-card h4{font-size:24px;margin-bottom:8px}
-    .lf-side h5{font-size:20px;margin-bottom:16px}
-    .lf-hero p,.lf-head p,.lf-guide li,.lf-hint,.lf-note{font-size:15px;line-height:1.6;color:var(--apple-text-secondary)}
-    .lf-guide{padding:24px;border:1px solid var(--apple-border);border-radius:var(--apple-radius-sm);background:var(--apple-accent)}
-    .lf-guide strong{display:block;margin-bottom:12px;color:var(--apple-text);font-weight:600;font-size:16px}
-    .lf-guide ul{padding-left:18px;display:grid;gap:10px}
-    .lf-head{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;margin-bottom:24px}
-    .lf-pill{padding:8px 16px;border-radius:999px;background:var(--apple-accent);color:var(--apple-text);font-size:13px;font-weight:600;white-space:nowrap;border:1px solid rgba(0,0,0,0.04)}
-    .lf-upload{display:grid;gap:16px;padding:32px;border:2px dashed var(--apple-border);border-radius:var(--apple-radius-sm);background:#fbfbfd;text-align:center;transition:var(--transition)}
-    .lf-upload:hover{border-color:var(--apple-blue);background:#f0f8ff}
-    .lf-upload strong{font-size:20px;color:var(--apple-text);font-weight:600;letter-spacing:-0.01em}
-    .lf-source-tabs{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-top:24px}
-    .lf-source-tab{position:relative;display:grid;gap:8px;padding:20px;border:1px solid var(--apple-border);border-radius:var(--apple-radius-sm);background:var(--apple-card);text-decoration:none;color:inherit;transition:var(--transition)}
-    .lf-source-tab:hover{border-color:var(--apple-blue);box-shadow:var(--apple-shadow-sm);transform:translateY(-2px)}
-    .lf-source-tab.is-active{border-color:var(--apple-blue);background:#f0f8ff;box-shadow:0 0 0 1px var(--apple-blue)}
-    .lf-source-tab.is-disabled{opacity:0.5;background:#f5f5f7;pointer-events:none}
-    .lf-source-tab.is-selectable{cursor:pointer}
-    .lf-source-input{position:absolute;opacity:0;pointer-events:none}
-    .lf-source-label{font-size:15px;font-weight:700;color:var(--apple-text);text-transform:uppercase;letter-spacing:0.04em}
-    .lf-source-copy{font-size:14px;line-height:1.5;color:var(--apple-text-secondary)}
-    .lf-source-status{font-size:13px;font-weight:600;color:var(--apple-blue);margin-top:8px}
-    .lf-upload-actions{display:flex;gap:16px;flex-direction:column;align-items:center}
-    .lf-file{position:relative;display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:10px 24px;border-radius:999px;background:var(--apple-blue);color:#fff;font-size:15px;font-weight:600;cursor:pointer;transition:var(--transition)}
-    .lf-file:hover{background:var(--apple-blue-hover);transform:scale(1.02)}
-    .lf-file input{position:absolute;opacity:0;pointer-events:none}
-    .lf-gallery{display:grid;gap:20px;margin-top:32px;padding-top:32px;border-top:1px solid var(--apple-border)}
-    .lf-gallery-head{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}
-    .lf-gallery-title{font-size:15px;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;color:var(--apple-text)}
-    .lf-media-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px}
-    .lf-media{display:grid;gap:12px;padding:12px;border:1px solid var(--apple-border);border-radius:var(--apple-radius-sm);background:var(--apple-card);transition:var(--transition)}
-    .lf-media:hover{box-shadow:var(--apple-shadow-sm);transform:translateY(-2px)}
-    .lf-frame{position:relative;height:160px;border-radius:8px;overflow:hidden;background:#f5f5f7;border:1px solid rgba(0,0,0,0.04)}
-    .lf-frame img{width:100%;height:100%;object-fit:cover;display:block}
-    .lf-badges{position:absolute;top:10px;left:10px;display:flex;gap:8px;flex-wrap:wrap}
-    .lf-badge{display:inline-flex;align-items:center;padding:6px 10px;border-radius:6px;background:rgba(255,255,255,0.9);color:var(--apple-text);font-size:11px;font-weight:700;letter-spacing:0.02em;box-shadow:0 2px 4px rgba(0,0,0,0.1);backdrop-filter:blur(4px)}
-    .lf-badge.cover{background:var(--apple-text);color:#fff}
-    .lf-name{font-size:14px;font-weight:600;color:var(--apple-text);line-height:1.4;word-break:break-word}
-    .lf-sub{font-size:13px;color:var(--apple-text-secondary);word-break:break-word}
-    .lf-remove{display:inline-flex;align-items:center;justify-content:center;min-height:36px;padding:8px 16px;border-radius:8px;border:none;background:var(--apple-accent);color:var(--apple-danger);font-size:14px;font-weight:600;cursor:pointer;transition:var(--transition)}
-    .lf-remove:hover{background:#ffefef;color:var(--apple-danger-hover)}
-    .lf-empty{padding:32px;border:1px dashed var(--apple-border);border-radius:var(--apple-radius-sm);background:#fbfbfd;color:var(--apple-text-secondary);font-size:15px;line-height:1.6;text-align:center;font-weight:500}
-    .lf-form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
-    .lf-full{grid-column:1/-1}
-    .lf-check{display:flex;gap:12px;align-items:flex-start;padding:20px;border:1px solid var(--apple-border);border-radius:var(--apple-radius-sm);background:var(--apple-accent);cursor:pointer;transition:var(--transition)}
-    .lf-check:hover{border-color:var(--apple-blue)}
-    .lf-check input{width:20px;height:20px;accent-color:var(--apple-blue);cursor:pointer;margin-top:2px}
-    .lf-check strong{display:block;font-size:15px;color:var(--apple-text);font-weight:600}
-    .lf-check span{display:block;margin-top:4px;font-size:14px;color:var(--apple-text-secondary)}
-    .lf-side{position:sticky;top:32px}
-    .lf-summary{display:grid;gap:16px}
-    .lf-row{display:flex;justify-content:space-between;gap:12px;padding-bottom:16px;border-bottom:1px solid var(--apple-border)}
-    .lf-row:last-child{padding-bottom:0;border-bottom:0}
-    .lf-row span{font-size:14px;font-weight:600;color:var(--apple-text-secondary)}
-    .lf-row strong{font-size:15px;font-weight:600;color:var(--apple-text);text-align:right;word-break:break-word}
-    .lf-note{padding:20px;border-radius:var(--apple-radius-sm);background:#f5f5f7;color:var(--apple-text-secondary);border:1px solid rgba(0,0,0,0.04);margin:24px 0}
-    .lf-actions{display:flex;gap:12px;flex-wrap:wrap}
-    
-    .lf-actions .btn {
-        flex: 1;
-        padding: 14px 24px;
-        border-radius: 999px;
-        font-weight: 600;
-        font-size: 15px;
-        text-align: center;
-        border: none;
-        cursor: pointer;
-        transition: var(--transition);
-        text-decoration: none;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+
+    /* Wizard shell */
+    .wiz {
+        max-width: 760px;
+        margin: 0 auto;
+        display: grid;
+        gap: 24px;
+        padding-bottom: 60px;
+        color: var(--apple-text);
     }
-    
-    .lf-actions .btn-primary { background: var(--apple-blue); color: #ffffff; }
-    .lf-actions .btn-primary:hover { background: var(--apple-blue-hover); transform: scale(1.02); }
-    .lf-actions .btn-secondary { background: var(--apple-accent); color: var(--apple-text); }
-    .lf-actions .btn-secondary:hover { background: rgba(0,0,0,0.05); }
 
-    .form-label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 8px; color: var(--apple-text); }
-    .form-input, .form-select, .form-textarea { width: 100%; border: 1px solid var(--apple-border); background: var(--apple-accent); border-radius: 12px; padding: 14px 16px; font-size: 15px; color: var(--apple-text); transition: var(--transition); font-family: inherit; }
-    .form-input:focus, .form-select:focus, .form-textarea:focus { background: #ffffff; border-color: var(--apple-blue); outline: none; box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.15); }
-    .form-textarea { resize: vertical; min-height: 100px; }
-    .form-hint { font-size: 13px; color: var(--apple-text-secondary); margin-top: 6px; }
+    /* Stepper */
+    .wiz-stepper {
+        background: var(--apple-card);
+        border: 1px solid var(--apple-border);
+        border-radius: var(--apple-radius);
+        padding: 20px 22px;
+        box-shadow: var(--apple-shadow);
+    }
+    .wiz-stepper-top {
+        display: flex; align-items: center; justify-content: space-between;
+        margin-bottom: 14px; gap: 12px; flex-wrap: wrap;
+    }
+    .wiz-stepper-title { font-size: 15px; font-weight: 700; color: var(--apple-text); }
+    .wiz-stepper-progress { font-size: 13px; color: var(--apple-text-secondary); font-weight: 500; }
+    .wiz-stepper-bar { display: flex; gap: 8px; align-items: center; }
+    .wiz-dot {
+        width: 32px; height: 32px; border-radius: 50%;
+        background: var(--apple-accent);
+        color: var(--apple-text-secondary);
+        display: grid; place-items: center;
+        font-size: 13px; font-weight: 700;
+        flex-shrink: 0;
+        transition: var(--transition);
+    }
+    .wiz-dot.is-active { background: var(--apple-text); color: #fff; transform: scale(1.05); }
+    .wiz-dot.is-done { background: var(--apple-green); color: #fff; }
+    .wiz-dot-label {
+        font-size: 11px; font-weight: 700;
+        color: var(--apple-text-secondary);
+        text-align: center;
+        margin-top: 4px;
+    }
+    .wiz-dot-wrap { display: flex; flex-direction: column; align-items: center; gap: 0; }
+    .wiz-line { flex: 1; height: 3px; background: var(--apple-accent); border-radius: 3px; margin: 0 4px; transition: background .25s ease; }
+    .wiz-line.is-done { background: var(--apple-green); }
+    .wiz-stepper-mobile-labels { display: none; }
 
-    @media (max-width:1180px){.lf-hero-grid,.lf-grid{grid-template-columns:1fr}.lf-side{position:static}}
-    @media (max-width:780px){
-        .lf-card,.lf-hero{padding:24px}
-        .lf-form-grid,.lf-media-grid{grid-template-columns:1fr}
-        .lf-head{flex-direction:column}
-        .lf-actions .btn {flex-basis: 100%;}
+    /* Step card */
+    .wiz-step { display: none; }
+    .wiz-step.is-active { display: block; animation: wizFade 0.25s ease; }
+    @keyframes wizFade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+    .wiz-card {
+        background: var(--apple-card);
+        border: 1px solid var(--apple-border);
+        border-radius: var(--apple-radius);
+        padding: 32px;
+        box-shadow: var(--apple-shadow);
+    }
+    .wiz-step-num {
+        display: inline-block;
+        font-size: 12px; font-weight: 700;
+        letter-spacing: 0.05em; text-transform: uppercase;
+        color: var(--apple-blue);
+        margin-bottom: 8px;
+    }
+    .wiz-step h2 {
+        margin: 0 0 8px;
+        font-size: clamp(22px, 3vw, 28px);
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        line-height: 1.2;
+    }
+    .wiz-step .wiz-lead {
+        margin: 0 0 24px;
+        font-size: 16px;
+        line-height: 1.5;
+        color: var(--apple-text-secondary);
+    }
+
+    /* Step nav (back/next) */
+    .wiz-nav {
+        display: flex; gap: 12px;
+        margin-top: 28px; padding-top: 24px;
+        border-top: 1px solid var(--apple-border);
+        align-items: center; justify-content: space-between; flex-wrap: wrap;
+    }
+    .wiz-nav-left, .wiz-nav-right { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+    .wiz-btn {
+        display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+        padding: 14px 26px;
+        border-radius: 999px;
+        font-size: 16px; font-weight: 600;
+        border: none; cursor: pointer;
+        text-decoration: none;
+        transition: var(--transition);
+        min-width: 130px;
+    }
+    .wiz-btn-primary { background: var(--apple-blue); color: #fff; }
+    .wiz-btn-primary:hover:not(:disabled) { background: var(--apple-blue-hover); transform: translateY(-1px); }
+    .wiz-btn-primary:disabled { opacity: 0.45; cursor: not-allowed; }
+    .wiz-btn-secondary { background: var(--apple-accent); color: var(--apple-text); }
+    .wiz-btn-secondary:hover { background: rgba(0,0,0,0.08); }
+    .wiz-btn-success { background: var(--apple-green); color: #fff; }
+    .wiz-btn-success:hover:not(:disabled) { background: #28a745; transform: translateY(-1px); }
+    .wiz-btn-ghost { background: transparent; color: var(--apple-text-secondary); min-width: 0; padding: 10px 18px; }
+    .wiz-btn-ghost:hover { color: var(--apple-text); }
+
+    /* Source picker */
+    .wiz-sources { display: grid; grid-template-columns: 1fr; gap: 14px; }
+    @media (min-width: 560px) {
+        .wiz-sources { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+    }
+    .wiz-source {
+        position: relative; cursor: pointer;
+        padding: 22px;
+        background: var(--apple-card);
+        border: 2px solid var(--apple-border);
+        border-radius: var(--apple-radius-sm);
+        text-decoration: none; color: inherit;
+        transition: var(--transition);
+        display: block;
+    }
+    .wiz-source:hover { border-color: var(--apple-blue); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.06); }
+    .wiz-source.is-active { border-color: var(--apple-blue); background: #f0f8ff; box-shadow: 0 0 0 4px rgba(0, 102, 204, 0.12); }
+    .wiz-source.is-disabled { opacity: 0.45; pointer-events: none; background: var(--apple-accent); }
+    .wiz-source-label { font-size: 18px; font-weight: 700; margin-bottom: 6px; letter-spacing: -0.01em; }
+    .wiz-source-copy { font-size: 14px; line-height: 1.5; color: var(--apple-text-secondary); }
+    .wiz-source-status { display: inline-block; margin-top: 8px; padding: 3px 10px; border-radius: 999px; background: rgba(0, 102, 204, 0.1); color: var(--apple-blue); font-size: 12px; font-weight: 700; }
+    .wiz-source-input { position: absolute; opacity: 0; pointer-events: none; }
+
+    /* Forms - bigger touch targets, softer focus */
+    .wiz-field { display: grid; gap: 8px; margin-bottom: 18px; }
+    .wiz-field:last-child { margin-bottom: 0; }
+    .wiz-field label, .wiz-label { font-size: 15px; font-weight: 600; color: var(--apple-text); }
+    .wiz-field label .req { color: var(--apple-danger); }
+    .wiz-input, .wiz-select, .wiz-textarea {
+        width: 100%;
+        padding: 14px 16px;
+        border: 1px solid var(--apple-border);
+        background: var(--apple-accent);
+        border-radius: 12px;
+        font-size: 16px;
+        font-family: inherit;
+        color: var(--apple-text);
+        transition: var(--transition);
+    }
+    .wiz-input:focus, .wiz-select:focus, .wiz-textarea:focus {
+        background: #fff; border-color: var(--apple-blue);
+        outline: none; box-shadow: 0 0 0 4px rgba(0, 102, 204, 0.15);
+    }
+    .wiz-textarea { min-height: 140px; resize: vertical; line-height: 1.5; }
+    .wiz-hint { font-size: 13px; color: var(--apple-text-secondary); }
+    .wiz-row-2 { display: grid; grid-template-columns: 1fr; gap: 18px; }
+    @media (min-width: 560px) { .wiz-row-2 { grid-template-columns: 1fr 1fr; } }
+
+    /* Photo upload */
+    .wiz-upload {
+        text-align: center;
+        padding: 36px 20px;
+        background: #fbfbfd;
+        border: 2px dashed var(--apple-border);
+        border-radius: var(--apple-radius-sm);
+        transition: var(--transition);
+    }
+    .wiz-upload:hover { border-color: var(--apple-blue); background: #f0f8ff; }
+    .wiz-upload-title { font-size: 17px; font-weight: 700; margin-bottom: 14px; }
+    .wiz-file {
+        display: inline-flex; align-items: center; gap: 8px;
+        padding: 14px 26px; border-radius: 999px;
+        background: var(--apple-blue); color: #fff;
+        font-size: 16px; font-weight: 600; cursor: pointer;
+        transition: var(--transition); position: relative;
+    }
+    .wiz-file:hover { background: var(--apple-blue-hover); transform: scale(1.02); }
+    .wiz-file input { position: absolute; opacity: 0; pointer-events: none; width: 0; }
+    .wiz-upload-hint { font-size: 13px; color: var(--apple-text-secondary); margin-top: 12px; }
+
+    /* Photo grid */
+    .wiz-gallery { margin-top: 22px; }
+    .wiz-gallery-title { font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--apple-text-secondary); margin-bottom: 12px; }
+    .wiz-media-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 14px; }
+    .wiz-media { background: var(--apple-card); border: 1px solid var(--apple-border); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; }
+    .wiz-frame { position: relative; height: 130px; background: var(--apple-accent); overflow: hidden; }
+    .wiz-frame img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .wiz-badges { position: absolute; top: 8px; left: 8px; display: flex; gap: 6px; flex-wrap: wrap; }
+    .wiz-badge { padding: 4px 8px; background: rgba(255,255,255,0.95); border-radius: 6px; font-size: 10px; font-weight: 700; backdrop-filter: blur(4px); color: var(--apple-text); }
+    .wiz-badge.cover { background: var(--apple-text); color: #fff; }
+    .wiz-media-meta { padding: 10px 12px; flex: 1; display: flex; flex-direction: column; gap: 8px; }
+    .wiz-media-name { font-size: 12px; font-weight: 600; word-break: break-word; line-height: 1.3; }
+    .wiz-media-sub { font-size: 11px; color: var(--apple-text-secondary); }
+    .wiz-remove {
+        margin: 0 12px 12px; padding: 8px 12px;
+        background: var(--apple-accent); color: var(--apple-danger);
+        border: none; border-radius: 8px;
+        font-size: 13px; font-weight: 600; cursor: pointer;
+        transition: var(--transition);
+    }
+    .wiz-remove:hover { background: #ffefef; }
+    .wiz-empty {
+        padding: 24px; border: 1px dashed var(--apple-border);
+        border-radius: 12px; background: #fbfbfd;
+        text-align: center; color: var(--apple-text-secondary);
+        font-size: 14px;
+    }
+
+    /* Checkbox card */
+    .wiz-check {
+        display: flex; gap: 14px; align-items: flex-start;
+        padding: 18px; background: var(--apple-accent);
+        border: 1px solid var(--apple-border); border-radius: var(--apple-radius-sm);
+        cursor: pointer; transition: var(--transition);
+    }
+    .wiz-check:hover { border-color: var(--apple-blue); }
+    .wiz-check input { width: 22px; height: 22px; flex-shrink: 0; accent-color: var(--apple-blue); margin-top: 2px; cursor: pointer; }
+    .wiz-check-text strong { display: block; font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+    .wiz-check-text span { font-size: 14px; color: var(--apple-text-secondary); line-height: 1.4; }
+
+    /* Optional details (collapsed extras) */
+    .wiz-extras {
+        margin-top: 24px; padding-top: 24px;
+        border-top: 1px solid var(--apple-border);
+    }
+    .wiz-extras-toggle {
+        display: flex; align-items: center; gap: 10px;
+        padding: 14px 18px; background: var(--apple-accent);
+        border: 1px solid var(--apple-border); border-radius: 12px;
+        font-size: 15px; font-weight: 600; cursor: pointer; width: 100%;
+        text-align: left; color: var(--apple-text);
+        transition: var(--transition);
+    }
+    .wiz-extras-toggle:hover { background: rgba(0,0,0,0.05); }
+    .wiz-extras-toggle .chev { margin-left: auto; transition: transform .2s ease; }
+    .wiz-extras.is-open .chev { transform: rotate(180deg); }
+    .wiz-extras-body { display: none; margin-top: 18px; }
+    .wiz-extras.is-open .wiz-extras-body { display: block; }
+    .wiz-extras-section { margin-bottom: 24px; }
+    .wiz-extras-section h4 { margin: 0 0 14px; font-size: 16px; font-weight: 700; color: var(--apple-text); }
+
+    /* Review */
+    .wiz-review { display: grid; gap: 14px; }
+    .wiz-review-row {
+        display: grid; grid-template-columns: 130px 1fr auto; gap: 12px;
+        padding: 14px 16px; background: var(--apple-accent);
+        border-radius: 12px; align-items: center;
+    }
+    .wiz-review-row.full { grid-template-columns: 130px 1fr; }
+    .wiz-review-key { font-size: 13px; font-weight: 600; color: var(--apple-text-secondary); }
+    .wiz-review-val { font-size: 15px; font-weight: 600; color: var(--apple-text); word-break: break-word; }
+    .wiz-review-val.muted { color: var(--apple-text-secondary); font-weight: 500; font-style: italic; }
+    .wiz-review-edit {
+        background: transparent; border: none; cursor: pointer;
+        font-size: 13px; font-weight: 600; color: var(--apple-blue);
+        padding: 6px 12px; border-radius: 999px;
+        transition: var(--transition);
+    }
+    .wiz-review-edit:hover { background: rgba(0, 102, 204, 0.1); }
+    .wiz-review-photos { display: flex; gap: 8px; flex-wrap: wrap; }
+    .wiz-review-photo {
+        width: 48px; height: 48px; border-radius: 8px;
+        background: var(--apple-accent) center/cover no-repeat;
+        border: 1px solid var(--apple-border);
+    }
+    .wiz-review-photo.more {
+        display: grid; place-items: center;
+        font-size: 12px; font-weight: 700; color: var(--apple-text-secondary);
+    }
+
+    /* Help link below stepper */
+    .wiz-help {
+        text-align: center; padding-top: 6px;
+        font-size: 13px; color: var(--apple-text-secondary);
+    }
+    .wiz-help a { color: var(--apple-blue); text-decoration: none; font-weight: 600; }
+    .wiz-help a:hover { text-decoration: underline; }
+
+    @media (max-width: 640px) {
+        .wiz-card { padding: 22px 18px; }
+        .wiz-stepper { padding: 16px; }
+        .wiz-btn { padding: 14px 22px; min-width: 110px; font-size: 15px; }
+        .wiz-nav-left, .wiz-nav-right { width: 100%; }
+        .wiz-nav-right { justify-content: flex-end; }
+        .wiz-nav { gap: 16px; }
+        .wiz-dot { width: 28px; height: 28px; font-size: 12px; }
+        .wiz-review-row { grid-template-columns: 1fr; }
+        .wiz-review-row.full { grid-template-columns: 1fr; }
     }
 </style>
 
-<div class="lf-page">
-    @if($createSourceTabs->isNotEmpty())
-        <section class="lf-card">
-            <div class="lf-head">
-                <div>
-                    <h4>Listing Source</h4>
-                    <p>{{ $listing ? 'Choose where this listing should live after you save.' : 'Choose where this listing should be created before you upload photos.' }}</p>
+<div class="wiz" id="wizard"
+     data-edit="{{ $listing ? '1' : '0' }}"
+     data-source-enabled="{{ $selectedSourceEnabled ? '1' : '0' }}">
+
+    {{-- Stepper --}}
+    <div class="wiz-stepper">
+        <div class="wiz-stepper-top">
+            <div class="wiz-stepper-title" id="wiz-step-title">Step 1 of 5</div>
+            <div class="wiz-stepper-progress"><span id="wiz-step-pct">20</span>% complete</div>
+        </div>
+        <div class="wiz-stepper-bar">
+            @foreach($stepLabels as $stepNum => $label)
+                <div class="wiz-dot-wrap">
+                    <div class="wiz-dot" data-dot="{{ $stepNum }}">{{ $stepNum }}</div>
                 </div>
-            </div>
-            <div class="lf-source-tabs">
-                @foreach($createSourceTabs as $sourceTab)
-                    @php
-                        $isActiveSource = $selectedFormSource === $sourceTab['key'];
-                        $sourceTabClass = 'lf-source-tab' . ($isActiveSource ? ' is-active' : '') . (! $sourceTab['enabled'] ? ' is-disabled' : '') . ($listing ? ' is-selectable' : '');
-                    @endphp
-                    @if($listing)
-                        <label class="{{ $sourceTabClass }}">
-                            <input class="lf-source-input" type="radio" name="source" value="{{ $sourceTab['key'] }}" @checked($isActiveSource) @disabled(! $sourceTab['enabled'])>
-                            <span class="lf-source-label">{{ $sourceTab['label'] }}</span>
-                            <span class="lf-source-copy">{{ $sourceTab['description'] }}</span>
-                            @if($originalFormSource === $sourceTab['key'])
-                                <span class="lf-source-status">Current source</span>
-                            @elseif($isActiveSource)
-                                <span class="lf-source-status">Will move on save</span>
-                            @endif
-                        </label>
-                    @elseif($sourceTab['enabled'])
-                        <a href="{{ route('listings.create', ['source' => $sourceTab['key']]) }}" class="{{ $sourceTabClass }}">
-                            <span class="lf-source-label">{{ $sourceTab['label'] }}</span>
-                            <span class="lf-source-copy">{{ $sourceTab['description'] }}</span>
-                        </a>
-                    @else
-                        <div class="{{ $sourceTabClass }}">
-                            <span class="lf-source-label">{{ $sourceTab['label'] }}</span>
-                            <span class="lf-source-copy">{{ $sourceTab['description'] }}</span>
-                        </div>
-                    @endif
-                @endforeach
-            </div>
-        </section>
+                @if(!$loop->last)
+                    <div class="wiz-line" data-line="{{ $stepNum }}"></div>
+                @endif
+            @endforeach
+        </div>
+        <div class="wiz-help">
+            Need help? <a href="{{ route('tutorials.show', $listing ? 'edit-listing' : 'add-listing') }}">See the picture guide</a>
+        </div>
+    </div>
+
+    @if($listing)
+        <input type="hidden" name="original_source" value="{{ $originalFormSource }}">
+        <input type="hidden" name="return_source" value="{{ $formReturnSource }}">
+    @else
+        <input type="hidden" name="source" id="wiz-source-input" value="{{ $selectedFormSource }}">
     @endif
 
-    <section class="lf-hero">
-        <div class="lf-hero-grid">
-            <div>
-                <div class="lf-kicker">{{ $listing ? 'Update Listing' : 'Create Listing' }}</div>
-                <h3>{{ $listing ? 'Keep the gallery current and the listing polished.' : 'Launch a new listing with real uploaded images.' }}</h3>
-                <p>
-                    @if($listing && $selectedFormSource !== $originalFormSource)
-                        Saving will move this listing from {{ strtoupper($originalFormSource) }} to {{ strtoupper($selectedFormSource) }} while keeping the same property ID and legacy image paths.
-                    @elseif($listing)
-                        Agents can keep the gallery current here without touching raw legacy metadata by hand.
-                    @elseif($selectedFormSource === 'icp')
-                        ICP uploads follow the mobile-app flow: photos are saved into legacy <code>Database/Images/&lt;propertyId&gt;/001.jpg</code> paths before the listing row is written.
-                    @elseif($selectedFormSource === 'condo')
-                        Condo uploads are written into WordPress properties inside <code>wp_condo</code> so Estatik, Rank Math, and future condo subdomains can read the same listing.
-                    @else
-                        IPP uploads now keep the same legacy <code>Database/Images/&lt;propertyId&gt;/001.jpg</code> image path format used by the existing listing databases.
-                    @endif
-                </p>
+    {{-- ============ STEP 1: SOURCE ============ --}}
+    <section class="wiz-step is-active" data-step="1">
+        <div class="wiz-card">
+            <span class="wiz-step-num">Step 1 of 5</span>
+            <h2>{{ $listing ? 'Where does this listing belong?' : 'Where would you like to add this listing?' }}</h2>
+            <p class="wiz-lead">
+                {{ $listing
+                    ? 'You can keep it where it is, or move it somewhere else when you save.'
+                    : 'Pick one. If you\'re not sure, choose IPP &mdash; you can always move it later.' }}
+            </p>
+
+            @if($createSourceTabs->isNotEmpty())
+                <div class="wiz-sources">
+                    @foreach($createSourceTabs as $sourceTab)
+                        @php
+                            $isActiveSource = $selectedFormSource === $sourceTab['key'];
+                            $cls = 'wiz-source' . ($isActiveSource ? ' is-active' : '') . (! $sourceTab['enabled'] ? ' is-disabled' : '');
+                        @endphp
+                        @if($listing)
+                            <label class="{{ $cls }}">
+                                <input class="wiz-source-input" type="radio" name="source" value="{{ $sourceTab['key'] }}" @checked($isActiveSource) @disabled(! $sourceTab['enabled'])>
+                                <div class="wiz-source-label">{{ $sourceTab['label'] }}</div>
+                                <div class="wiz-source-copy">{{ $sourceTab['description'] }}</div>
+                                @if($originalFormSource === $sourceTab['key'])
+                                    <span class="wiz-source-status">Currently here</span>
+                                @elseif($isActiveSource)
+                                    <span class="wiz-source-status">Will move on save</span>
+                                @endif
+                            </label>
+                        @elseif($sourceTab['enabled'])
+                            <a href="{{ route('listings.create', ['source' => $sourceTab['key']]) }}" class="{{ $cls }}">
+                                <div class="wiz-source-label">{{ $sourceTab['label'] }}</div>
+                                <div class="wiz-source-copy">{{ $sourceTab['description'] }}</div>
+                                @if($isActiveSource)
+                                    <span class="wiz-source-status">Selected</span>
+                                @endif
+                            </a>
+                        @else
+                            <div class="{{ $cls }}">
+                                <div class="wiz-source-label">{{ $sourceTab['label'] }}</div>
+                                <div class="wiz-source-copy">{{ $sourceTab['description'] }}</div>
+                            </div>
+                        @endif
+                    @endforeach
+                </div>
+            @endif
+
+            @if(! $selectedSourceEnabled)
+                <div class="wiz-empty" style="margin-top:18px;color:#b25e00;background:#fff5e5;border-color:#ffd9a8;border-style:solid;">
+                    This source isn&rsquo;t available right now. Pick a different one above.
+                </div>
+            @endif
+        </div>
+
+        <div class="wiz-nav">
+            <div class="wiz-nav-left">
+                <a href="{{ $listing ? route('listings.show', array_filter(['id' => $listing->id, 'source' => $originalFormSource === 'ipp' ? null : $originalFormSource, 'return_source' => $formReturnSource], static fn ($v) => $v !== null)) : route('listings.index', ['source' => $selectedFormSource]) }}" class="wiz-btn wiz-btn-ghost">Cancel</a>
             </div>
-            <div class="lf-guide">
-                <strong>{{ $listing ? 'How photo updates work' : 'How this save flow works' }}</strong>
-                <ul>
-                    <li>Keep any saved image you still want on the listing.</li>
-                    <li>Remove any outdated photo, then add replacements below.</li>
-                    <li>The first kept or uploaded image becomes the cover photo after save.</li>
-                    @if($listing)
-                        <li>Changing the source here moves the listing when you save.</li>
-                    @endif
-                </ul>
+            <div class="wiz-nav-right">
+                <button type="button" class="wiz-btn wiz-btn-primary" data-wiz-next>Continue &rarr;</button>
             </div>
         </div>
     </section>
 
-    <div class="lf-grid">
-        <div class="lf-main">
-            @if($listing)
-                <input type="hidden" name="original_source" value="{{ $originalFormSource }}">
-                <input type="hidden" name="return_source" value="{{ $formReturnSource }}">
-            @else
-                <input type="hidden" name="source" value="{{ $selectedFormSource }}">
-            @endif
+    {{-- ============ STEP 2: PHOTOS ============ --}}
+    <section class="wiz-step" data-step="2">
+        <div class="wiz-card">
+            <span class="wiz-step-num">Step 2 of 5</span>
+            <h2>Add property photos</h2>
+            <p class="wiz-lead">
+                The first photo becomes the cover image. You can add as many as you like.
+            </p>
 
-            <section class="lf-card">
-                <div class="lf-head">
-                    <div>
-                        <h4>Media Gallery</h4>
-                        <p>Existing photos stay visible until you remove them. New uploads preview instantly before you save.</p>
-                    </div>
-                    <div class="lf-pill"><span data-gallery-total>{{ count($existingPhotos) }}</span> saved</div>
+            <div class="wiz-upload">
+                <div class="wiz-upload-title">Add photos from your device</div>
+                <label class="wiz-file">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                    Choose Images
+                    <input id="listing-new-images" type="file" name="new_images[]" accept="image/*" multiple @disabled(! $selectedSourceEnabled)>
+                </label>
+                <div class="wiz-upload-hint">JPG, PNG, WEBP, GIF, BMP &mdash; up to 10MB each.</div>
+            </div>
+
+            <div class="wiz-gallery">
+                <div class="wiz-gallery-title">
+                    Saved photos &middot; <span data-gallery-total>{{ count($existingPhotos) }}</span>
                 </div>
-
-                <div class="lf-upload">
-                    <strong>Add property images</strong>
-                    <div class="lf-upload-actions">
-                        <label class="lf-file">
-                            Choose Images
-                            <input id="listing-new-images" type="file" name="new_images[]" accept="image/*" multiple @disabled(! $selectedSourceEnabled)>
-                        </label>
-                        <span class="lf-hint">JPG, JPEG, PNG, WEBP, GIF, and BMP up to 10MB each.</span>
-                    </div>
-                    <div class="lf-hint">
-                        @if($selectedFormSource === 'icp')
-                            New ICP uploads are saved with sequential legacy filenames like <code>001.jpg</code>, <code>002.jpg</code>, and the DB keeps the matching <code>Database/Images</code> paths.
-                        @elseif($selectedFormSource === 'condo')
-                            Condo uploads are copied into WordPress media-style uploads and linked back to the property post for the condo site.
-                        @else
-                            New uploads are stored with legacy <code>Database/Images</code> paths so they match the existing IPP/ICP databases.
-                        @endif
-                    </div>
-                </div>
-
-                <div class="lf-gallery">
-                    <div class="lf-gallery-head">
-                        <div class="lf-gallery-title">Current Gallery</div>
-                        <div class="lf-hint">Remove any photo you no longer want on the live listing.</div>
-                    </div>
-                    <div class="lf-media-grid" id="existing-photo-grid">
-                        @forelse($existingPhotos as $photoPath)
-                            @php
-                                $photoUrl = \App\Support\SharedAssetUrl::listing($listingUsername, $listingPropertyId, $photoPath)
-                                    ?? \App\Support\SharedAssetUrl::storage($photoPath);
-                            @endphp
-                            <article class="lf-media" data-existing-photo>
-                                <div class="lf-frame">
-                                    <div class="lf-badges">
-                                        <span class="lf-badge">Saved</span>
-                                        @if($loop->first)
-                                            <span class="lf-badge cover">Cover</span>
-                                        @endif
-                                    </div>
-                                    @if($photoUrl)
-                                        <img src="{{ $photoUrl }}" alt="Saved photo {{ $loop->iteration }}" loading="lazy">
-                                    @endif
+                <div class="wiz-media-grid" id="existing-photo-grid">
+                    @forelse($existingPhotos as $photoPath)
+                        @php
+                            $photoUrl = \App\Support\SharedAssetUrl::listing($listingUsername, $listingPropertyId, $photoPath)
+                                ?? \App\Support\SharedAssetUrl::storage($photoPath);
+                        @endphp
+                        <article class="wiz-media" data-existing-photo>
+                            <div class="wiz-frame">
+                                <div class="wiz-badges">
+                                    <span class="wiz-badge">Saved</span>
+                                    @if($loop->first)<span class="wiz-badge cover">Cover</span>@endif
                                 </div>
-                                <div>
-                                    <div class="lf-name">{{ basename($photoPath) ?: 'Saved image' }}</div>
-                                    <div class="lf-sub">{{ $photoPath }}</div>
+                                @if($photoUrl)<img src="{{ $photoUrl }}" alt="Saved photo" loading="lazy">@endif
+                            </div>
+                            <div class="wiz-media-meta">
+                                <div class="wiz-media-name">{{ basename($photoPath) ?: 'Saved image' }}</div>
+                            </div>
+                            <input type="hidden" name="existing_photos[]" value="{{ $photoPath }}">
+                            <button type="button" class="wiz-remove" data-remove-existing>Remove</button>
+                        </article>
+                    @empty
+                        <div class="wiz-empty" id="existing-photo-empty" style="grid-column:1/-1;">No saved photos yet. Add some above.</div>
+                    @endforelse
+                </div>
+            </div>
+
+            <div class="wiz-gallery">
+                <div class="wiz-gallery-title">New uploads &middot; <span data-new-total>0</span></div>
+                <div class="wiz-empty" id="new-photo-empty">Photos you pick will preview here before saving.</div>
+                <div class="wiz-media-grid" id="new-photo-grid"></div>
+            </div>
+        </div>
+
+        <div class="wiz-nav">
+            <div class="wiz-nav-left">
+                <button type="button" class="wiz-btn wiz-btn-secondary" data-wiz-back>&larr; Back</button>
+            </div>
+            <div class="wiz-nav-right">
+                <button type="button" class="wiz-btn wiz-btn-primary" data-wiz-next>Continue &rarr;</button>
+            </div>
+        </div>
+    </section>
+
+    {{-- ============ STEP 3: BASICS ============ --}}
+    <section class="wiz-step" data-step="3">
+        <div class="wiz-card">
+            <span class="wiz-step-num">Step 3 of 5</span>
+            <h2>The basics</h2>
+            <p class="wiz-lead">
+                Just a few things about the property. Fields with a <span style="color:var(--apple-danger);">*</span> are required.
+            </p>
+
+            <div class="wiz-field">
+                <label for="propertyname">Property name <span class="req">*</span></label>
+                <input class="wiz-input" id="propertyname" name="propertyname" type="text" value="{{ old('propertyname', $form['propertyname']) }}" maxlength="100" required placeholder="e.g. Sunset View Condo">
+            </div>
+
+            <div class="wiz-row-2">
+                <div class="wiz-field">
+                    <label for="listingtype">Listing type <span class="req">*</span></label>
+                    <select class="wiz-select" id="listingtype" name="listingtype" required>
+                        @foreach($listingTypes as $listingType)
+                            <option value="{{ $listingType }}" @selected(old('listingtype', $form['listingtype']) === $listingType)>{{ $listingType }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="wiz-field">
+                    <label for="propertytype">Property type <span class="req">*</span></label>
+                    <select class="wiz-select" id="propertytype" name="propertytype" required>
+                        @foreach($propertyTypes as $propertyType)
+                            <option value="{{ $propertyType }}" @selected(old('propertytype', $form['propertytype']) === $propertyType)>{{ $propertyType }}</option>
+                        @endforeach
+                    </select>
+                </div>
+            </div>
+
+            <div class="wiz-row-2">
+                <div class="wiz-field">
+                    <label for="price">Price <span class="req">*</span></label>
+                    <input class="wiz-input" id="price" name="price" type="text" value="{{ old('price', $form['price']) }}" inputmode="decimal" required placeholder="e.g. 450000">
+                    <div class="wiz-hint">Just the number. No commas needed.</div>
+                </div>
+                <div class="wiz-field">
+                    <label for="state">State <span class="req">*</span></label>
+                    <select class="wiz-select" id="state" name="state" required>
+                        <option value="">Select state</option>
+                        @foreach($states as $state)
+                            <option value="{{ $state->state }}" @selected(old('state', $form['state']) === $state->state)>{{ $state->state }}</option>
+                        @endforeach
+                    </select>
+                </div>
+            </div>
+
+            <div class="wiz-field">
+                <label for="area">Area <span class="req">*</span></label>
+                <input class="wiz-input" id="area" name="area" type="text" value="{{ old('area', $form['area']) }}" maxlength="100" required placeholder="e.g. Mont Kiara">
+            </div>
+        </div>
+
+        <div class="wiz-nav">
+            <div class="wiz-nav-left">
+                <button type="button" class="wiz-btn wiz-btn-secondary" data-wiz-back>&larr; Back</button>
+            </div>
+            <div class="wiz-nav-right">
+                <button type="button" class="wiz-btn wiz-btn-primary" data-wiz-next>Continue &rarr;</button>
+            </div>
+        </div>
+    </section>
+
+    {{-- ============ STEP 4: DESCRIPTION + EXTRAS ============ --}}
+    <section class="wiz-step" data-step="4">
+        <div class="wiz-card">
+            <span class="wiz-step-num">Step 4 of 5</span>
+            <h2>Tell us more (optional)</h2>
+            <p class="wiz-lead">
+                Add a short description so people understand what makes this place special. Everything on this step is optional.
+            </p>
+
+            <div class="wiz-field">
+                <label for="description">Description</label>
+                <textarea class="wiz-textarea" id="description" name="description" rows="6" placeholder="A few sentences about the property...">{{ old('description', $form['description']) }}</textarea>
+            </div>
+
+            <div class="wiz-field">
+                <label for="keywords">Keywords</label>
+                <input class="wiz-input" id="keywords" name="keywords" type="text" value="{{ old('keywords', $form['keywords']) }}" maxlength="500" placeholder="e.g. luxury, near LRT, freehold">
+                <div class="wiz-hint">Leave blank and we&rsquo;ll fill them in for you.</div>
+            </div>
+
+            <label class="wiz-check">
+                <input type="checkbox" name="cobroke" value="1" @checked((int) old('cobroke', $form['cobroke']) === 1)>
+                <div class="wiz-check-text">
+                    <strong>Allow co-broke</strong>
+                    <span>Other agents can help sell or rent this property.</span>
+                </div>
+            </label>
+
+            @if($hasExtras)
+                <div class="wiz-extras" id="wiz-extras">
+                    <button type="button" class="wiz-extras-toggle" id="wiz-extras-toggle">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                        Add more details (rooms, size, facilities…)
+                        <svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                    </button>
+                    <div class="wiz-extras-body">
+                        @foreach($generalFieldGroups as $sectionKey => $fields)
+                            <div class="wiz-extras-section">
+                                <h4>{{ $generalSectionTitles[$sectionKey] ?? \Illuminate\Support\Str::headline($sectionKey) }}</h4>
+                                <div class="wiz-row-2">
+                                    @foreach($fields as $field)
+                                        <div class="wiz-field" @if(($field['type'] ?? 'text') === 'textarea') style="grid-column:1/-1;" @endif>
+                                            <label for="{{ $field['name'] }}">{{ $field['label'] }}</label>
+                                            @if(($field['type'] ?? 'text') === 'textarea')
+                                                <textarea
+                                                    class="wiz-textarea"
+                                                    id="{{ $field['name'] }}"
+                                                    name="{{ $field['name'] }}"
+                                                    rows="{{ $field['rows'] ?? 4 }}"
+                                                    placeholder="{{ $field['placeholder'] ?? '' }}"
+                                                >{{ old($field['name'], $form[$field['name']] ?? '') }}</textarea>
+                                            @else
+                                                <input
+                                                    class="wiz-input"
+                                                    id="{{ $field['name'] }}"
+                                                    name="{{ $field['name'] }}"
+                                                    type="text"
+                                                    value="{{ old($field['name'], $form[$field['name']] ?? '') }}"
+                                                    maxlength="{{ $field['max'] ?? 255 }}"
+                                                    placeholder="{{ $field['placeholder'] ?? '' }}"
+                                                >
+                                            @endif
+                                        </div>
+                                    @endforeach
                                 </div>
-                                <input type="hidden" name="existing_photos[]" value="{{ $photoPath }}">
-                                <button type="button" class="lf-remove" data-remove-existing>Remove photo</button>
-                            </article>
-                        @empty
-                            <div class="lf-empty" id="existing-photo-empty">No saved photos yet. Add images above and they will appear in the gallery after save.</div>
-                        @endforelse
-                    </div>
-                </div>
-
-                <div class="lf-gallery">
-                    <div class="lf-gallery-head">
-                        <div class="lf-gallery-title">New Uploads</div>
-                        <div class="lf-hint">Previews are local until the listing is saved.</div>
-                    </div>
-                    <div class="lf-empty" id="new-photo-empty">No new files selected yet. Choose one or more images to preview them here.</div>
-                    <div class="lf-media-grid" id="new-photo-grid"></div>
-                </div>
-            </section>
-
-            <section class="lf-card">
-                <div class="lf-head">
-                    <div>
-                        <h4>Core Details</h4>
-                        <p>These fields power the listing card, filters, and the main detail view.</p>
-                    </div>
-                </div>
-                <div class="lf-fields">
-                    <div class="form-group" style="margin-bottom:0;">
-                        <label class="form-label" for="propertyname">Property Name</label>
-                        <input class="form-input" id="propertyname" name="propertyname" type="text" value="{{ old('propertyname', $form['propertyname']) }}" maxlength="100" required>
-                    </div>
-                    <div class="lf-form-grid">
-                        <div class="form-group" style="margin-bottom:0;">
-                            <label class="form-label" for="listingtype">Listing Type</label>
-                            <select class="form-select" id="listingtype" name="listingtype" required>
-                                @foreach($listingTypes as $listingType)
-                                    <option value="{{ $listingType }}" @selected(old('listingtype', $form['listingtype']) === $listingType)>{{ $listingType }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="form-group" style="margin-bottom:0;">
-                            <label class="form-label" for="propertytype">Property Type</label>
-                            <select class="form-select" id="propertytype" name="propertytype" required>
-                                @foreach($propertyTypes as $propertyType)
-                                    <option value="{{ $propertyType }}" @selected(old('propertytype', $form['propertytype']) === $propertyType)>{{ $propertyType }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="form-group" style="margin-bottom:0;">
-                            <label class="form-label" for="price">Price</label>
-                            <input class="form-input" id="price" name="price" type="text" value="{{ old('price', $form['price']) }}" inputmode="decimal" required>
-                            <div class="form-hint">Enter the amount only. The CMS normalizes the number when saving.</div>
-                        </div>
-                        <div class="form-group" style="margin-bottom:0;">
-                            <label class="form-label" for="state">State</label>
-                            <select class="form-select" id="state" name="state" required>
-                                <option value="">Select state</option>
-                                @foreach($states as $state)
-                                    <option value="{{ $state->state }}" @selected(old('state', $form['state']) === $state->state)>{{ $state->state }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="form-group" style="margin-bottom:0;">
-                            <label class="form-label" for="area">Area</label>
-                            <input class="form-input" id="area" name="area" type="text" value="{{ old('area', $form['area']) }}" maxlength="100" required>
-                        </div>
-                        <div class="form-group" style="margin-bottom:0;">
-                            <label class="form-label" for="keywords">Keywords</label>
-                            <input class="form-input" id="keywords" name="keywords" type="text" value="{{ old('keywords', $form['keywords']) }}" maxlength="500">
-                            <div class="form-hint">Leave this blank to let the system generate keywords automatically.</div>
-                        </div>
-                    </div>
-                    <label class="lf-check">
-                        <input type="checkbox" name="cobroke" value="1" @checked((int) old('cobroke', $form['cobroke']) === 1)>
-                        <span>
-                            <strong>Enable co-broke</strong>
-                            <span>Use this if the listing should be marked as co-broke in the shared database.</span>
-                        </span>
-                    </label>
-                </div>
-            </section>
-
-            <section class="lf-card">
-                <div class="lf-head">
-                    <div>
-                        <h4>Description</h4>
-                        <p>Public-facing content shown on the listing details page.</p>
-                    </div>
-                </div>
-                <div class="form-group" style="margin-bottom:0;">
-                    <label class="form-label" for="description">Listing Description</label>
-                    <textarea class="form-textarea" id="description" name="description" rows="8">{{ old('description', $form['description']) }}</textarea>
-                </div>
-            </section>
-
-            @foreach($generalFieldGroups as $sectionKey => $fields)
-                <section class="lf-card">
-                    <div class="lf-head">
-                        <div>
-                            <h4>{{ $generalSectionTitles[$sectionKey] ?? \Illuminate\Support\Str::headline($sectionKey) }}</h4>
-                            <p>Structured data saved back into the legacy listing metadata.</p>
-                        </div>
-                    </div>
-                    <div class="lf-form-grid">
-                        @foreach($fields as $field)
-                            <div class="form-group {{ ($field['type'] ?? 'text') === 'textarea' ? 'lf-full' : '' }}" style="margin-bottom:0;">
-                                <label class="form-label" for="{{ $field['name'] }}">{{ $field['label'] }}</label>
-                                @if(($field['type'] ?? 'text') === 'textarea')
-                                    <textarea
-                                        class="form-textarea"
-                                        id="{{ $field['name'] }}"
-                                        name="{{ $field['name'] }}"
-                                        rows="{{ $field['rows'] ?? 4 }}"
-                                        placeholder="{{ $field['placeholder'] ?? '' }}"
-                                    >{{ old($field['name'], $form[$field['name']] ?? '') }}</textarea>
-                                @else
-                                    <input
-                                        class="form-input"
-                                        id="{{ $field['name'] }}"
-                                        name="{{ $field['name'] }}"
-                                        type="text"
-                                        value="{{ old($field['name'], $form[$field['name']] ?? '') }}"
-                                        maxlength="{{ $field['max'] ?? 255 }}"
-                                        placeholder="{{ $field['placeholder'] ?? '' }}"
-                                    >
-                                @endif
                             </div>
                         @endforeach
                     </div>
-                </section>
-            @endforeach
+                </div>
+            @endif
         </div>
 
-        <aside class="lf-side">
-            <section class="lf-card">
-                <div class="lf-kicker">Save Flow</div>
-                <h5>{{ $listing ? 'Update this listing cleanly.' : 'Create the listing once the gallery looks right.' }}</h5>
-                <div class="lf-summary">
-                    <div class="lf-row">
-                        <span>Saved Photos</span>
-                        <strong data-sidebar-saved-count>{{ count($existingPhotos) }}</strong>
-                    </div>
-                    <div class="lf-row">
-                        <span>New Uploads</span>
-                        <strong data-sidebar-new-count>0</strong>
-                    </div>
-                    <div class="lf-row">
-                        <span>Cover Photo</span>
-                        <strong data-sidebar-cover>{{ count($existingPhotos) > 0 ? 'First saved photo' : 'First new upload' }}</strong>
-                    </div>
-                    @if($listing)
-                        <div class="lf-row">
-                            <span>Property ID</span>
-                            <strong>{{ $listing->propertyid }}</strong>
-                        </div>
-                    @endif
+        <div class="wiz-nav">
+            <div class="wiz-nav-left">
+                <button type="button" class="wiz-btn wiz-btn-secondary" data-wiz-back>&larr; Back</button>
+            </div>
+            <div class="wiz-nav-right">
+                <button type="button" class="wiz-btn wiz-btn-primary" data-wiz-next>Continue &rarr;</button>
+            </div>
+        </div>
+    </section>
+
+    {{-- ============ STEP 5: REVIEW ============ --}}
+    <section class="wiz-step" data-step="5">
+        <div class="wiz-card">
+            <span class="wiz-step-num">Step 5 of 5</span>
+            <h2>Review &amp; save</h2>
+            <p class="wiz-lead">
+                Take one last look. If something needs fixing, tap <strong>Edit</strong> next to it.
+                Otherwise, click the green <strong>Save</strong> button below.
+            </p>
+
+            <div class="wiz-review">
+                <div class="wiz-review-row">
+                    <div class="wiz-review-key">Listing area</div>
+                    <div class="wiz-review-val" id="wiz-review-source">{{ strtoupper($selectedFormSource) }}</div>
+                    <button type="button" class="wiz-review-edit" data-wiz-jump="1">Edit</button>
                 </div>
-                <div class="lf-note">Images are stored automatically and their paths are saved for you. Removing a saved local image here removes it from the listing after save.</div>
-                <div class="lf-actions">
-                    <button type="submit" class="btn btn-primary" @disabled(! $selectedSourceEnabled)>{{ ! $selectedSourceEnabled ? 'Source Not Ready Yet' : $submitLabel }}</button>
-                    <a href="{{ $listing ? route('listings.show', array_filter(['id' => $listing->id, 'source' => $originalFormSource === 'ipp' ? null : $originalFormSource, 'return_source' => $formReturnSource], static fn ($value) => $value !== null)) : route('listings.index', ['source' => $selectedFormSource]) }}" class="btn btn-secondary">Cancel</a>
+
+                <div class="wiz-review-row">
+                    <div class="wiz-review-key">Photos</div>
+                    <div class="wiz-review-val" id="wiz-review-photos-count">{{ count($existingPhotos) }} photo{{ count($existingPhotos) === 1 ? '' : 's' }}</div>
+                    <button type="button" class="wiz-review-edit" data-wiz-jump="2">Edit</button>
                 </div>
-            </section>
-        </aside>
-    </div>
+
+                <div class="wiz-review-row full" style="grid-template-columns: 130px 1fr auto;">
+                    <div class="wiz-review-key">Preview</div>
+                    <div class="wiz-review-photos" id="wiz-review-photos"></div>
+                    <button type="button" class="wiz-review-edit" data-wiz-jump="2">Edit</button>
+                </div>
+
+                <div class="wiz-review-row">
+                    <div class="wiz-review-key">Property name</div>
+                    <div class="wiz-review-val" id="wiz-review-name">—</div>
+                    <button type="button" class="wiz-review-edit" data-wiz-jump="3">Edit</button>
+                </div>
+
+                <div class="wiz-review-row">
+                    <div class="wiz-review-key">Listing type</div>
+                    <div class="wiz-review-val" id="wiz-review-listingtype">—</div>
+                    <button type="button" class="wiz-review-edit" data-wiz-jump="3">Edit</button>
+                </div>
+
+                <div class="wiz-review-row">
+                    <div class="wiz-review-key">Property type</div>
+                    <div class="wiz-review-val" id="wiz-review-propertytype">—</div>
+                    <button type="button" class="wiz-review-edit" data-wiz-jump="3">Edit</button>
+                </div>
+
+                <div class="wiz-review-row">
+                    <div class="wiz-review-key">Price</div>
+                    <div class="wiz-review-val" id="wiz-review-price">—</div>
+                    <button type="button" class="wiz-review-edit" data-wiz-jump="3">Edit</button>
+                </div>
+
+                <div class="wiz-review-row">
+                    <div class="wiz-review-key">Location</div>
+                    <div class="wiz-review-val" id="wiz-review-location">—</div>
+                    <button type="button" class="wiz-review-edit" data-wiz-jump="3">Edit</button>
+                </div>
+
+                <div class="wiz-review-row">
+                    <div class="wiz-review-key">Description</div>
+                    <div class="wiz-review-val" id="wiz-review-description">—</div>
+                    <button type="button" class="wiz-review-edit" data-wiz-jump="4">Edit</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="wiz-nav">
+            <div class="wiz-nav-left">
+                <button type="button" class="wiz-btn wiz-btn-secondary" data-wiz-back>&larr; Back</button>
+            </div>
+            <div class="wiz-nav-right">
+                <button type="submit" class="wiz-btn wiz-btn-success" id="wiz-submit" @disabled(! $selectedSourceEnabled)>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    {{ ! $selectedSourceEnabled ? 'Source not ready' : ($listing ? 'Save changes' : 'Save listing') }}
+                </button>
+            </div>
+        </div>
+    </section>
 </div>
 
 <script>
-    (function () {
-        var input = document.getElementById('listing-new-images');
-        var existingGrid = document.getElementById('existing-photo-grid');
-        var newGrid = document.getElementById('new-photo-grid');
-        var newEmpty = document.getElementById('new-photo-empty');
-        var total = document.querySelector('[data-gallery-total]');
-        var savedCount = document.querySelector('[data-sidebar-saved-count]');
-        var newCount = document.querySelector('[data-sidebar-new-count]');
-        var cover = document.querySelector('[data-sidebar-cover]');
+(function () {
+    const wizard = document.getElementById('wizard');
+    if (!wizard) return;
 
-        if (!input || !existingGrid || !newGrid || !newEmpty) {
-            return;
-        }
+    const steps = Array.from(wizard.querySelectorAll('.wiz-step'));
+    const dots  = Array.from(wizard.querySelectorAll('.wiz-dot'));
+    const lines = Array.from(wizard.querySelectorAll('.wiz-line'));
+    const titleEl = document.getElementById('wiz-step-title');
+    const pctEl   = document.getElementById('wiz-step-pct');
+    const stepLabels = @json($stepLabels);
+    const totalSteps = steps.length;
 
-        var transfer = new DataTransfer();
-        var previewUrls = [];
+    let current = 1;
 
-        function fileSize(bytes) {
-            return bytes < 1048576 ? Math.max(1, Math.round(bytes / 1024)) + ' KB' : (bytes / 1048576).toFixed(1) + ' MB';
-        }
-
-        function revokeUrls() {
-            previewUrls.forEach(function (url) { URL.revokeObjectURL(url); });
-            previewUrls = [];
-        }
-
-        function ensureExistingEmptyState(count) {
-            var empty = document.getElementById('existing-photo-empty');
-
-            if (count === 0 && !empty) {
-                empty = document.createElement('div');
-                empty.id = 'existing-photo-empty';
-                empty.className = 'lf-empty';
-                empty.textContent = 'No saved photos yet. Add images above and they will appear in the gallery after save.';
-                existingGrid.appendChild(empty);
-            }
-
-            if (count > 0 && empty) {
-                empty.remove();
-            }
-        }
-
-        function updateSummary() {
-            var existingCards = existingGrid.querySelectorAll('[data-existing-photo]');
-            var existingCount = existingCards.length;
-            var uploadCount = transfer.files.length;
-
-            ensureExistingEmptyState(existingCount);
-
-            existingCards.forEach(function (card, index) {
-                var oldCover = card.querySelector('.lf-badge.cover');
-                if (oldCover) {
-                    oldCover.remove();
-                }
-
-                if (index === 0) {
-                    var badges = card.querySelector('.lf-badges');
-                    var coverBadge = document.createElement('span');
-                    coverBadge.className = 'lf-badge cover';
-                    coverBadge.textContent = 'Cover';
-                    badges.appendChild(coverBadge);
-                }
-            });
-
-            if (total) {
-                total.textContent = existingCount;
-            }
-            if (savedCount) {
-                savedCount.textContent = existingCount;
-            }
-            if (newCount) {
-                newCount.textContent = uploadCount;
-            }
-            if (cover) {
-                cover.textContent = existingCount > 0 ? 'First saved photo' : (uploadCount > 0 ? 'First new upload' : 'No photo selected');
-            }
-        }
-
-        function renderUploads() {
-            revokeUrls();
-            newGrid.innerHTML = '';
-
-            Array.from(transfer.files).forEach(function (file, index) {
-                var url = URL.createObjectURL(file);
-                previewUrls.push(url);
-
-                var card = document.createElement('article');
-                card.className = 'lf-media';
-
-                var frame = document.createElement('div');
-                frame.className = 'lf-frame';
-
-                var badges = document.createElement('div');
-                badges.className = 'lf-badges';
-
-                var newBadge = document.createElement('span');
-                newBadge.className = 'lf-badge';
-                newBadge.textContent = 'New';
-                badges.appendChild(newBadge);
-
-                if (index === 0 && existingGrid.querySelectorAll('[data-existing-photo]').length === 0) {
-                    var coverBadge = document.createElement('span');
-                    coverBadge.className = 'lf-badge cover';
-                    coverBadge.textContent = 'Cover';
-                    badges.appendChild(coverBadge);
-                }
-
-                var image = document.createElement('img');
-                image.src = url;
-                image.alt = file.name;
-
-                var meta = document.createElement('div');
-                var name = document.createElement('div');
-                var sub = document.createElement('div');
-                name.className = 'lf-name';
-                sub.className = 'lf-sub';
-                name.textContent = file.name;
-                sub.textContent = fileSize(file.size);
-                meta.appendChild(name);
-                meta.appendChild(sub);
-
-                var remove = document.createElement('button');
-                remove.type = 'button';
-                remove.className = 'lf-remove';
-                remove.textContent = 'Remove upload';
-                remove.addEventListener('click', function () {
-                    var next = new DataTransfer();
-                    Array.from(transfer.files).forEach(function (candidate, candidateIndex) {
-                        if (candidateIndex !== index) {
-                            next.items.add(candidate);
-                        }
-                    });
-                    transfer = next;
-                    input.files = transfer.files;
-                    renderUploads();
-                    updateSummary();
-                });
-
-                frame.appendChild(badges);
-                frame.appendChild(image);
-                card.appendChild(frame);
-                card.appendChild(meta);
-                card.appendChild(remove);
-                newGrid.appendChild(card);
-            });
-
-            newEmpty.style.display = transfer.files.length === 0 ? 'block' : 'none';
-        }
-
-        input.addEventListener('change', function () {
-            Array.from(input.files).forEach(function (file) {
-                var duplicate = Array.from(transfer.files).some(function (existingFile) {
-                    return existingFile.name === file.name
-                        && existingFile.size === file.size
-                        && existingFile.lastModified === file.lastModified;
-                });
-
-                if (!duplicate) {
-                    transfer.items.add(file);
-                }
-            });
-
-            input.files = transfer.files;
-            renderUploads();
-            updateSummary();
+    function showStep(n) {
+        n = Math.max(1, Math.min(totalSteps, n));
+        current = n;
+        steps.forEach((step) => {
+            const idx = parseInt(step.dataset.step, 10);
+            step.classList.toggle('is-active', idx === n);
         });
-
-        existingGrid.querySelectorAll('[data-remove-existing]').forEach(function (button) {
-            button.addEventListener('click', function () {
-                var card = button.closest('[data-existing-photo]');
-                if (card) {
-                    card.remove();
-                    updateSummary();
-                    renderUploads();
-                }
-            });
+        dots.forEach((d) => {
+            const idx = parseInt(d.dataset.dot, 10);
+            d.classList.toggle('is-active', idx === n);
+            d.classList.toggle('is-done', idx < n);
+            if (idx < n) d.innerHTML = '✓';
+            else d.textContent = String(idx);
         });
+        lines.forEach((l) => {
+            const idx = parseInt(l.dataset.line, 10);
+            l.classList.toggle('is-done', idx < n);
+        });
+        titleEl.textContent = `Step ${n} of ${totalSteps} — ${stepLabels[n] || ''}`;
+        pctEl.textContent = Math.round((n / totalSteps) * 100);
+        if (n === totalSteps) refreshReview();
+        window.scrollTo({ top: wizard.offsetTop - 16, behavior: 'smooth' });
+    }
 
-        updateSummary();
+    function validateCurrentStep() {
+        const step = steps.find((s) => parseInt(s.dataset.step, 10) === current);
+        if (!step) return true;
+        const required = step.querySelectorAll('input[required], select[required], textarea[required]');
+        for (const field of required) {
+            if (field.disabled) continue;
+            if (!field.checkValidity()) {
+                field.reportValidity();
+                field.focus();
+                return false;
+            }
+        }
+        return true;
+    }
+
+    wizard.addEventListener('click', (e) => {
+        const next = e.target.closest('[data-wiz-next]');
+        const back = e.target.closest('[data-wiz-back]');
+        const jump = e.target.closest('[data-wiz-jump]');
+        if (next) {
+            e.preventDefault();
+            if (validateCurrentStep()) showStep(current + 1);
+        } else if (back) {
+            e.preventDefault();
+            showStep(current - 1);
+        } else if (jump) {
+            e.preventDefault();
+            showStep(parseInt(jump.dataset.wizJump, 10));
+        }
+    });
+
+    /* Source selection (edit mode radios) */
+    wizard.querySelectorAll('.wiz-source-input').forEach((input) => {
+        input.addEventListener('change', () => {
+            wizard.querySelectorAll('.wiz-source').forEach((el) => el.classList.remove('is-active'));
+            input.closest('.wiz-source')?.classList.add('is-active');
+        });
+    });
+
+    /* Optional extras toggle */
+    const extras = document.getElementById('wiz-extras');
+    document.getElementById('wiz-extras-toggle')?.addEventListener('click', () => {
+        extras.classList.toggle('is-open');
+    });
+
+    /* Photo upload handling */
+    const input = document.getElementById('listing-new-images');
+    const existingGrid = document.getElementById('existing-photo-grid');
+    const newGrid = document.getElementById('new-photo-grid');
+    const newEmpty = document.getElementById('new-photo-empty');
+    const total = document.querySelector('[data-gallery-total]');
+    const newTotal = document.querySelector('[data-new-total]');
+
+    let transfer = new DataTransfer();
+    let previewUrls = [];
+
+    function fileSize(bytes) {
+        return bytes < 1048576 ? Math.max(1, Math.round(bytes / 1024)) + ' KB' : (bytes / 1048576).toFixed(1) + ' MB';
+    }
+    function revokeUrls() {
+        previewUrls.forEach((u) => URL.revokeObjectURL(u));
+        previewUrls = [];
+    }
+    function ensureExistingEmpty(count) {
+        let empty = document.getElementById('existing-photo-empty');
+        if (count === 0 && !empty) {
+            empty = document.createElement('div');
+            empty.id = 'existing-photo-empty';
+            empty.className = 'wiz-empty';
+            empty.style.gridColumn = '1/-1';
+            empty.textContent = 'No saved photos yet. Add some above.';
+            existingGrid.appendChild(empty);
+        }
+        if (count > 0 && empty) empty.remove();
+    }
+    function updateSummary() {
+        if (!existingGrid || !newGrid) return;
+        const existingCards = existingGrid.querySelectorAll('[data-existing-photo]');
+        const existingCount = existingCards.length;
+        const uploadCount = transfer.files.length;
+        ensureExistingEmpty(existingCount);
+        existingCards.forEach((card, idx) => {
+            const oldCover = card.querySelector('.wiz-badge.cover');
+            if (oldCover) oldCover.remove();
+            if (idx === 0) {
+                const cover = document.createElement('span');
+                cover.className = 'wiz-badge cover';
+                cover.textContent = 'Cover';
+                card.querySelector('.wiz-badges')?.appendChild(cover);
+            }
+        });
+        if (total) total.textContent = existingCount;
+        if (newTotal) newTotal.textContent = uploadCount;
+    }
+    function renderUploads() {
+        if (!newGrid) return;
+        revokeUrls();
+        newGrid.innerHTML = '';
+        Array.from(transfer.files).forEach((file, idx) => {
+            const url = URL.createObjectURL(file);
+            previewUrls.push(url);
+            const card = document.createElement('article');
+            card.className = 'wiz-media';
+            card.innerHTML = `
+                <div class="wiz-frame">
+                    <div class="wiz-badges"><span class="wiz-badge">New</span>${idx === 0 && existingGrid.querySelectorAll('[data-existing-photo]').length === 0 ? '<span class="wiz-badge cover">Cover</span>' : ''}</div>
+                    <img src="${url}" alt="">
+                </div>
+                <div class="wiz-media-meta">
+                    <div class="wiz-media-name"></div>
+                    <div class="wiz-media-sub"></div>
+                </div>
+                <button type="button" class="wiz-remove">Remove</button>
+            `;
+            card.querySelector('.wiz-media-name').textContent = file.name;
+            card.querySelector('.wiz-media-sub').textContent = fileSize(file.size);
+            card.querySelector('.wiz-remove').addEventListener('click', () => {
+                const next = new DataTransfer();
+                Array.from(transfer.files).forEach((f, i) => { if (i !== idx) next.items.add(f); });
+                transfer = next;
+                input.files = transfer.files;
+                renderUploads();
+                updateSummary();
+            });
+            card.querySelector('img').src = url;
+            newGrid.appendChild(card);
+        });
+        if (newEmpty) newEmpty.style.display = transfer.files.length === 0 ? 'block' : 'none';
+    }
+
+    input?.addEventListener('change', () => {
+        Array.from(input.files).forEach((file) => {
+            const dup = Array.from(transfer.files).some((existing) =>
+                existing.name === file.name && existing.size === file.size && existing.lastModified === file.lastModified
+            );
+            if (!dup) transfer.items.add(file);
+        });
+        input.files = transfer.files;
         renderUploads();
-    })();
+        updateSummary();
+    });
+
+    existingGrid?.querySelectorAll('[data-remove-existing]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+            btn.closest('[data-existing-photo]')?.remove();
+            updateSummary();
+            renderUploads();
+        });
+    });
+
+    /* Review summary */
+    function getVal(id) {
+        const el = document.getElementById(id);
+        if (!el) return '';
+        if (el.tagName === 'SELECT') {
+            return el.options[el.selectedIndex]?.text || el.value || '';
+        }
+        return (el.value || '').trim();
+    }
+    function refreshReview() {
+        const rev = (id, val, fallback) => {
+            const el = document.getElementById(id);
+            if (!el) return;
+            const trimmed = (val || '').toString().trim();
+            if (trimmed) {
+                el.textContent = trimmed;
+                el.classList.remove('muted');
+            } else {
+                el.textContent = fallback || '— not added —';
+                el.classList.add('muted');
+            }
+        };
+
+        // Source
+        const sourceInput = document.getElementById('wiz-source-input');
+        let source = '';
+        if (sourceInput) {
+            source = sourceInput.value;
+        } else {
+            const checkedRadio = wizard.querySelector('.wiz-source-input:checked');
+            source = checkedRadio ? checkedRadio.value : '';
+        }
+        rev('wiz-review-source', source ? source.toUpperCase() : '');
+
+        // Name & types
+        rev('wiz-review-name', getVal('propertyname'));
+        rev('wiz-review-listingtype', getVal('listingtype'));
+        rev('wiz-review-propertytype', getVal('propertytype'));
+        const price = getVal('price');
+        rev('wiz-review-price', price ? price : '', '— not added —');
+        const area = getVal('area');
+        const state = getVal('state');
+        const loc = [area, state].filter(Boolean).join(', ');
+        rev('wiz-review-location', loc);
+        rev('wiz-review-description', getVal('description'));
+
+        // Photos count
+        const existingCount = existingGrid ? existingGrid.querySelectorAll('[data-existing-photo]').length : 0;
+        const newCount = transfer.files.length;
+        const totalCount = existingCount + newCount;
+        const photoLabel = document.getElementById('wiz-review-photos-count');
+        if (photoLabel) {
+            photoLabel.textContent = totalCount === 0
+                ? 'No photos yet'
+                : `${totalCount} photo${totalCount === 1 ? '' : 's'} (${existingCount} saved + ${newCount} new)`;
+        }
+
+        // Photo previews
+        const photoBox = document.getElementById('wiz-review-photos');
+        if (photoBox) {
+            photoBox.innerHTML = '';
+            const max = 6;
+            const sources = [];
+            existingGrid?.querySelectorAll('[data-existing-photo] img').forEach((img) => sources.push(img.src));
+            previewUrls.forEach((u) => sources.push(u));
+            sources.slice(0, max).forEach((src) => {
+                const div = document.createElement('div');
+                div.className = 'wiz-review-photo';
+                div.style.backgroundImage = `url("${src.replace(/"/g, '\\"')}")`;
+                photoBox.appendChild(div);
+            });
+            if (sources.length > max) {
+                const more = document.createElement('div');
+                more.className = 'wiz-review-photo more';
+                more.textContent = `+${sources.length - max}`;
+                photoBox.appendChild(more);
+            }
+            if (sources.length === 0) {
+                photoBox.innerHTML = '<span class="wiz-review-val muted">No photos selected</span>';
+            }
+        }
+    }
+
+    updateSummary();
+    renderUploads();
+    showStep(1);
+})();
 </script>

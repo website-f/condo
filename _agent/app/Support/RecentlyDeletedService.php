@@ -7,6 +7,7 @@ use App\Models\CondoListing;
 use App\Models\DeletedItem;
 use App\Models\IcpListing;
 use App\Models\Listing;
+use App\Models\ManagedArticle;
 use App\Models\NewsUpdate;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
@@ -37,6 +38,7 @@ class RecentlyDeletedService
     public function __construct(
         private readonly FsPosterBridge $fsPosterBridge,
         private readonly CondoWordpressBridge $condoWordpressBridge,
+        private readonly ManagedArticleService $managedArticleService,
     ) {
     }
 
@@ -72,6 +74,27 @@ class RecentlyDeletedService
             'payload' => [
                 'deleted_by' => $deletedBy,
                 'article' => $article->getAttributes(),
+            ],
+        ]);
+    }
+
+    public function rememberManagedArticle(ManagedArticle $article, string $deletedBy): void
+    {
+        $this->remember([
+            'agent_username' => $deletedBy,
+            'entity_group' => self::GROUP_ARTICLES,
+            'entity_type' => self::TYPE_ARTICLE,
+            'entity_key' => (string) $article->getKey(),
+            'source_key' => 'wordpress',
+            'title' => trim((string) $article->post_title) !== '' ? trim((string) $article->post_title) : 'Untitled article',
+            'summary' => $this->joinSummary([
+                $article->status_label,
+                $article->category_names[0] ?? null,
+            ]),
+            'payload' => [
+                'deleted_by' => $deletedBy,
+                'source' => 'wordpress',
+                'previous_status' => (string) $article->getRawOriginal('post_status'),
             ],
         ]);
     }
@@ -172,6 +195,7 @@ class RecentlyDeletedService
         );
 
         return $this->listingItems($username, $registryByLookup)
+            ->concat($this->articleItems($username, $registry, $registryByLookup))
             ->concat($this->socialItems($registry))
             ->sortByDesc(fn (array $item) => $item['deleted_at']->timestamp)
             ->values();
@@ -199,7 +223,7 @@ class RecentlyDeletedService
             self::TYPE_LISTING_ICP => $this->purgeIcpListing($username, (int) $key),
             self::TYPE_LISTING_CONDO => $this->purgeCondoListing($username, (int) $key),
             self::TYPE_NEWS => $this->purgeNews((int) $key),
-            self::TYPE_ARTICLE => $this->purgeRegistryOnly($username, self::TYPE_ARTICLE, (string) $key, 'Article permanently deleted.'),
+            self::TYPE_ARTICLE => $this->purgeArticle($username, (int) $key),
             self::TYPE_SOCIAL_SCHEDULE => $this->purgeRegistryOnly($username, self::TYPE_SOCIAL_SCHEDULE, (string) $key, 'Schedule permanently deleted.'),
             default => throw ValidationException::withMessages([
                 'type' => 'This deleted item type is not supported.',
@@ -399,10 +423,37 @@ class RecentlyDeletedService
             });
     }
 
-    private function articleItems(Collection $registry): Collection
+    private function articleItems(string $username, Collection $registry, Collection $registryByLookup): Collection
     {
-        return $registry
+        $wordpressItems = $this->managedArticleService
+            ->trashedQueryForAgent($username)
+            ->orderByDesc('post_modified')
+            ->get()
+            ->map(function (ManagedArticle $article) use ($registryByLookup) {
+                $registry = $registryByLookup->get($this->lookupKey(self::TYPE_ARTICLE, (string) $article->getKey()));
+
+                return $this->buildItem([
+                    'group' => self::GROUP_ARTICLES,
+                    'type' => self::TYPE_ARTICLE,
+                    'key' => (string) $article->getKey(),
+                    'source_key' => 'wordpress',
+                    'source_label' => 'Article',
+                    'title' => trim((string) $article->post_title) !== '' ? trim((string) $article->post_title) : 'Untitled article',
+                    'summary' => $this->joinSummary([
+                        $article->status_label,
+                        $article->category_names[0] ?? null,
+                    ]),
+                    'subtitle' => 'WordPress post #' . $article->getKey(),
+                    'deleted_at' => $this->resolveDeletedAt($registry, [
+                        $article->getRawOriginal('post_modified'),
+                        $article->getRawOriginal('post_date'),
+                    ]),
+                ]);
+            });
+
+        $legacyItems = $registry
             ->where('entity_type', self::TYPE_ARTICLE)
+            ->filter(fn (DeletedItem $item) => Arr::get($item->payload, 'source', 'cms') !== 'wordpress')
             ->map(function (DeletedItem $item) {
                 $payload = (array) ($item->payload['article'] ?? []);
 
@@ -421,6 +472,10 @@ class RecentlyDeletedService
                     'deleted_at' => $item->deleted_at ?: now(),
                 ]);
             })
+            ->values();
+
+        return $wordpressItems
+            ->concat($legacyItems)
             ->values();
     }
 
@@ -680,6 +735,27 @@ class RecentlyDeletedService
 
     private function restoreArticle(string $username, int $id): string
     {
+        /** @var ManagedArticle|null $managedArticle */
+        $managedArticle = $this->managedArticleService
+            ->trashedQueryForAgent($username)
+            ->find($id);
+
+        if ($managedArticle) {
+            $registry = $this->findRegistryItem($username, self::TYPE_ARTICLE, (string) $id);
+            $previousStatus = trim((string) Arr::get($registry?->payload, 'previous_status', 'draft'));
+            $previousStatus = $previousStatus !== '' && $previousStatus !== 'trash' ? $previousStatus : 'draft';
+            $now = now();
+
+            $managedArticle->post_status = $previousStatus;
+            $managedArticle->post_modified = $now->format('Y-m-d H:i:s');
+            $managedArticle->post_modified_gmt = $now->copy()->utc()->format('Y-m-d H:i:s');
+            $managedArticle->save();
+
+            $this->forget(self::TYPE_ARTICLE, (string) $id);
+
+            return 'Article restored.';
+        }
+
         $item = $this->findRegistryItem($username, self::TYPE_ARTICLE, (string) $id);
 
         if (! $item) {
@@ -871,6 +947,26 @@ class RecentlyDeletedService
         $this->forget(self::TYPE_NEWS, (string) $id);
 
         return 'News article permanently deleted.';
+    }
+
+    private function purgeArticle(string $username, int $id): string
+    {
+        /** @var ManagedArticle|null $article */
+        $article = $this->managedArticleService
+            ->trashedQueryForAgent($username)
+            ->find($id);
+
+        if ($article) {
+            DB::connection('condo')->transaction(function () use ($article) {
+                $this->managedArticleService->permanentlyDelete($article);
+            });
+
+            $this->forget(self::TYPE_ARTICLE, (string) $id);
+
+            return 'Article permanently deleted.';
+        }
+
+        return $this->purgeRegistryOnly($username, self::TYPE_ARTICLE, (string) $id, 'Article permanently deleted.');
     }
 
     private function purgeRegistryOnly(string $username, string $type, string $key, string $message): string

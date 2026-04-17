@@ -1,10 +1,6 @@
 @extends('layouts.app')
 @section('title', 'Listings')
 @section('page-title', 'Listings')
-@section('topbar-actions')
-    <a href="{{ route('listings.create', ['source' => in_array($activeSource, ['ipp', 'icp', 'condo'], true) ? $activeSource : 'ipp']) }}" class="btn btn-primary btn-sm" style="border-radius: 999px; padding: 10px 24px;">New Listing</a>
-@endsection
-
 @section('content')
 @php
     $filterKeys = ['search', 'listingtype', 'propertytype', 'state', 'min_price', 'max_price', 'sort', 'dir'];
@@ -19,6 +15,7 @@
         'condo' => 'No Condo listings found matching your criteria.',
         default => 'No listings found matching your criteria.',
     };
+    $condoLocked = !($condoPackageSummary['enabled'] ?? false);
 @endphp
 
 <style>
@@ -104,6 +101,19 @@
     .listing-source-tab.is-active .listing-source-count {
         background: rgba(0,0,0,0.08);
         color: var(--apple-text);
+    }
+
+    .listing-source-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 2px 8px;
+        border-radius: 999px;
+        background: rgba(153, 92, 0, 0.12);
+        color: #995c00;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
     }
 
     /* Filters Box */
@@ -194,48 +204,28 @@
     }
 
     .bulk-toolbar {
-        display: grid;
-        grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
-        gap: 16px;
+        display: flex;
         align-items: center;
-        padding: 20px 24px;
+        gap: 14px;
+        flex-wrap: wrap;
+        padding: 12px 16px;
         margin-bottom: 24px;
-        background: linear-gradient(135deg, #ffffff 0%, #f7faff 100%);
+        background: var(--apple-card);
         border: 1px solid var(--apple-border);
-        border-radius: var(--apple-radius);
+        border-radius: 14px;
         box-shadow: var(--apple-shadow);
     }
 
-    .bulk-toolbar-summary {
-        display: flex;
-        flex-wrap: wrap;
-        align-items: center;
-        gap: 12px 16px;
-    }
-
-    .bulk-toolbar-title {
-        font-size: 17px;
-        font-weight: 700;
-        color: var(--apple-text);
-    }
-
-    .bulk-toolbar-subtitle {
-        font-size: 13px;
-        color: var(--apple-text-muted);
-    }
-
-    .bulk-toolbar-pills {
-        display: inline-flex;
-        align-items: center;
-        gap: 10px;
-        flex-wrap: wrap;
+    .bulk-toolbar.has-selection {
+        background: #f0f8ff;
+        border-color: rgba(0, 102, 204, 0.25);
     }
 
     .bulk-checkbox-label {
         display: inline-flex;
         align-items: center;
         gap: 10px;
-        font-size: 13px;
+        font-size: 14px;
         font-weight: 600;
         color: var(--apple-text);
         cursor: pointer;
@@ -246,50 +236,58 @@
         width: 18px;
         height: 18px;
         accent-color: var(--apple-blue);
+        cursor: pointer;
     }
 
     .bulk-selection-count {
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        min-width: 34px;
-        padding: 4px 10px;
+        min-width: 28px;
+        padding: 2px 9px;
         border-radius: 999px;
-        background: rgba(0, 102, 204, 0.1);
+        background: rgba(0, 102, 204, 0.12);
         color: var(--apple-blue);
         font-size: 12px;
         font-weight: 700;
+        margin-left: 4px;
     }
 
     .bulk-toolbar-actions {
         display: flex;
-        justify-content: flex-end;
-        gap: 12px;
-        flex-wrap: wrap;
+        gap: 8px;
+        margin-left: auto;
         align-items: center;
     }
 
     .bulk-toolbar-actions .btn {
-        min-width: 160px;
+        padding: 9px 16px;
+        font-size: 13px;
+        font-weight: 600;
+        gap: 6px;
+    }
+
+    .bulk-toolbar-actions .btn:disabled,
+    .bulk-toolbar-actions .btn[disabled] {
+        opacity: 0.4;
+        cursor: not-allowed;
     }
 
     .bulk-clear-button {
         background: transparent;
         border: none;
         color: var(--apple-text-muted);
-        font-size: 13px;
+        font-size: 12px;
         font-weight: 600;
         cursor: pointer;
-        padding: 0;
+        padding: 4px 10px;
+        border-radius: 999px;
+        transition: var(--transition);
     }
 
     .bulk-clear-button:hover {
         color: var(--apple-text);
-    }
-
-    .bulk-help-line {
-        font-size: 12px;
-        color: var(--apple-text-muted);
+        background: rgba(0,0,0,0.04);
     }
 
     .bulk-modal[hidden] {
@@ -708,19 +706,134 @@
         margin-bottom: 24px;
     }
 
+    /* Friendly welcome strip */
+    .listings-welcome {
+        background: var(--apple-card);
+        border: 1px solid var(--apple-border);
+        border-radius: 16px;
+        padding: 16px 20px;
+        display: flex;
+        gap: 16px;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        margin-bottom: 24px;
+        box-shadow: var(--apple-shadow);
+    }
+    .listings-welcome h2 { margin: 0; font-size: 17px; font-weight: 700; letter-spacing: -0.01em; }
+    .listings-welcome-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    .listings-welcome-actions a {
+        display: inline-flex; align-items: center; gap: 6px;
+        padding: 9px 16px; border-radius: 999px;
+        font-size: 14px; font-weight: 600; text-decoration: none;
+        background: rgba(0,0,0,0.05); color: var(--apple-text);
+        transition: var(--transition);
+    }
+    .listings-welcome-actions a:hover { background: rgba(0,0,0,0.09); }
+    .listings-welcome-actions a.primary { background: var(--apple-blue); color: #fff; }
+    .listings-welcome-actions a.primary:hover { background: var(--apple-blue-hover); }
+
+    .listings-condo-strip {
+        margin: -10px auto 24px;
+        width: min(100%, 980px);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        flex-wrap: wrap;
+        padding: 16px 18px;
+        border-radius: 18px;
+        background: #f2f7ff;
+        border: 1px solid rgba(0, 102, 204, 0.12);
+        color: var(--apple-text);
+    }
+
+    .listings-condo-strip.is-locked {
+        background: #fffaf1;
+        border-color: #ffe1a1;
+    }
+
+    .listings-condo-copy {
+        display: grid;
+        gap: 4px;
+    }
+
+    .listings-condo-copy strong {
+        font-size: 14px;
+        font-weight: 700;
+    }
+
+    .listings-condo-copy span {
+        font-size: 13px;
+        color: var(--apple-text-muted);
+        line-height: 1.6;
+    }
+
+    .listings-condo-metrics {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .listings-condo-metric {
+        display: inline-flex;
+        align-items: center;
+        padding: 7px 12px;
+        border-radius: 999px;
+        background: rgba(255,255,255,0.72);
+        border: 1px solid rgba(0,0,0,0.08);
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--apple-text-muted);
+    }
+
+    .listings-condo-link {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 10px 16px;
+        border-radius: 999px;
+        background: #fff;
+        border: 1px solid rgba(0,0,0,0.08);
+        text-decoration: none;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--apple-text);
+        transition: var(--transition);
+    }
+
+    .listings-condo-link:hover {
+        background: rgba(255,255,255,0.82);
+        transform: translateY(-1px);
+    }
+
     @media (max-width: 768px) {
         .listing-source-tabs-container {
             padding: 0;
+            margin-bottom: 20px;
+        }
+        .listing-source-tab { padding: 8px 10px; font-size: 13px; }
+        .listings-welcome {
+            padding: 14px 16px;
+            gap: 10px;
+        }
+        .listings-welcome h2 { font-size: 16px; flex: 1; min-width: 0; }
+        .listings-welcome-actions a { padding: 8px 14px; font-size: 13px; }
+        .listings-condo-strip {
+            margin-top: 0;
+            padding: 14px 16px;
         }
         .filters-header {
-            padding: 16px;
+            padding: 14px 16px;
         }
+        .filters-header h3 { font-size: 16px; }
         .bulk-toolbar {
-            grid-template-columns: 1fr;
-            padding: 18px;
+            padding: 12px;
+            gap: 10px;
         }
-        .bulk-toolbar-actions { justify-content: stretch; }
-        .bulk-toolbar-actions .btn { width: 100%; min-width: 0; }
+        .bulk-checkbox-label { font-size: 13px; gap: 8px; }
+        .bulk-toolbar-actions { gap: 6px; }
+        .bulk-toolbar-actions .btn { padding: 9px 14px; font-size: 13px; }
         .listing-card-img {
             height: 180px;
         }
@@ -742,7 +855,57 @@
             padding: 20px;
         }
     }
+    @media (max-width: 420px) {
+        .listings-welcome h2 { font-size: 15px; }
+        .listings-welcome-actions a { padding: 7px 12px; font-size: 12px; gap: 4px; }
+        .listing-source-tab { padding: 7px 6px; font-size: 12px; gap: 4px; }
+        .listing-source-count { font-size: 10px; padding: 0 5px; }
+        .bulk-toolbar-actions .btn { padding: 8px 12px; font-size: 12px; }
+    }
 </style>
+
+<div class="listings-welcome">
+    <h2>Your listings</h2>
+    <div class="listings-welcome-actions">
+        <a href="{{ route('tutorials.show', 'add-listing') }}" title="Open the picture guide">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75"></path><line x1="12" y1="17.25" x2="12.01" y2="17.25"></line></svg>
+            Help
+        </a>
+        <a href="{{ route('listings.create', ['source' => $createSource]) }}" class="primary">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            New Listing
+        </a>
+    </div>
+</div>
+
+<div class="listings-condo-strip {{ $condoLocked ? 'is-locked' : '' }}">
+    <div class="listings-condo-copy">
+        @if($condoLocked)
+            <strong>Condo tools are locked on this account.</strong>
+            <span>Condo listings, Articles, and Social Media unlock with Condo Premium Package or Condo Premium Lite Package.</span>
+        @else
+            <strong>{{ $condoPackageSummary['package_name'] }} is active.</strong>
+            <span>
+                {{ number_format($condoPackageSummary['listing_used']) }} used of {{ number_format($condoPackageSummary['listing_limit']) }} listing spaces.
+                Daily credits: {{ number_format($condoPackageSummary['daily_remaining']) }} of {{ number_format($condoPackageSummary['daily_limit']) }} left.
+            </span>
+            <div class="listings-condo-metrics">
+                <span class="listings-condo-metric">Listing Space Left: {{ number_format($condoPackageSummary['listing_remaining']) }}</span>
+                <span class="listings-condo-metric">Daily Credit Left: {{ number_format($condoPackageSummary['daily_remaining']) }}</span>
+                @if($condoPackageSummary['article_submission_uses_credit'])
+                    <span class="listings-condo-metric">Social schedules and article publish use daily credit</span>
+                @else
+                    <span class="listings-condo-metric">Social schedules use daily credit</span>
+                    <span class="listings-condo-metric">Article publishing is unlimited</span>
+                @endif
+            </div>
+        @endif
+    </div>
+
+    <a href="{{ route('billing.index') }}" class="listings-condo-link">
+        {{ $condoLocked ? 'View Packages' : 'Manage Package' }}
+    </a>
+</div>
 
 <div class="listing-source-tabs-container">
     <div class="listing-source-tabs" aria-label="Listing sources">
@@ -752,12 +915,18 @@
                     array_merge($currentFilters, ['source' => $tab['key']]),
                     static fn ($value) => !is_null($value) && $value !== ''
                 );
+                $tabLocked = (bool) ($tab['locked'] ?? false);
+                $tabHref = $tabLocked ? route('billing.index') : route('listings.index', $tabQuery);
             @endphp
             <a
-                href="{{ route('listings.index', $tabQuery) }}"
+                href="{{ $tabHref }}"
                 class="listing-source-tab {{ $activeSource === $tab['key'] ? 'is-active' : '' }}"
+                @if($tabLocked) title="Subscribe to unlock condo listings" @endif
             >
                 {{ $tab['label'] }}
+                @if($tabLocked)
+                    <span class="listing-source-badge">Locked</span>
+                @endif
                 @if(!is_null($tab['count']))
                     <span class="listing-source-count">{{ number_format($tab['count']) }}</span>
                 @endif
@@ -826,25 +995,22 @@
         @endforeach
         <input type="hidden" name="selection_mode" id="bulkSelectionMode" value="manual">
 
-        <div class="bulk-toolbar-summary">
-            <div>
-                <div class="bulk-toolbar-title">Bulk actions for your filtered listings</div>
-                <div class="bulk-toolbar-subtitle">Selections now stay saved across paginated pages. Use Mark all to target every listing in this filtered result, not just the current page.</div>
-            </div>
-            <div class="bulk-toolbar-pills">
-                <label class="bulk-checkbox-label">
-                    <input type="checkbox" id="bulkSelectAll">
-                    <span>Mark all {{ number_format($bulkTotalCount) }} result{{ $bulkTotalCount === 1 ? '' : 's' }}</span>
-                </label>
-                <span class="bulk-selection-count" id="bulkSelectedCount">0 selected</span>
-                <button type="button" class="bulk-clear-button" id="bulkClearSelection">Clear selection</button>
-            </div>
-            <div class="bulk-help-line" id="bulkSelectionHelp">Marked listings stay selected when you move between pages.</div>
-        </div>
+        <label class="bulk-checkbox-label" title="Select every listing across all pages">
+            <input type="checkbox" id="bulkSelectAll">
+            <span>Select all</span>
+            <span class="bulk-selection-count" id="bulkSelectedCount">0</span>
+        </label>
+        <button type="button" class="bulk-clear-button" id="bulkClearSelection" hidden>Clear</button>
 
         <div class="bulk-toolbar-actions">
-            <button type="button" class="btn btn-secondary" id="bulkMigrateButton" disabled>Migrate selected</button>
-            <button type="button" class="btn btn-danger" id="bulkDeleteButton" disabled>Delete selected</button>
+            <button type="button" class="btn btn-secondary" id="bulkMigrateButton" disabled aria-label="Move selected to another type">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"></polyline><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><polyline points="7 23 3 19 7 15"></polyline><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></svg>
+                Move
+            </button>
+            <button type="button" class="btn btn-danger" id="bulkDeleteButton" disabled aria-label="Delete selected">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6"></path></svg>
+                Delete
+            </button>
         </div>
     </form>
 
@@ -960,14 +1126,23 @@
 
                 @if($canManage)
                     <div class="listing-card-actions">
-                        <a href="{{ route('listings.show', $showParams) }}" class="btn btn-secondary btn-sm">View</a>
-                        <a href="{{ route('listings.edit', $editParams) }}" class="btn btn-secondary btn-sm">Edit</a>
+                        <a href="{{ route('listings.show', $showParams) }}" class="btn btn-secondary btn-sm" title="View this listing" aria-label="View">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px;"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                            View
+                        </a>
+                        <a href="{{ route('listings.edit', $editParams) }}" class="btn btn-secondary btn-sm" title="Edit this listing" aria-label="Edit">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px;"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+                            Edit
+                        </a>
                         <form method="POST" action="{{ route('listings.destroy', $listing->id) }}" onsubmit="return confirm('Move this listing to Recently Deleted?');" style="margin:0; flex:1;">
                             @csrf
                             @method('DELETE')
                             <input type="hidden" name="source" value="{{ $listingSource }}">
                             <input type="hidden" name="return_source" value="{{ $activeSource }}">
-                            <button type="submit" class="btn btn-danger btn-sm" style="width:100%;">Delete</button>
+                            <button type="submit" class="btn btn-danger btn-sm" title="Move to Recently Deleted" aria-label="Delete" style="width:100%;">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px;"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6"></path></svg>
+                                Delete
+                            </button>
                         </form>
                     </div>
                 @else
@@ -1005,7 +1180,6 @@
         const migrateButton = document.getElementById('bulkMigrateButton');
         const deleteButton = document.getElementById('bulkDeleteButton');
         const selectionModeInput = document.getElementById('bulkSelectionMode');
-        const selectionHelp = document.getElementById('bulkSelectionHelp');
         const modal = document.getElementById('bulkActionModal');
         const modalTitle = document.getElementById('bulkModalTitle');
         const modalSubtitle = document.getElementById('bulkModalSubtitle');
@@ -1099,25 +1273,19 @@
 
         const updateToolbar = () => {
             const count = selectedCount();
-            countLabel.textContent = state.mode === 'all_filtered'
-                ? `${count} of ${totalResults} marked`
-                : `${count} selected`;
+            countLabel.textContent = count;
 
             if (state.mode === 'all_filtered') {
                 const everythingMarked = state.excluded.length === 0 && totalResults > 0;
                 selectAll.checked = everythingMarked;
                 selectAll.indeterminate = !everythingMarked && count > 0;
-                selectionHelp.textContent = count > 0
-                    ? 'All filtered results are selected. Untick any listing card to exclude just that one.'
-                    : 'No filtered listings are currently selected.';
             } else {
                 selectAll.checked = false;
                 selectAll.indeterminate = count > 0;
-                selectionHelp.textContent = count > 0
-                    ? 'Your manual selection is saved across paginated pages in this filtered view.'
-                    : 'Marked listings stay selected when you move between pages.';
             }
 
+            bulkForm.classList.toggle('has-selection', count > 0);
+            if (clearButton) clearButton.hidden = count === 0;
             migrateButton.disabled = count === 0;
             deleteButton.disabled = count === 0;
         };
@@ -1159,14 +1327,14 @@
             resetModal();
             activeAction = action;
             targetBlock.hidden = action !== 'migrate';
-            modalTitle.textContent = action === 'delete' ? 'Delete selected listings' : 'Migrate selected listings';
+            modalTitle.textContent = action === 'delete' ? 'Delete listings?' : 'Move listings to another type?';
             modalSubtitle.textContent = action === 'delete'
-                ? 'This will move the selected listings into Recently Deleted.'
-                : 'This will copy the selected listings into another source while keeping the originals where they are.';
+                ? 'They will go to Recently Deleted &mdash; you can restore them later.'
+                : 'A copy will be made in the new type. The originals stay where they are.';
             modalSummary.innerHTML = action === 'delete'
-                ? `You are about to delete <strong>${count}</strong> listing${count === 1 ? '' : 's'} from this filtered view.`
-                : `You are about to migrate <strong>${count}</strong> listing${count === 1 ? '' : 's'} by copying them into another source.`;
-            confirmButton.textContent = action === 'delete' ? 'Start delete' : 'Start migrate';
+                ? `You are about to delete <strong>${count}</strong> listing${count === 1 ? '' : 's'}.`
+                : `You are about to move <strong>${count}</strong> listing${count === 1 ? '' : 's'}.`;
+            confirmButton.textContent = action === 'delete' ? 'Yes, delete' : 'Yes, move';
             modal.hidden = false;
             modal.setAttribute('aria-hidden', 'false');
             document.body.style.overflow = 'hidden';

@@ -3,32 +3,37 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Article;
-use Illuminate\Http\Request;
+use App\Models\ManagedArticle;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class ArticleApiController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
-        $query = Article::published();
+        $query = ManagedArticle::published();
 
         if ($request->filled('username')) {
-            $query->where('agent_username', $request->username);
-        }
-        if ($request->filled('category')) {
-            $query->where('category', $request->category);
+            $query->ownedByAgent((string) $request->username);
         }
 
-        $articles = $query->orderBy('published_at', 'desc')
-            ->paginate($request->get('per_page', 12));
+        if ($request->filled('category')) {
+            $query->withCategory((string) $request->category);
+        }
+
+        $articles = $query
+            ->orderBy('post_date', 'desc')
+            ->paginate($request->integer('per_page', 12));
 
         return response()->json($articles);
     }
 
     public function show(string $slug): JsonResponse
     {
-        $article = Article::published()->where('slug', $slug)->firstOrFail();
+        $article = ManagedArticle::published()
+            ->where('post_name', $slug)
+            ->firstOrFail();
+
         return response()->json($article);
     }
 }

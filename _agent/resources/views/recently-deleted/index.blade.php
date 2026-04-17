@@ -169,14 +169,19 @@
             <div class="stat-sub">IPP, ICP, and Condo listing records.</div>
         </div>
         <div class="stat-card">
+            <div class="stat-label">Articles</div>
+            <div class="stat-value">{{ number_format($stats['articles']) }}</div>
+            <div class="stat-sub">WordPress articles removed from the agent portal.</div>
+        </div>
+        <div class="stat-card">
             <div class="stat-label">Social</div>
             <div class="stat-value">{{ number_format($stats['social']) }}</div>
             <div class="stat-sub">Deleted FS Poster schedule groups.</div>
         </div>
         <div class="stat-card">
-            <div class="stat-label">Portal Cleanup</div>
-            <div class="stat-value" style="font-size:20px;">Focused</div>
-            <div class="stat-sub">Recycle bin now highlights listings and social schedules only.</div>
+            <div class="stat-label">Recycle Bin</div>
+            <div class="stat-value" style="font-size:20px;">Active</div>
+            <div class="stat-sub">Restore or permanently remove deleted listings, articles, and schedules.</div>
         </div>
     </div>
 
