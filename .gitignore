@@ -5,3 +5,4 @@
 /wp-content/mu-plugins/local-disable-problem-plugins.php
 /wp_condo_backup.sql
 /wp_condo_backup.no-locks.sql
+/_agent/.example

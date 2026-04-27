@@ -13,12 +13,13 @@ if ( ! class_exists( 'Condo_Ipp_Auth' ) ) {
 
     final class Condo_Ipp_Auth {
 
-        const IPP_DB_HOST     = 'localhost';
-        const IPP_DB_USER     = 'root';
-        const IPP_DB_PASSWORD = 'root';
-        const IPP_DB_NAME     = 'ipp_user';
-        const IPP_TABLE       = 'Users';
+        const IPP_TABLE        = 'Users';
         const IPP_DETAIL_TABLE = 'UserDetails';
+
+        protected static function db_host()     { return defined( 'CONDO_IPP_AUTH_DB_HOST' )     ? CONDO_IPP_AUTH_DB_HOST     : 'localhost'; }
+        protected static function db_name()     { return defined( 'CONDO_IPP_AUTH_DB_NAME' )     ? CONDO_IPP_AUTH_DB_NAME     : 'ipp_user';  }
+        protected static function db_user()     { return defined( 'CONDO_IPP_AUTH_DB_USER' )     ? CONDO_IPP_AUTH_DB_USER     : 'root';      }
+        protected static function db_password() { return defined( 'CONDO_IPP_AUTH_DB_PASSWORD' ) ? CONDO_IPP_AUTH_DB_PASSWORD : 'root';      }
 
         public static function boot() {
             // Priority 30: run after wp_authenticate_username_password (priority 20) but before
@@ -76,10 +77,10 @@ if ( ! class_exists( 'Condo_Ipp_Auth' ) ) {
 
         protected static function ipp_connection() {
             $mysqli = @new mysqli(
-                self::IPP_DB_HOST,
-                self::IPP_DB_USER,
-                self::IPP_DB_PASSWORD,
-                self::IPP_DB_NAME
+                self::db_host(),
+                self::db_user(),
+                self::db_password(),
+                self::db_name()
             );
 
             if ( $mysqli->connect_errno ) {
