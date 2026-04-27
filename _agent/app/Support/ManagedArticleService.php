@@ -186,10 +186,10 @@ class ManagedArticleService
      */
     private function syncArticleDetails(int $articleId, string $username, array $validated): void
     {
-        $this->upsertMeta($articleId, CondoWordpressBridge::META_USERNAME, $username);
-        $this->upsertMeta($articleId, RankMathBridge::TITLE, trim((string) ($validated['meta_title'] ?? '')));
-        $this->upsertMeta($articleId, RankMathBridge::DESCRIPTION, trim((string) ($validated['meta_description'] ?? '')));
-        $this->upsertMeta($articleId, RankMathBridge::FOCUS_KEYWORD, trim((string) ($validated['focus_keyword'] ?? '')));
+        $this->upsertMeta($articleId, ManagedArticle::META_USERNAME, $username);
+        $this->upsertMeta($articleId, ManagedArticle::RANK_MATH_TITLE, trim((string) ($validated['meta_title'] ?? '')));
+        $this->upsertMeta($articleId, ManagedArticle::RANK_MATH_DESCRIPTION, trim((string) ($validated['meta_description'] ?? '')));
+        $this->upsertMeta($articleId, ManagedArticle::RANK_MATH_FOCUS_KEYWORD, trim((string) ($validated['focus_keyword'] ?? '')));
 
         $category = trim((string) ($validated['category'] ?? ''));
         $tags = $this->parseTags((string) ($validated['tags'] ?? ''));
@@ -268,7 +268,7 @@ class ManagedArticleService
 
     private function permalinkForId(int $articleId): string
     {
-        return rtrim(CondoWordpressBridge::siteBaseUrl(), '/') . '/?p=' . $articleId;
+        return rtrim(ManagedArticle::wordpressSiteBaseUrl(), '/') . '/?p=' . $articleId;
     }
 
     private function resolveAuthorId(string $username): int
@@ -397,7 +397,7 @@ class ManagedArticleService
             'post_modified_gmt' => $now->copy()->utc()->format('Y-m-d H:i:s'),
             'post_content_filtered' => '',
             'post_parent' => $articleId,
-            'guid' => CondoWordpressBridge::publicUrlForRelativeUploadPath($relativePath),
+            'guid' => rtrim(ManagedArticle::wordpressSiteBaseUrl(), '/') . '/wp-content/uploads/' . ltrim(str_replace('\\', '/', $relativePath), '/'),
             'menu_order' => 0,
             'post_type' => 'attachment',
             'post_mime_type' => $mimeType,

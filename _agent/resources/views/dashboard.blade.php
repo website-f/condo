@@ -3,13 +3,22 @@
 @section('page-title', 'Dashboard')
 
 @php
-    $hasCondoPackageAccess = (bool) ($agent->has_condo_package_access ?? false);
-    $articleActionUrl = $hasCondoPackageAccess ? route('articles.create') : route('billing.index');
-    $articleIndexUrl = $hasCondoPackageAccess ? route('articles.index') : route('billing.index');
-    $socialIndexUrl = $hasCondoPackageAccess ? route('social.index') : route('billing.index');
+    $articleActionUrl = route('articles.create');
+    $articleIndexUrl = route('articles.index');
+    $socialIndexUrl = route('social.index');
 @endphp
 
 @section('content')
+@if($bridgeIssueCount > 0)
+<div class="alert" style="background:#fff7e6;color:#8a5a00;border:1px solid #ffd38a;">
+    <div style="font-weight:600; margin-bottom:8px;">{{ $bridgeIssueCount }} bridge warning{{ $bridgeIssueCount === 1 ? '' : 's' }} need attention.</div>
+    @foreach($recentBridgeIssues as $issue)
+        <div>{{ $issue['resource_label'] }} · {{ $issue['sync_target_label'] }}: {{ $issue['message'] }}</div>
+    @endforeach
+    <div style="margin-top:8px; color:#a56a00;">Run <code>php artisan bridge:health {{ $agent->username }}</code> to verify the Laravel to WordPress connection.</div>
+</div>
+@endif
+
 <div class="stats-grid">
     <div class="stat-card">
         <div class="stat-label">Total Listings</div>
@@ -36,7 +45,7 @@
     <div class="card">
         <div class="card-header" style="display:flex;justify-content:space-between;gap:12px;align-items:center;">
             <span>Recent Articles</span>
-            <a href="{{ $articleActionUrl }}" class="btn btn-secondary btn-sm">{{ $hasCondoPackageAccess ? 'New Article' : 'Unlock Articles' }}</a>
+            <a href="{{ $articleActionUrl }}" class="btn btn-secondary btn-sm">New Article</a>
         </div>
         @if($recentArticles->count())
         <div class="table-wrap">
@@ -58,7 +67,7 @@
         @else
         <div class="empty-state" style="padding:30px;">
             <p>No articles yet.</p>
-            <a href="{{ $articleActionUrl }}" class="btn btn-primary btn-sm">{{ $hasCondoPackageAccess ? 'Create First Article' : 'View Packages' }}</a>
+            <a href="{{ $articleActionUrl }}" class="btn btn-primary btn-sm">Create First Article</a>
         </div>
         @endif
     </div>
@@ -116,15 +125,11 @@
         <div class="card-header">Content Tools</div>
         <div class="empty-state" style="padding:30px;">
             <p>
-                @if($hasCondoPackageAccess)
-                    Write articles here, manage listings, and send posts to social without opening WordPress admin.
-                @else
-                    Condo content tools are locked until this account has Condo Premium Package or Condo Premium Lite Package.
-                @endif
+                Write articles here, manage listings, and send posts to social without opening WordPress admin.
             </p>
             <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
-                <a href="{{ $articleIndexUrl }}" class="btn btn-secondary btn-sm">{{ $hasCondoPackageAccess ? 'Open Articles' : 'View Packages' }}</a>
-                <a href="{{ $socialIndexUrl }}" class="btn btn-secondary btn-sm">{{ $hasCondoPackageAccess ? 'Open Social Media' : 'Open Billing' }}</a>
+                <a href="{{ $articleIndexUrl }}" class="btn btn-secondary btn-sm">Open Articles</a>
+                <a href="{{ $socialIndexUrl }}" class="btn btn-secondary btn-sm">Open Social Media</a>
             </div>
         </div>
     </div>

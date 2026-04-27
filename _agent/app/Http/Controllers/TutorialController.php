@@ -17,12 +17,6 @@ class TutorialController extends Controller
             'icon' => 'pencil',
             'minutes' => 2,
         ],
-        'migrate-listing' => [
-            'title' => 'How to move a listing to another type',
-            'subtitle' => 'Copy a listing into IPP, ICP, or Condo without re-typing everything.',
-            'icon' => 'swap',
-            'minutes' => 3,
-        ],
     ];
 
     public function index()

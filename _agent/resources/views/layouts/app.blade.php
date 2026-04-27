@@ -180,6 +180,7 @@
         .alert { padding: 16px 20px; border-radius: var(--radius-sm); font-size: 14px; margin-bottom: 24px; font-weight: 500; }
         .alert-success { background: #e3f5e9; color: #14833b; border: 1px solid #bde6c9; }
         .alert-error { background: #ffe9e6; color: #d92d20; border: 1px solid #ffd1cd; }
+        .alert-warning { background: #fff7e6; color: #8a5a00; border: 1px solid #ffd38a; }
 
         /* Pagination */
         .pagination { display: flex; gap: 4px; align-items: center; justify-content: center; padding: 32px 0; flex-wrap: nowrap; }
@@ -291,9 +292,8 @@
 <body>
     @php
         $layoutAgent = auth('agent')->user();
-        $hasCondoPackageAccess = (bool) ($layoutAgent?->has_condo_package_access ?? false);
-        $articlesNavUrl = $hasCondoPackageAccess ? route('articles.index') : route('billing.index');
-        $socialNavUrl = $hasCondoPackageAccess ? route('social.index') : route('billing.index');
+        $articlesNavUrl = route('articles.index');
+        $socialNavUrl = route('social.index');
     @endphp
 
     <!-- Sidebar -->
@@ -310,12 +310,9 @@
             </a>
 
             <div class="sidebar-section">Content</div>
-            <a href="{{ $articlesNavUrl }}" class="{{ request()->routeIs('articles.*') ? 'active' : '' }}" @if(! $hasCondoPackageAccess) title="Unlock Articles with a condo package" @endif>
+            <a href="{{ $articlesNavUrl }}" class="{{ request()->routeIs('articles.*') ? 'active' : '' }}">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" /></svg>
                 Articles
-                @if(! $hasCondoPackageAccess)
-                    <span class="sidebar-lock-badge">Locked</span>
-                @endif
             </a>
             <a href="{{ route('listings.index') }}" class="{{ request()->routeIs('listings.*') ? 'active' : '' }}">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-6h.75m-.75 3h.75m-.75 3h.75M6.75 21v-3.375c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21M3 3h12m-.75 4.5H21m-3.75 3H21m-3.75 3H21" /></svg>
@@ -332,12 +329,9 @@
                 SEO
                 <span class="sidebar-soon-badge">Soon</span>
             </span>
-            <a href="{{ $socialNavUrl }}" class="{{ request()->routeIs('social.*') ? 'active' : '' }}" @if(! $hasCondoPackageAccess) title="Unlock Social Media with a condo package" @endif>
+            <a href="{{ $socialNavUrl }}" class="{{ request()->routeIs('social.*') ? 'active' : '' }}">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M7.217 10.907a2.25 2.25 0 100 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186l9.566-5.314m-9.566 7.5l9.566 5.314m0 0a2.25 2.25 0 103.935 2.186 2.25 2.25 0 00-3.935-2.186zm0-12.814a2.25 2.25 0 103.933-2.185 2.25 2.25 0 00-3.933 2.185z" /></svg>
                 Social Media
-                @if(! $hasCondoPackageAccess)
-                    <span class="sidebar-lock-badge">Locked</span>
-                @endif
             </a>
 
             <div class="sidebar-section">Analytics</div>
@@ -353,13 +347,13 @@
             </a>
 
             <div class="sidebar-section">Account</div>
-            <a href="{{ route('profile.index') }}" class="{{ request()->routeIs('profile.*') ? 'active' : '' }}">
+            <a href="{{ route('profile.index') }}" class="{{ request()->routeIs('profile.index') || request()->routeIs('profile.update') || request()->routeIs('profile.password') ? 'active' : '' }}">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" /></svg>
                 Profile
             </a>
-            <a href="{{ route('billing.index') }}" class="{{ request()->routeIs('billing.*') ? 'active' : '' }}">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5z" /></svg>
-                Billing
+            <a href="{{ route('profile.visit-site') }}" target="_blank" rel="noopener">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"/></svg>
+                Visit My Site
             </a>
         </nav>
         <div class="sidebar-footer">
@@ -397,6 +391,13 @@
         <div class="content">
             @if(session('success'))
                 <div class="alert alert-success">{{ session('success') }}</div>
+            @endif
+            @if(session('bridge_warnings'))
+                <div class="alert alert-warning">
+                    @foreach((array) session('bridge_warnings') as $warning)
+                        <div>{{ $warning }}</div>
+                    @endforeach
+                </div>
             @endif
             @if($errors->any())
                 <div class="alert alert-error">

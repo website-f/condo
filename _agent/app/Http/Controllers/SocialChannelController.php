@@ -2,19 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Concerns\InteractsWithCondoFeatureGate;
-use App\Support\CondoPackageManager;
 use App\Support\FsPosterBridge;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 
 class SocialChannelController extends Controller
 {
-    use InteractsWithCondoFeatureGate;
-
     public function __construct(
-        private readonly CondoPackageManager $condoPackageManager,
         private readonly FsPosterBridge $fsPosterBridge,
     )
     {
@@ -22,15 +18,6 @@ class SocialChannelController extends Controller
 
     public function index(Request $request)
     {
-        if ($response = $this->condoFeatureAccessResponse(
-            $this->condoPackageManager,
-            'Social Media',
-            'Social Media',
-            'Channel management is only available on the condo packages.'
-        )) {
-            return $response;
-        }
-
         $username = Auth::guard('agent')->user()->username;
         $allAccounts = $this->fsPosterBridge->channelSessionsForAgent($username);
         $allChannels = $this->fsPosterBridge->channelManagerRecordsForAgent($username);
@@ -116,11 +103,32 @@ class SocialChannelController extends Controller
             ? (string) ($networkOptions->firstWhere('key', $selectedNetwork)['label'] ?? $selectedNetwork)
             : 'All';
 
+        $perPage = 10;
+        $currentPage = max(1, (int) $request->query('page', 1));
+        $totalChannels = $channels->count();
+        $pagedItems = $channels->forPage($currentPage, $perPage)->values();
+
+        $channelsPaginator = new LengthAwarePaginator(
+            $pagedItems,
+            $totalChannels,
+            $perPage,
+            $currentPage,
+            [
+                'path' => $request->url(),
+                'query' => $request->query(),
+            ]
+        );
+
+        $channels = $pagedItems;
+        $popupAuthNetworks = $this->popupAuthNetworks();
+
         return view('social.channels.index', compact(
             'channels',
+            'channelsPaginator',
             'allStats',
             'stats',
             'networkCards',
+            'popupAuthNetworks',
             'selectedNetwork',
             'selectedNetworkLabel',
             'search',
@@ -130,15 +138,6 @@ class SocialChannelController extends Controller
 
     public function createAccount()
     {
-        if ($response = $this->condoFeatureAccessResponse(
-            $this->condoPackageManager,
-            'Social Media',
-            'Social Media',
-            'Channel management is only available on the condo packages.'
-        )) {
-            return $response;
-        }
-
         return view('social.channels.account-form', [
             'pageTitle' => 'Advanced Account',
             'formAction' => route('social.accounts.store'),
@@ -160,15 +159,6 @@ class SocialChannelController extends Controller
 
     public function storeAccount(Request $request)
     {
-        if ($response = $this->condoFeatureAccessResponse(
-            $this->condoPackageManager,
-            'Social Media',
-            'Social Media',
-            'Channel management is only available on the condo packages.'
-        )) {
-            return $response;
-        }
-
         $username = Auth::guard('agent')->user()->username;
         $validated = $this->validateAccount($request);
         $this->fsPosterBridge->createChannelSession($username, $validated);
@@ -180,15 +170,6 @@ class SocialChannelController extends Controller
 
     public function editAccount(int $sessionId)
     {
-        if ($response = $this->condoFeatureAccessResponse(
-            $this->condoPackageManager,
-            'Social Media',
-            'Social Media',
-            'Channel management is only available on the condo packages.'
-        )) {
-            return $response;
-        }
-
         $username = Auth::guard('agent')->user()->username;
         $account = $this->fsPosterBridge->findChannelSessionForAgent($username, $sessionId);
 
@@ -213,15 +194,6 @@ class SocialChannelController extends Controller
 
     public function updateAccount(Request $request, int $sessionId)
     {
-        if ($response = $this->condoFeatureAccessResponse(
-            $this->condoPackageManager,
-            'Social Media',
-            'Social Media',
-            'Channel management is only available on the condo packages.'
-        )) {
-            return $response;
-        }
-
         $username = Auth::guard('agent')->user()->username;
         $validated = $this->validateAccount($request);
         $this->fsPosterBridge->updateChannelSession($username, $sessionId, $validated);
@@ -233,15 +205,6 @@ class SocialChannelController extends Controller
 
     public function createChannel(Request $request)
     {
-        if ($response = $this->condoFeatureAccessResponse(
-            $this->condoPackageManager,
-            'Social Media',
-            'Social Media',
-            'Channel management is only available on the condo packages.'
-        )) {
-            return $response;
-        }
-
         $username = Auth::guard('agent')->user()->username;
         $accounts = $this->fsPosterBridge->channelSessionsForAgent($username);
         $allChannels = $this->fsPosterBridge->channelManagerRecordsForAgent($username);
@@ -315,15 +278,6 @@ class SocialChannelController extends Controller
 
     public function storeChannel(Request $request)
     {
-        if ($response = $this->condoFeatureAccessResponse(
-            $this->condoPackageManager,
-            'Social Media',
-            'Social Media',
-            'Channel management is only available on the condo packages.'
-        )) {
-            return $response;
-        }
-
         $username = Auth::guard('agent')->user()->username;
         $validated = $this->validateChannelWizard($request, false);
         $sessionId = $this->resolveChannelSessionId($username, $validated);
@@ -350,15 +304,6 @@ class SocialChannelController extends Controller
 
     public function editChannel(int $channelId)
     {
-        if ($response = $this->condoFeatureAccessResponse(
-            $this->condoPackageManager,
-            'Social Media',
-            'Social Media',
-            'Channel management is only available on the condo packages.'
-        )) {
-            return $response;
-        }
-
         $username = Auth::guard('agent')->user()->username;
         $channel = $this->fsPosterBridge->findChannelForAgent($username, $channelId);
         $accounts = $this->fsPosterBridge->channelSessionsForAgent($username);
@@ -410,15 +355,6 @@ class SocialChannelController extends Controller
 
     public function oauthStart(Request $request, string $network)
     {
-        if ($response = $this->condoFeatureAccessResponse(
-            $this->condoPackageManager,
-            'Social Media',
-            'Social Media',
-            'Channel management is only available on the condo packages.'
-        )) {
-            return $response;
-        }
-
         $network = trim($network);
 
         if (! collect($this->socialNetworkOptions())->pluck('key')->contains($network) || ! $this->supportsPopupAuth($network)) {
@@ -427,21 +363,18 @@ class SocialChannelController extends Controller
 
         $proxy = trim((string) $request->query('proxy', ''));
         $appId = $this->fsPosterBridge->preferredOauthAppId($network);
+        $username = Auth::guard('agent')->user()->username;
 
-        return redirect()->away($this->fsPosterBridge->wordpressPublicAuthStartUrl($network, $appId, $proxy !== '' ? $proxy : null));
+        return redirect()->away($this->fsPosterBridge->wordpressBridgeAuthStartUrl(
+            $username,
+            $network,
+            $appId,
+            $proxy !== '' ? $proxy : null
+        ));
     }
 
     public function importOauthChannels(Request $request)
     {
-        if ($response = $this->condoFeatureAccessResponse(
-            $this->condoPackageManager,
-            'Social Media',
-            'Social Media',
-            'Channel management is only available on the condo packages.'
-        )) {
-            return $response;
-        }
-
         $validated = $request->validate([
             'social_network' => ['required', 'string', 'max:50'],
             'channels' => ['required', 'array', 'min:1'],
@@ -552,15 +485,6 @@ class SocialChannelController extends Controller
 
     public function updateChannel(Request $request, int $channelId)
     {
-        if ($response = $this->condoFeatureAccessResponse(
-            $this->condoPackageManager,
-            'Social Media',
-            'Social Media',
-            'Channel management is only available on the condo packages.'
-        )) {
-            return $response;
-        }
-
         $username = Auth::guard('agent')->user()->username;
         $existingChannel = $this->fsPosterBridge->findChannelForAgent($username, $channelId);
         $validated = $this->validateChannelWizard($request, true);
@@ -586,17 +510,30 @@ class SocialChannelController extends Controller
             ->with('success', 'The channel was updated.');
     }
 
-    public function destroyChannel(int $channelId)
+    public function refreshChannel(int $channelId)
     {
-        if ($response = $this->condoFeatureAccessResponse(
-            $this->condoPackageManager,
-            'Social Media',
-            'Social Media',
-            'Channel management is only available on the condo packages.'
-        )) {
-            return $response;
+        $username = Auth::guard('agent')->user()->username;
+        $this->fsPosterBridge->findChannelForAgent($username, $channelId);
+
+        try {
+            $result = $this->fsPosterBridge->refreshChannelFromWordpress($username, $channelId);
+        } catch (ValidationException $exception) {
+            return redirect()->back()->withErrors($exception->errors());
+        } catch (\Throwable $exception) {
+            return redirect()->back()->withErrors([
+                'channel' => trim((string) $exception->getMessage()) !== ''
+                    ? trim((string) $exception->getMessage())
+                    : 'FS Poster could not refresh the channel.',
+            ]);
         }
 
+        return redirect()->back()->with('success', trim((string) ($result['message'] ?? '')) !== ''
+            ? trim((string) $result['message'])
+            : 'The channel was refreshed.');
+    }
+
+    public function destroyChannel(int $channelId)
+    {
         $username = Auth::guard('agent')->user()->username;
         $channel = $this->fsPosterBridge->findChannelForAgent($username, $channelId);
         $this->fsPosterBridge->deleteChannel($username, $channelId);

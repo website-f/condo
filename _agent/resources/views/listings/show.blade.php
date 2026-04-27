@@ -6,7 +6,6 @@
         'return_source' => $returnSource,
     ], static fn ($value) => $value !== null));
     $backToListingsUrl = route('listings.index', ['source' => $returnSource]);
-    $isCondoListing = ($listing->source_key ?? '') === 'condo';
 @endphp
 @section('title', $listing->propertyname)
 @section('page-title', 'Listing Details')
@@ -14,10 +13,6 @@
     <div class="listing-topbar-actions">
         @if($canManageListing)
             <a href="{{ $editListingUrl }}" class="btn btn-secondary btn-sm">Edit</a>
-            @if($isCondoListing)
-                <span class="btn btn-secondary btn-sm" style="pointer-events:none;opacity:.68;">SEO Coming Soon</span>
-                <a href="{{ route('social.create', ['listing' => $listing->id]) }}" class="btn btn-secondary btn-sm">Schedule</a>
-            @endif
             <form method="POST" action="{{ route('listings.destroy', $listing->id) }}" onsubmit="return confirm('Delete this listing? This action cannot be undone.');" style="margin:0;">
                 @csrf
                 @method('DELETE')
@@ -109,6 +104,7 @@
         This {{ strtoupper($listingSource) }} listing is synced in read-only mode for now.
     </div>
 @endif
+
 
 <style>
     /* Styling strictly minimal, clean, Apple-like */
@@ -1200,11 +1196,6 @@
             <div class="listing-mobile-actions-grid">
                 @if($canManageListing)
                     <a href="{{ $editListingUrl }}" class="btn btn-primary">Edit Listing</a>
-
-                @if($isCondoListing)
-                    <span class="btn btn-secondary" style="pointer-events:none;opacity:.68;">SEO Coming Soon</span>
-                    <a href="{{ route('social.create', ['listing' => $listing->id]) }}" class="btn btn-secondary">Schedule</a>
-                @endif
 
                     <form method="POST" action="{{ route('listings.destroy', $listing->id) }}" onsubmit="return confirm('Delete this listing? This action cannot be undone.');">
                         @csrf

@@ -81,13 +81,6 @@ class Agent extends Authenticatable
         return $this->detail?->photo_url;
     }
 
-    public function getHasCondoPackageAccessAttribute(): bool
-    {
-        $this->loadMissing('subscription');
-
-        return (bool) $this->subscription?->is_condo_package;
-    }
-
     public function getCurrentDailyCreditAttribute(): int
     {
         return max(0, (int) ($this->attributes['credit'] ?? 0));

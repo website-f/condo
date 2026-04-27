@@ -40,6 +40,18 @@ return [
         'profile_base_url' => env('SHARED_PROFILE_IMAGE_BASE_URL', 'https://ipushproperty.com/my/IPP/users/photos'),
         'wordpress_site_url' => env('WORDPRESS_SITE_URL', 'https://condo.com.my'),
         'wordpress_media_base_url' => env('WORDPRESS_MEDIA_BASE_URL', 'https://condo.test'),
+        'bridge_sync_secret' => env('CONDO_LARAVEL_BRIDGE_SYNC_SECRET'),
+        'public_base_host' => env(
+            'CONDO_PUBLIC_BASE_HOST',
+            parse_url((string) env('WORDPRESS_SITE_URL', 'https://condo.com.my'), PHP_URL_HOST) ?: 'condo.com.my'
+        ),
+        'public_reserved_subdomains' => array_values(array_filter(array_map(
+            static fn (string $value) => strtolower(trim($value)),
+            explode(',', (string) env(
+                'CONDO_PUBLIC_RESERVED_SUBDOMAINS',
+                'www,admin,agent,api,mail,ftp,cpanel,webmail,autodiscover,cpcontacts,cpcalendars'
+            ))
+        ))),
     ],
 
 ];

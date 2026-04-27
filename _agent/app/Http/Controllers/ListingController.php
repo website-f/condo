@@ -2,13 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Concerns\InteractsWithCondoFeatureGate;
-use App\Models\CondoListing;
 use App\Models\IcpListing;
 use App\Models\Listing;
 use App\Models\State;
-use App\Support\CondoPackageManager;
-use App\Support\CondoWordpressBridge;
 use App\Support\ListingEditor;
 use App\Support\RecentlyDeletedService;
 use Carbon\Carbon;
@@ -26,28 +22,22 @@ use Throwable;
 
 class ListingController extends Controller
 {
-    use InteractsWithCondoFeatureGate;
-
     private const INDEX_SOURCES = [
         'all' => 'All',
         'ipp' => 'IPP',
         'icp' => 'ICP',
-        'condo' => 'Condo',
     ];
 
     private const CREATE_SOURCES = [
         'ipp' => 'IPP',
         'icp' => 'ICP',
-        'condo' => 'Condo',
     ];
 
     private const INDEX_PER_PAGE = 12;
 
     public function __construct(
-        private readonly CondoPackageManager $condoPackageManager,
-        private readonly RecentlyDeletedService $recentlyDeletedService
-    )
-    {
+        private readonly RecentlyDeletedService $recentlyDeletedService,
+    ) {
     }
 
     public function index(Request $request)
@@ -56,21 +46,6 @@ class ListingController extends Controller
         $username = $agent->username;
         $activeSource = $this->resolveListingSource($request->query('source'));
         [$sortBy, $sortDir] = $this->resolveSortOptions($request);
-
-        if ($activeSource === 'condo' && ! $this->canManageSource('condo')) {
-            return $this->condoFeatureAccessResponse(
-                $this->condoPackageManager,
-                'Condo Listings',
-                'Condo Listings',
-                'Syncing and managing condo listings from Laravel requires Condo Premium Package or Condo Premium Lite Package.',
-                [
-                    'Condo Premium Package gives 500 listing spaces and 100 daily credits.',
-                    'Condo Premium Lite Package gives 100 listing spaces and 50 daily credits.',
-                    'Social schedules use 1 daily credit each. Condo Premium Lite also uses daily credit when an article is published or scheduled.',
-                    'Delete a condo listing and the slot is returned automatically.',
-                ]
-            );
-        }
 
         $listings = $this->resolveIndexListings($username, $request, $activeSource, $sortBy, $sortDir);
         [$listingTypes, $propertyTypes, $states] = $this->resolveIndexFilters($username, $activeSource);
@@ -82,14 +57,9 @@ class ListingController extends Controller
                 'key' => $key,
                 'label' => $label,
                 'count' => $sourceCounts[$key] ?? null,
-                'locked' => $key === 'condo' && ! $this->canManageSource('condo'),
+                'locked' => false,
             ])
             ->values();
-        $bulkTargetSources = collect($this->createSourceTabs())
-            ->filter(fn (array $tab) => $tab['enabled'])
-            ->values()
-            ->all();
-        $condoPackageSummary = $this->condoPackageManager->summaryForAgent($agent);
 
         return view('listings.index', compact(
             'listings',
@@ -97,24 +67,13 @@ class ListingController extends Controller
             'propertyTypes',
             'states',
             'activeSource',
-            'sourceTabs',
-            'bulkTargetSources',
-            'condoPackageSummary'
+            'sourceTabs'
         ));
     }
 
     public function create(Request $request)
     {
         $activeCreateSource = $this->resolveCreateSource($request->query('source'));
-
-        if ($activeCreateSource === 'condo' && ! $this->canCreateSource('condo')) {
-            return $this->condoFeatureAccessResponse(
-                $this->condoPackageManager,
-                'Condo Listings',
-                'Condo Listings',
-                'Adding condo listings is locked until this account has a condo package.'
-            );
-        }
 
         $form = ListingEditor::formData();
 
@@ -139,15 +98,11 @@ class ListingController extends Controller
         $agent = Auth::guard('agent')->user();
         $username = $agent->username;
 
-        if ($source === 'condo') {
-            $this->condoPackageManager->ensureCondoListingCapacity($agent);
-        }
-
         $listing = $this->newListingModelForSource($source);
         $uploadedPhotoPaths = [];
 
         try {
-            DB::connection($this->connectionForSource($source))->transaction(function () use ($validated, $username, $listing, &$uploadedPhotoPaths) {
+            DB::connection($this->connectionForSource($source))->transaction(function () use ($source, $validated, $username, $listing, &$uploadedPhotoPaths) {
                 $propertyId = $this->generatePropertyId();
                 $uploadedPhotoPaths = $this->storeUploadedImages(
                     $source,
@@ -167,7 +122,7 @@ class ListingController extends Controller
 
         return redirect()
             ->route('listings.show', array_filter([
-                'id' => $listing instanceof CondoListing ? $listing->getKey() : $listing->id,
+                'id' => $listing->id,
                 'source' => $source === 'ipp' ? null : $source,
                 'return_source' => $source,
             ], static fn (mixed $value) => $value !== null))
@@ -178,15 +133,6 @@ class ListingController extends Controller
     {
         $source = $this->resolveDetailSource($request->query('source'));
 
-        if ($source === 'condo' && ! $this->canManageSource('condo')) {
-            return $this->condoFeatureAccessResponse(
-                $this->condoPackageManager,
-                'Condo Listings',
-                'Condo Listings',
-                'Viewing condo listings is locked until this account has a condo package.'
-            );
-        }
-
         $returnSource = $this->resolveListingSource($request->query('return_source', $source));
         $listing = $this->findOwnedListingOrFail($id, true, $source);
 
@@ -194,21 +140,13 @@ class ListingController extends Controller
             'listing' => $listing,
             'canManageListing' => $this->canManageSource($source),
             'returnSource' => $returnSource,
+            'bridgeIssues' => collect(),
         ]);
     }
 
     public function edit(Request $request, $id)
     {
         $source = $this->resolveDetailSource($request->query('source'));
-
-        if ($source === 'condo' && ! $this->canManageSource('condo')) {
-            return $this->condoFeatureAccessResponse(
-                $this->condoPackageManager,
-                'Condo Listings',
-                'Condo Listings',
-                'Editing condo listings is locked until this account has a condo package.'
-            );
-        }
 
         $returnSource = $this->resolveListingSource($request->query('return_source', $source));
         $listing = $this->findOwnedListingOrFail($id, true, $source);
@@ -228,16 +166,9 @@ class ListingController extends Controller
         $targetSource = $this->resolveCreateSource($request->input('source', $currentSource));
         $returnSource = $this->resolveListingSource($request->input('return_source', $request->query('return_source', $currentSource)));
 
-        if (
-            (($currentSource === 'condo') || ($targetSource === 'condo'))
-            && ! $this->canCreateSource('condo')
-        ) {
-            return $this->condoFeatureAccessResponse(
-                $this->condoPackageManager,
-                'Condo Listings',
-                'Condo Listings',
-                'Updating condo listings is locked until this account has a condo package.'
-            );
+        // Source switching is no longer supported. Force same-source updates.
+        if ($targetSource !== $currentSource) {
+            $targetSource = $currentSource;
         }
 
         if (! $this->canCreateSource($targetSource)) {
@@ -252,58 +183,44 @@ class ListingController extends Controller
         $username = $agent->username;
         $uploadedPhotoPaths = [];
         $removedLocalPhotos = [];
-        $activeListing = $listing;
 
-        if ($currentSource !== 'condo' && $targetSource === 'condo') {
-            $this->condoPackageManager->ensureCondoListingCapacity($agent);
-        }
+        try {
+            DB::connection($this->connectionForSource($currentSource))->transaction(function () use (
+                $currentSource,
+                $listing,
+                $validated,
+                $username,
+                &$uploadedPhotoPaths,
+                &$removedLocalPhotos
+            ) {
+                $uploadedPhotoPaths = $this->storeUploadedImages(
+                    $currentSource,
+                    $username,
+                    (string) $listing->propertyid,
+                    $validated['new_images'] ?? [],
+                    $validated['existing_photos'] ?? []
+                );
 
-        if ($targetSource === $currentSource) {
-            try {
-                DB::connection($this->connectionForSource($currentSource))->transaction(function () use (
+                $removedLocalPhotos = $this->persistListing(
                     $listing,
                     $validated,
                     $username,
-                    &$uploadedPhotoPaths,
-                    &$removedLocalPhotos
-                ) {
-                    $uploadedPhotoPaths = $this->storeUploadedImages(
-                        $currentSource,
-                        $username,
-                        (string) $listing->propertyid,
-                        $validated['new_images'] ?? [],
-                        $validated['existing_photos'] ?? []
-                    );
+                    false,
+                    (string) $listing->propertyid,
+                    $uploadedPhotoPaths
+                );
+            });
+        } catch (Throwable $exception) {
+            $this->deleteLocalPhotos($uploadedPhotoPaths, $currentSource);
 
-                    $removedLocalPhotos = $this->persistListing(
-                        $listing,
-                        $validated,
-                        $username,
-                        false,
-                        (string) $listing->propertyid,
-                        $uploadedPhotoPaths
-                    );
-                });
-            } catch (Throwable $exception) {
-                $this->deleteLocalPhotos($uploadedPhotoPaths, $currentSource);
-
-                throw $exception;
-            }
-        } else {
-            [$activeListing, $uploadedPhotoPaths, $removedLocalPhotos] = $this->moveListingToSource(
-                $listing,
-                $currentSource,
-                $targetSource,
-                $validated,
-                $username
-            );
+            throw $exception;
         }
 
         $this->deleteLocalPhotos($removedLocalPhotos, $targetSource);
 
         return redirect()
             ->route('listings.show', array_filter([
-                'id' => $activeListing instanceof CondoListing ? $activeListing->getKey() : $activeListing->id,
+                'id' => $listing->id,
                 'source' => $targetSource === 'ipp' ? null : $targetSource,
                 'return_source' => $returnSource,
             ], static fn (mixed $value) => $value !== null))
@@ -314,159 +231,13 @@ class ListingController extends Controller
     {
         $source = $this->resolveDetailSource($request->input('source', $request->query('source')));
 
-        if ($source === 'condo' && ! $this->canManageSource('condo')) {
-            return $this->condoFeatureAccessResponse(
-                $this->condoPackageManager,
-                'Condo Listings',
-                'Condo Listings',
-                'Managing condo listings is locked until this account has a condo package.'
-            );
-        }
-
         $returnSource = $this->resolveListingSource($request->input('return_source', $request->query('return_source', $source)));
         $listing = $this->findOwnedListingOrFail($id, true, $source);
-
         $this->trashListing($listing, $source, Auth::guard('agent')->user()->username);
 
         return redirect()
             ->route('listings.index', ['source' => $returnSource])
             ->with('success', 'Listing moved to Recently Deleted.');
-    }
-
-    public function bulk(Request $request)
-    {
-        $request->validate([
-            'action' => ['required', 'string'],
-            'selection_mode' => ['nullable', 'string'],
-            'selected' => ['nullable', 'array'],
-            'selected.*' => ['string'],
-            'excluded' => ['nullable', 'array'],
-            'excluded.*' => ['string'],
-            'target_source' => ['nullable', 'string'],
-            'return_source' => ['nullable', 'string'],
-            'return_filters' => ['nullable', 'array'],
-        ]);
-
-        $action = strtolower(trim((string) $request->input('action')));
-
-        if (! in_array($action, ['delete', 'migrate'], true)) {
-            throw ValidationException::withMessages([
-                'action' => 'Choose a valid bulk action.',
-            ]);
-        }
-
-        $targetSource = null;
-
-        if ($action === 'migrate') {
-            $rawTargetSource = strtolower(trim((string) $request->input('target_source')));
-
-            if ($rawTargetSource === '' || ! array_key_exists($rawTargetSource, self::CREATE_SOURCES)) {
-                throw ValidationException::withMessages([
-                    'target_source' => 'Select a valid destination source for the copied listings.',
-                ]);
-            }
-
-            $targetSource = $rawTargetSource;
-
-            if (! $this->canCreateSource($targetSource)) {
-                throw ValidationException::withMessages([
-                    'target_source' => $this->unavailableSourceMessage($targetSource),
-                ]);
-            }
-        }
-
-        $username = Auth::guard('agent')->user()->username;
-        $selections = $this->resolveBulkSelections($request, $username);
-
-        if ($selections->isEmpty()) {
-            throw ValidationException::withMessages([
-                'selected' => 'Select at least one listing first.',
-            ]);
-        }
-
-        $completed = 0;
-        $skipped = [];
-
-        foreach ($selections as $selection) {
-            try {
-                $listing = $this->findOwnedListingOrFail($selection['id'], true, $selection['source']);
-
-                if ($action === 'delete') {
-                    $this->trashListing($listing, $selection['source'], $username);
-                    $completed++;
-                    continue;
-                }
-
-                $this->copyListingToSource($listing, $selection['source'], $targetSource, $username);
-                $completed++;
-            } catch (ValidationException $exception) {
-                $message = collect($exception->errors())->flatten()->first() ?: 'This listing could not be processed.';
-                $skipped[] = $this->bulkSelectionLabel($selection) . ': ' . $message;
-            } catch (Throwable $exception) {
-                $skipped[] = $this->bulkSelectionLabel($selection) . ': This listing could not be processed right now.';
-            }
-        }
-
-        $requestedCount = $selections->count();
-        $success = match ($action) {
-            'delete' => $completed > 0
-                ? 'Moved ' . $completed . ' selected listing' . ($completed === 1 ? '' : 's') . ' to Recently Deleted.'
-                : null,
-            default => $completed > 0
-                ? 'Copied ' . $completed . ' selected listing' . ($completed === 1 ? '' : 's') . ' into ' . strtoupper((string) $targetSource) . '.'
-                : null,
-        };
-
-        if ($request->expectsJson()) {
-            return response()->json([
-                'ok' => $completed > 0 || $skipped === [],
-                'action' => $action,
-                'target_source' => $targetSource,
-                'requested' => $requestedCount,
-                'completed' => $completed,
-                'skipped' => $skipped,
-                'message' => $success ?? 'No listings were processed.',
-                'redirect_url' => route('listings.index', $this->bulkReturnQuery($request)),
-            ]);
-        }
-
-        $redirect = redirect()->route('listings.index', $this->bulkReturnQuery($request));
-
-        if ($success !== null) {
-            $redirect->with('success', $success);
-        }
-
-        if ($skipped !== []) {
-            $redirect->withErrors($skipped);
-        }
-
-        return $redirect;
-    }
-
-    private function resolveBulkSelections(Request $request, string $username): Collection
-    {
-        $selectionMode = strtolower(trim((string) $request->input('selection_mode', 'manual')));
-
-        if ($selectionMode === 'all_filtered') {
-            $source = $this->resolveListingSource($request->input('return_source'));
-            $excludedTokens = collect($request->input('excluded', []))
-                ->map(fn (mixed $value) => $this->parseBulkSelectionToken($value))
-                ->filter()
-                ->pluck('token')
-                ->unique()
-                ->values()
-                ->all();
-
-            return $this->resolveFilteredSelections($username, $this->bulkFilterRequest($request, $source), $source)
-                ->reject(fn (array $selection) => in_array($selection['token'], $excludedTokens, true))
-                ->values();
-        }
-
-        return collect($request->input('selected', []))
-            ->map(fn (mixed $value) => $this->parseBulkSelectionToken($value))
-            ->filter()
-            ->unique(fn (array $selection) => $selection['token'])
-            ->values();
     }
 
     private function resolveStates(string $username)
@@ -501,40 +272,10 @@ class ListingController extends Controller
             ->where('username', $username);
     }
 
-    private function ownedCondoListingsCollection(string $username, bool $withRelations = false): Collection
-    {
-        $query = CondoListing::query()->active()->with('details');
-
-        if ($withRelations) {
-            $query->with(['agent.detail']);
-        }
-
-        return $query->get()
-            ->filter(fn (CondoListing $listing) => $listing->username === $username)
-            ->values();
-    }
-
-    private function findOwnedListingOrFail(int|string $id, bool $withRelations = false, string $source = 'ipp'): Listing|CondoListing
+    private function findOwnedListingOrFail(int|string $id, bool $withRelations = false, string $source = 'ipp'): Listing
     {
         if (! $this->sourceAvailable($source)) {
             abort(404);
-        }
-
-        if ($source === 'condo') {
-            $query = CondoListing::query()->active()->with('details');
-
-            if ($withRelations) {
-                $query->with(['agent.detail']);
-            }
-
-            /** @var CondoListing $listing */
-            $listing = $query->findOrFail($id);
-
-            if ($listing->username !== Auth::guard('agent')->user()->username) {
-                abort(403);
-            }
-
-            return $this->decorateListing($listing, $source, true, $source);
         }
 
         $query = $this->queryForSource($source)->active();
@@ -556,7 +297,6 @@ class ListingController extends Controller
     {
         return match ($source) {
             'icp' => IcpListing::query(),
-            'condo' => CondoListing::query(),
             default => Listing::query(),
         };
     }
@@ -580,13 +320,6 @@ class ListingController extends Controller
                     ->map(fn ($listing) => $this->decorateListing($listing, $sourceKey, true, 'all'));
             });
 
-            if ($this->canManageSource('condo')) {
-                $listings = $listings->concat(
-                    $this->applyListingFiltersToCollection($this->ownedCondoListingsCollection($username), $request)
-                        ->map(fn ($listing) => $this->decorateListing($listing, 'condo', true, 'all'))
-                );
-            }
-
             return $this->paginateCollection(
                 $this->sortListings($listings, $sortBy, $sortDir),
                 $request
@@ -595,18 +328,6 @@ class ListingController extends Controller
 
         if (! $this->canManageSource($source)) {
             return $this->emptyIndexPaginator($request);
-        }
-
-        if ($source === 'condo') {
-            return $this->paginateCollection(
-                $this->sortListings(
-                    $this->applyListingFiltersToCollection($this->ownedCondoListingsCollection($username), $request)
-                        ->map(fn ($listing) => $this->decorateListing($listing, 'condo', true, 'condo')),
-                    $sortBy,
-                    $sortDir
-                ),
-                $request
-            );
         }
 
         $query = match ($source) {
@@ -645,20 +366,14 @@ class ListingController extends Controller
             default => [],
         };
 
-        $collections = match ($source) {
-            'condo' => $this->canManageSource('condo') ? [$this->ownedCondoListingsCollection($username)] : [],
-            'all' => $this->canManageSource('condo') ? [$this->ownedCondoListingsCollection($username)] : [],
-            default => [],
-        };
-
         return [
-            $this->distinctListingValues($queries, 'listingtype', $collections),
-            $this->distinctListingValues($queries, 'propertytype', $collections),
-            $this->distinctListingValues($queries, 'state', $collections),
+            $this->distinctListingValues($queries, 'listingtype'),
+            $this->distinctListingValues($queries, 'propertytype'),
+            $this->distinctListingValues($queries, 'state'),
         ];
     }
 
-    private function distinctListingValues(array $queries, string $column, array $collections = []): Collection
+    private function distinctListingValues(array $queries, string $column): Collection
     {
         return collect($queries)
             ->flatMap(function ($query) use ($column) {
@@ -672,12 +387,6 @@ class ListingController extends Controller
             })
             ->map(fn (mixed $value) => trim((string) $value))
             ->filter()
-            ->concat(
-                collect($collections)
-                    ->flatMap(fn (Collection $listings) => $listings->pluck($column))
-                    ->map(fn (mixed $value) => trim((string) $value))
-                    ->filter()
-            )
             ->unique(fn (string $value) => Str::lower($value))
             ->sortBy(fn (string $value) => Str::lower($value))
             ->values();
@@ -710,35 +419,6 @@ class ListingController extends Controller
         return $query;
     }
 
-    private function applyListingFiltersToCollection(Collection $listings, Request $request): Collection
-    {
-        return $listings
-            ->when($request->filled('listingtype'), fn (Collection $items) => $items->filter(
-                fn ($listing) => $listing->listingtype === $request->listingtype
-            ))
-            ->when($request->filled('propertytype'), fn (Collection $items) => $items->filter(
-                fn ($listing) => $listing->propertytype === $request->propertytype
-            ))
-            ->when($request->filled('state'), fn (Collection $items) => $items->filter(
-                fn ($listing) => $listing->state === $request->state
-            ))
-            ->when($request->filled('min_price'), fn (Collection $items) => $items->filter(
-                fn ($listing) => (float) $listing->price >= (float) $request->min_price
-            ))
-            ->when($request->filled('max_price'), fn (Collection $items) => $items->filter(
-                fn ($listing) => (float) $listing->price <= (float) $request->max_price
-            ))
-            ->when($request->filled('search'), function (Collection $items) use ($request) {
-                $needle = Str::lower(trim((string) $request->search));
-
-                return $items->filter(function ($listing) use ($needle) {
-                    return Str::contains(Str::lower((string) $listing->propertyname), $needle)
-                        || Str::contains(Str::lower((string) $listing->area), $needle);
-                });
-            })
-            ->values();
-    }
-
     private function resolveSortOptions(Request $request): array
     {
         $allowedSorts = ['createddate', 'updateddate', 'price', 'propertyname', 'listingtype', 'propertytype', 'state', 'area'];
@@ -769,7 +449,7 @@ class ListingController extends Controller
     {
         $source = strtolower(trim((string) $source));
 
-        return in_array($source, ['icp', 'condo'], true) ? $source : 'ipp';
+        return $source === 'icp' ? 'icp' : 'ipp';
     }
 
     private function sourceAvailable(string $source): bool
@@ -777,7 +457,6 @@ class ListingController extends Controller
         return match ($source) {
             'ipp' => true,
             'icp' => $this->icpSourceAvailable(),
-            'condo' => $this->condoSourceAvailable(),
             default => false,
         };
     }
@@ -790,15 +469,10 @@ class ListingController extends Controller
             ? $this->ownedIcpListingsQuery($username)->count()
             : 0;
 
-        $condoCount = $this->canManageSource('condo')
-            ? $this->ownedCondoListingsCollection($username)->count()
-            : 0;
-
         return [
             'ipp' => $ippCount,
             'icp' => $icpCount,
-            'condo' => $condoCount,
-            'all' => $ippCount + $icpCount + $condoCount,
+            'all' => $ippCount + $icpCount,
         ];
     }
 
@@ -822,24 +496,10 @@ class ListingController extends Controller
         }
     }
 
-    private function condoSourceAvailable(): bool
-    {
-        static $available = null;
-
-        if ($available !== null) {
-            return $available;
-        }
-
-        return $available = CondoListing::schemaAvailable();
-    }
-
     private function unavailableSourceMessage(string $source): string
     {
         return match ($source) {
             'icp' => 'ICP listing tables are not available on this environment right now.',
-            'condo' => ! $this->sourceAvailable('condo')
-                ? 'The WordPress condo property tables are not available on this environment right now.'
-                : 'Subscribe to Condo Premium Package or Condo Premium Lite Package to unlock condo listings.',
             default => 'The selected listing source is not available right now.',
         };
     }
@@ -849,9 +509,6 @@ class ListingController extends Controller
         return match ($source) {
             'ipp' => true,
             'icp' => $this->sourceAvailable('icp'),
-            'condo' => $this->sourceAvailable('condo')
-                && Auth::guard('agent')->check()
-                && $this->condoPackageManager->hasAccess(Auth::guard('agent')->user()),
             default => false,
         };
     }
@@ -861,9 +518,9 @@ class ListingController extends Controller
         return $this->canManageSource($source);
     }
 
-    private function decorateListing(Listing|CondoListing $listing, string $source, bool $canManage, string $returnSource): Listing|CondoListing
+    private function decorateListing(Listing $listing, string $source, bool $canManage, string $returnSource): Listing
     {
-        $listing->setAttribute('id', $listing instanceof CondoListing ? $listing->getKey() : $listing->id);
+        $listing->setAttribute('id', $listing->id);
         $listing->setAttribute('source_key', $source);
         $listing->setAttribute('source_label', strtoupper($source));
         $listing->setAttribute('can_manage', $canManage);
@@ -883,7 +540,7 @@ class ListingController extends Controller
             ->values();
     }
 
-    private function normalizedSortValue(Listing|CondoListing $listing, string $sortBy): string|float
+    private function normalizedSortValue(Listing $listing, string $sortBy): string|float
     {
         $value = $listing->getAttribute($sortBy);
 
@@ -998,7 +655,7 @@ class ListingController extends Controller
 
     private function formViewData(
         array $form,
-        Listing|CondoListing|null $listing = null,
+        ?Listing $listing = null,
         string $activeCreateSource = 'ipp',
         ?string $originalSource = null,
         ?string $returnSource = null
@@ -1021,30 +678,18 @@ class ListingController extends Controller
         ];
     }
 
-    private function trashListing(Listing|CondoListing $listing, string $source, string $username): void
+    private function trashListing(Listing $listing, string $source, string $username): void
     {
         $this->recentlyDeletedService->rememberListing($listing, $source, $username);
-
-        if ($source === 'condo') {
-            DB::connection($this->connectionForSource($source))->transaction(function () use ($listing) {
-                $now = now();
-
-                $listing->post_status = 'trash';
-                $listing->post_modified = $now->format('Y-m-d H:i:s');
-                $listing->post_modified_gmt = $now->clone()->utc()->format('Y-m-d H:i:s');
-                $listing->save();
-            });
-
-            return;
-        }
+        $this->clearPresentationAttributes($listing);
 
         DB::connection($this->connectionForSource($source))->transaction(function () use ($listing, $source) {
-            $this->retireListing($listing, $source, false);
+            $this->retireListing($listing, $source);
         });
     }
 
     private function persistListing(
-        Listing|CondoListing $listing,
+        Listing $listing,
         array $validated,
         string $username,
         bool $creating,
@@ -1052,8 +697,10 @@ class ListingController extends Controller
         array $uploadedPhotoPaths = [],
         ?string $createdDate = null,
         array $baselinePhotoPaths = [],
-        Listing|CondoListing|null $detailTemplate = null
+        ?Listing $detailTemplate = null
     ): array {
+        $this->clearPresentationAttributes($listing);
+
         $timestamp = Carbon::now()->format('YmdHis');
         $currentPhotoPaths = $creating
             ? ListingEditor::normalizePhotoPaths($baselinePhotoPaths)
@@ -1104,172 +751,18 @@ class ListingController extends Controller
             ]);
         }
 
-        if ($listing instanceof CondoListing) {
-            app(CondoWordpressBridge::class)->syncListing($listing, $validated, $username, $propertyId, $photoPaths);
-
-            return [];
-        }
-
         return $removedPhotoPaths;
     }
 
-    /**
-     * @return array{0: Listing|CondoListing, 1: array<int, string>, 2: array<int, string>}
-     */
-    private function moveListingToSource(
-        Listing|CondoListing $listing,
-        string $currentSource,
-        string $targetSource,
-        array $validated,
-        string $username
-    ): array {
-        $propertyId = (string) $listing->propertyid;
-        $createdDate = $this->legacyCreatedDateFor($listing);
-        $baselinePhotoPaths = ListingEditor::photoPaths($listing);
-        $uploadedPhotoPaths = [];
-        $removedLocalPhotos = [];
-        $targetListing = $this->newListingModelForSource($targetSource);
-        $targetConnection = $this->connectionForSource($targetSource);
-        $currentConnection = $this->connectionForSource($currentSource);
-
-        if ($this->propertyIdExistsInSource($propertyId, $targetSource)) {
-            throw ValidationException::withMessages([
-                'source' => 'This listing cannot be moved because the target source already contains property ID ' . $propertyId . '.',
-            ]);
-        }
-
-        $persistTarget = function () use (
-            $listing,
-            $validated,
-            $username,
-            $propertyId,
-            $createdDate,
-            $baselinePhotoPaths,
-            &$uploadedPhotoPaths,
-            &$removedLocalPhotos,
-            $targetListing,
-            $targetSource
-        ) {
-            $uploadedPhotoPaths = $this->storeUploadedImages(
-                $targetSource,
-                $username,
-                $propertyId,
-                $validated['new_images'] ?? [],
-                $validated['existing_photos'] ?? []
-            );
-
-            $removedLocalPhotos = $this->persistListing(
-                $targetListing,
-                $validated,
-                $username,
-                true,
-                $propertyId,
-                $uploadedPhotoPaths,
-                $createdDate,
-                $baselinePhotoPaths,
-                $listing
-            );
-        };
-
-        try {
-            if ($targetConnection === $currentConnection) {
-                DB::connection($targetConnection)->transaction(function () use (
-                    $persistTarget,
-                    $listing,
-                    $currentSource,
-                    $targetSource
-                ) {
-                    $persistTarget();
-                    $this->retireListing($listing, $currentSource, ! ($currentSource === 'condo' && $targetSource !== 'condo'));
-                });
-            } else {
-                DB::connection($targetConnection)->transaction($persistTarget);
-
-                try {
-                    DB::connection($currentConnection)->transaction(function () use ($listing, $currentSource, $targetSource) {
-                        $this->retireListing($listing, $currentSource, ! ($currentSource === 'condo' && $targetSource !== 'condo'));
-                    });
-                } catch (Throwable $exception) {
-                    DB::connection($targetConnection)->transaction(function () use ($targetListing) {
-                        $targetListing->details()->delete();
-                        $targetListing->delete();
-                    });
-
-                    throw $exception;
-                }
-            }
-        } catch (Throwable $exception) {
-            $this->deleteLocalPhotos($uploadedPhotoPaths, $targetSource);
-
-            throw $exception;
-        }
-
-        return [
-            $this->decorateListing($targetListing->fresh(['details', 'agent.detail']), $targetSource, true, $targetSource),
-            $uploadedPhotoPaths,
-            $removedLocalPhotos,
-        ];
-    }
-
-    private function copyListingToSource(
-        Listing|CondoListing $listing,
-        string $currentSource,
-        string $targetSource,
-        string $username
-    ): Listing|CondoListing {
-        if ($currentSource === $targetSource) {
-            throw ValidationException::withMessages([
-                'target_source' => 'This listing is already in ' . strtoupper($targetSource) . '.',
-            ]);
-        }
-
-        $propertyId = (string) $listing->propertyid;
-
-        if ($this->propertyIdExistsInSource($propertyId, $targetSource)) {
-            throw ValidationException::withMessages([
-                'target_source' => 'The target source already contains property ID ' . $propertyId . '.',
-            ]);
-        }
-
-        if ($targetSource === 'condo') {
-            $this->condoPackageManager->ensureCondoListingCapacity(Auth::guard('agent')->user());
-        }
-
-        $targetListing = $this->newListingModelForSource($targetSource);
-        $validated = $this->copyPayloadFromListing($listing, $targetSource);
-
-        DB::connection($this->connectionForSource($targetSource))->transaction(function () use (
-            $targetListing,
-            $validated,
-            $username,
-            $propertyId,
-            $listing
-        ) {
-            $this->persistListing(
-                $targetListing,
-                $validated,
-                $username,
-                true,
-                $propertyId,
-                [],
-                $this->legacyCreatedDateFor($listing),
-                ListingEditor::photoPaths($listing),
-                $listing
-            );
-        });
-
-        /** @var Listing|CondoListing $freshListing */
-        $freshListing = $targetListing->fresh(['details', 'agent.detail']);
-
-        return $this->decorateListing($freshListing, $targetSource, true, $targetSource);
-    }
-
-    private function retireListing(Listing|CondoListing $listing, string $source, bool $deleteMedia = true): void
+    private function clearPresentationAttributes(Listing $listing): void
     {
-        if ($source === 'condo' && $deleteMedia) {
-            app(CondoWordpressBridge::class)->deleteListingAssets($listing);
+        foreach (['source_key', 'source_label', 'can_manage', 'return_source'] as $attribute) {
+            $listing->offsetUnset($attribute);
         }
+    }
 
+    private function retireListing(Listing $listing, string $source): void
+    {
         match ($source) {
             'icp' => $this->archiveIcpListing($listing),
             'ipp' => $this->archiveIppListing($listing),
@@ -1383,10 +876,6 @@ class ListingController extends Controller
      */
     private function storeUploadedImages(string $source, string $username, string $propertyId, array $files, array $existingPhotoPaths = []): array
     {
-        if ($source === 'condo') {
-            return app(CondoWordpressBridge::class)->storeUploadedImages($propertyId, $files, $existingPhotoPaths);
-        }
-
         $storedPaths = [];
         $directory = 'Database/Images/' . trim($propertyId);
         $sequence = $this->nextLegacyPhotoSequence($existingPhotoPaths);
@@ -1415,12 +904,6 @@ class ListingController extends Controller
 
     private function deleteLocalPhotos(array $paths, string $source): void
     {
-        if ($source === 'condo') {
-            app(CondoWordpressBridge::class)->deleteStoredImages($paths);
-
-            return;
-        }
-
         foreach (array_unique(ListingEditor::normalizePhotoPaths($paths)) as $path) {
             $storagePath = ListingEditor::localStoragePhotoPath($path);
 
@@ -1435,7 +918,6 @@ class ListingController extends Controller
         return collect(self::CREATE_SOURCES)
             ->map(function (string $label, string $key) {
                 $enabled = $this->canCreateSource($key);
-                $sourceAvailable = $this->sourceAvailable($key);
 
                 return [
                     'key' => $key,
@@ -1445,11 +927,6 @@ class ListingController extends Controller
                         'icp' => $enabled
                             ? 'Writes to MobilePosts and keeps the Flutter-style Database/Images photo paths.'
                             : 'ICP listing tables are not available on this environment right now.',
-                        'condo' => $enabled
-                            ? 'Writes to WordPress properties in wp_condo so Estatik and Rank Math can use the same listings.'
-                            : ($sourceAvailable
-                                ? 'Requires Condo Premium Package or Condo Premium Lite Package before condo listings can be added here.'
-                                : 'The WordPress condo property tables are not available on this environment right now.'),
                         default => 'Writes to Posts and keeps the same legacy Database/Images photo path contract.',
                     },
                 ];
@@ -1462,16 +939,14 @@ class ListingController extends Controller
     {
         return match ($source) {
             'icp' => IcpListing::resolvedConnectionName(),
-            'condo' => (new CondoListing())->getConnectionName(),
             default => (new Listing())->getConnectionName(),
         };
     }
 
-    private function newListingModelForSource(string $source): Listing|CondoListing
+    private function newListingModelForSource(string $source): Listing
     {
         return match ($source) {
             'icp' => new IcpListing(),
-            'condo' => new CondoListing(),
             default => new Listing(),
         };
     }
@@ -1482,11 +957,7 @@ class ListingController extends Controller
             return true;
         }
 
-        if ($this->sourceAvailable('icp') && $this->propertyIdExistsInSource($propertyId, 'icp')) {
-            return true;
-        }
-
-        return $this->sourceAvailable('condo') && $this->propertyIdExistsInSource($propertyId, 'condo');
+        return $this->sourceAvailable('icp') && $this->propertyIdExistsInSource($propertyId, 'icp');
     }
 
     private function propertyIdExistsInSource(string $propertyId, string $source): bool
@@ -1495,132 +966,9 @@ class ListingController extends Controller
             return false;
         }
 
-        if ($source === 'condo') {
-            return app(CondoWordpressBridge::class)->propertyIdExists($propertyId);
-        }
-
         return $this->queryForSource($source)
             ->where('propertyid', $propertyId)
             ->exists();
-    }
-
-    private function copyPayloadFromListing(Listing|CondoListing $listing, string $targetSource): array
-    {
-        $payload = ListingEditor::formData($listing);
-        $payload['source'] = $targetSource;
-        $payload['existing_photos'] = ListingEditor::photoPaths($listing);
-        $payload['new_images'] = [];
-        $payload['cobroke'] = (int) ($payload['cobroke'] ?? 0);
-
-        return $payload;
-    }
-
-    private function legacyCreatedDateFor(Listing|CondoListing $listing): string
-    {
-        $createdDate = trim((string) ($listing->createddate ?? $listing->getRawOriginal('createddate')));
-
-        return $createdDate !== '' ? $createdDate : Carbon::now()->format('YmdHis');
-    }
-
-    private function bulkFilterRequest(Request $request, string $source): Request
-    {
-        $payload = collect($request->input('return_filters', []))
-            ->map(function (mixed $value) {
-                if (is_array($value)) {
-                    return array_values(array_filter($value, fn (mixed $item) => $item !== null && $item !== ''));
-                }
-
-                return $value;
-            })
-            ->filter(fn (mixed $value) => $value !== null && $value !== '' && $value !== [])
-            ->all();
-
-        $payload['source'] = $source;
-
-        return Request::create('/listings', 'GET', $payload);
-    }
-
-    private function resolveFilteredSelections(string $username, Request $request, string $source): Collection
-    {
-        if ($source === 'all') {
-            return collect(['ipp', 'icp', 'condo'])
-                ->filter(fn (string $sourceKey) => $this->sourceAvailable($sourceKey) && $this->canManageSource($sourceKey))
-                ->flatMap(fn (string $sourceKey) => $this->filteredSelectionsForSource($username, $request, $sourceKey))
-                ->unique(fn (array $selection) => $selection['token'])
-                ->values();
-        }
-
-        return $this->filteredSelectionsForSource($username, $request, $source)
-            ->unique(fn (array $selection) => $selection['token'])
-            ->values();
-    }
-
-    private function filteredSelectionsForSource(string $username, Request $request, string $source): Collection
-    {
-        if (! $this->sourceAvailable($source) || ! $this->canManageSource($source)) {
-            return collect();
-        }
-
-        if ($source === 'condo') {
-            return $this->applyListingFiltersToCollection($this->ownedCondoListingsCollection($username), $request)
-                ->map(fn (CondoListing $listing) => [
-                    'token' => $source . ':' . $listing->getKey(),
-                    'source' => $source,
-                    'id' => (int) $listing->getKey(),
-                ])
-                ->values();
-        }
-
-        $query = match ($source) {
-            'icp' => $this->ownedIcpListingsQuery($username),
-            default => $this->ownedListingsQuery($username),
-        };
-
-        return $this->applyListingFilters($query, $request)
-            ->get(['id'])
-            ->map(fn ($listing) => [
-                'token' => $source . ':' . $listing->id,
-                'source' => $source,
-                'id' => (int) $listing->id,
-            ])
-            ->values();
-    }
-
-    private function parseBulkSelectionToken(mixed $value): ?array
-    {
-        if (! is_string($value)) {
-            return null;
-        }
-
-        [$source, $id] = array_pad(explode(':', trim($value), 2), 2, null);
-        $source = strtolower(trim((string) $source));
-        $id = trim((string) $id);
-
-        if (! in_array($source, ['ipp', 'icp', 'condo'], true) || ! ctype_digit($id)) {
-            return null;
-        }
-
-        return [
-            'token' => $source . ':' . $id,
-            'source' => $source,
-            'id' => (int) $id,
-        ];
-    }
-
-    private function bulkSelectionLabel(array $selection): string
-    {
-        return strtoupper((string) ($selection['source'] ?? 'listing')) . ' #' . ($selection['id'] ?? '?');
-    }
-
-    private function bulkReturnQuery(Request $request): array
-    {
-        $query = collect($request->input('return_filters', []))
-            ->filter(fn (mixed $value) => $value !== null && $value !== '')
-            ->all();
-
-        $query['source'] = $this->resolveListingSource($request->input('return_source'));
-
-        return $query;
     }
 
     private function nextLegacyPhotoSequence(array $existingPhotoPaths): int

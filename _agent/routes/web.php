@@ -4,16 +4,32 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\ListingController;
+use App\Http\Controllers\PublicSiteController;
 use App\Http\Controllers\SeoController;
 use App\Http\Controllers\SocialMediaController;
 use App\Http\Controllers\SocialChannelController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RecentlyDeletedController;
-use App\Http\Controllers\BillingController;
 use App\Http\Controllers\TutorialController;
 use App\Http\Middleware\AgentAuth;
+use App\Http\Middleware\ResolveAgentSubsite;
 use Illuminate\Support\Facades\Route;
+
+// Public agent subdomain routes — only match when Host is *.condo.com.my (or *.condo.test)
+foreach (['condo.com.my', 'condo.test'] as $publicBase) {
+    Route::domain('{publicAgentLabel}.' . $publicBase)
+        ->middleware(ResolveAgentSubsite::class)
+        ->group(function () {
+            Route::get('/', [PublicSiteController::class, 'home'])->name('public.home');
+            Route::get('/listings', [PublicSiteController::class, 'listings'])->name('public.listings');
+            Route::get('/listings/{source}/{id}', [PublicSiteController::class, 'listing'])
+                ->whereIn('source', ['ipp', 'icp'])
+                ->name('public.listing');
+            Route::get('/articles', [PublicSiteController::class, 'articles'])->name('public.articles');
+            Route::get('/articles/{slug}', [PublicSiteController::class, 'article'])->name('public.article');
+        });
+}
 
 // Auth routes
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
@@ -32,7 +48,6 @@ Route::middleware(AgentAuth::class)->group(function () {
     Route::get('/listings', [ListingController::class, 'index'])->name('listings.index');
     Route::get('/listings/create', [ListingController::class, 'create'])->name('listings.create');
     Route::post('/listings', [ListingController::class, 'store'])->name('listings.store');
-    Route::post('/listings/bulk', [ListingController::class, 'bulk'])->name('listings.bulk');
     Route::get('/listings/{id}/edit', [ListingController::class, 'edit'])->name('listings.edit');
     Route::put('/listings/{id}', [ListingController::class, 'update'])->name('listings.update');
     Route::delete('/listings/{id}', [ListingController::class, 'destroy'])->name('listings.destroy');
@@ -52,6 +67,7 @@ Route::middleware(AgentAuth::class)->group(function () {
     Route::get('/social/channels/oauth-start/{network}', [SocialChannelController::class, 'oauthStart'])->name('social.channels.oauth-start');
     Route::post('/social/channels', [SocialChannelController::class, 'storeChannel'])->name('social.channels.store');
     Route::post('/social/channels/oauth-import', [SocialChannelController::class, 'importOauthChannels'])->name('social.channels.oauth-import');
+    Route::post('/social/channels/{channel}/refresh', [SocialChannelController::class, 'refreshChannel'])->name('social.channels.refresh');
     Route::get('/social/channels/{channel}/edit', [SocialChannelController::class, 'editChannel'])->name('social.channels.edit');
     Route::put('/social/channels/{channel}', [SocialChannelController::class, 'updateChannel'])->name('social.channels.update');
     Route::delete('/social/channels/{channel}', [SocialChannelController::class, 'destroyChannel'])->name('social.channels.destroy');
@@ -75,12 +91,7 @@ Route::middleware(AgentAuth::class)->group(function () {
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile.index');
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
-
-    // Billing
-    Route::get('/billing', [BillingController::class, 'index'])->name('billing.index');
-    Route::get('/billing/history/export', [BillingController::class, 'exportHistory'])->name('billing.history.export');
-    Route::get('/billing/history/{record}/invoice', [BillingController::class, 'invoice'])->name('billing.history.invoice');
-    Route::get('/billing/history/{record}/invoice/export', [BillingController::class, 'exportInvoice'])->name('billing.history.invoice.export');
+    Route::get('/visit-site', [ProfileController::class, 'visitSite'])->name('profile.visit-site');
 
     // Tutorials
     Route::get('/tutorials', [TutorialController::class, 'index'])->name('tutorials.index');

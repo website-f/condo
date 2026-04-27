@@ -3,11 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Agent;
-use App\Models\CondoListing;
 use App\Models\IcpListing;
 use App\Models\Listing;
 use App\Models\ManagedArticle;
-use App\Support\CondoPackageManager;
 use App\Support\FsPosterBridge;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -18,7 +16,6 @@ use Throwable;
 class ReportController extends Controller
 {
     public function __construct(
-        private readonly CondoPackageManager $condoPackageManager,
         private readonly FsPosterBridge $fsPosterBridge,
     ) {
     }
@@ -135,26 +132,6 @@ class ReportController extends Controller
             // ICP is optional, so missing tables should not break reports.
         }
 
-        if ($this->condoPackageManager->hasAccess($agent)) {
-            try {
-                $items = $items->concat(
-                    CondoListing::query()
-                        ->active()
-                        ->with('details')
-                        ->get()
-                        ->filter(fn (CondoListing $listing) => $listing->username === $username)
-                        ->map(fn (CondoListing $listing) => [
-                            'listingtype' => $this->normalizeFacet($listing->listingtype),
-                            'propertytype' => $this->normalizeFacet($listing->propertytype),
-                            'state' => $this->normalizeFacet($listing->state),
-                            'activity_at' => $this->legacyTimestamp($listing->createddate ?? null, $listing->updateddate ?? null),
-                        ])
-                );
-            } catch (Throwable) {
-                // Keep reports usable even if WordPress is temporarily unavailable.
-            }
-        }
-
         return $items->values();
     }
 
@@ -163,10 +140,6 @@ class ReportController extends Controller
      */
     private function reportSocialSchedules(Agent $agent): Collection
     {
-        if (! $this->condoPackageManager->hasAccess($agent)) {
-            return collect();
-        }
-
         try {
             return $this->fsPosterBridge->scheduleDisplayGroupsForAgent($agent->username)->values();
         } catch (Throwable) {

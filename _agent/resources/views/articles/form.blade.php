@@ -16,7 +16,7 @@
 @php
     $isEditing = $article !== null;
     $currentImageUrl = $article?->featured_image_url;
-    $siteBaseUrl = rtrim(\App\Support\CondoWordpressBridge::siteBaseUrl(), '/');
+    $siteBaseUrl = rtrim(\App\Models\ManagedArticle::wordpressSiteBaseUrl(), '/');
     $previewFallback = $article?->public_url ?: ($siteBaseUrl !== '' ? $siteBaseUrl . '/?p=preview' : '?p=preview');
     $previewBase = $siteBaseUrl !== '' ? $siteBaseUrl . '/?name=' : '?name=';
 @endphp

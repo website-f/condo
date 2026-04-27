@@ -86,11 +86,17 @@ class RecentlyDeletedController extends Controller
         ]);
 
         $username = Auth::guard('agent')->user()->username;
-        $message = $this->recentlyDeletedService->restore($username, $validated['type'], $validated['key']);
+        $result = $this->recentlyDeletedService->restore($username, $validated['type'], $validated['key']);
 
-        return redirect()
+        $redirect = redirect()
             ->route('recently-deleted.index', $request->only(['section', 'search', 'page']))
-            ->with('success', $message);
+            ->with('success', $result['message']);
+
+        if (($result['bridge_warnings'] ?? []) !== []) {
+            $redirect->with('bridge_warnings', $result['bridge_warnings']);
+        }
+
+        return $redirect;
     }
 
     public function destroy(Request $request)
@@ -101,11 +107,17 @@ class RecentlyDeletedController extends Controller
         ]);
 
         $username = Auth::guard('agent')->user()->username;
-        $message = $this->recentlyDeletedService->permanentlyDelete($username, $validated['type'], $validated['key']);
+        $result = $this->recentlyDeletedService->permanentlyDelete($username, $validated['type'], $validated['key']);
 
-        return redirect()
+        $redirect = redirect()
             ->route('recently-deleted.index', $request->only(['section', 'search', 'page']))
-            ->with('success', $message);
+            ->with('success', $result['message']);
+
+        if (($result['bridge_warnings'] ?? []) !== []) {
+            $redirect->with('bridge_warnings', $result['bridge_warnings']);
+        }
+
+        return $redirect;
     }
 
     private function resolveSection(?string $section): string

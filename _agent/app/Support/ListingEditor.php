@@ -2,7 +2,6 @@
 
 namespace App\Support;
 
-use App\Models\CondoListing;
 use App\Models\Listing;
 
 class ListingEditor
@@ -209,7 +208,7 @@ class ListingEditor
         return $groups;
     }
 
-    public static function formData(Listing|CondoListing|null $listing = null): array
+    public static function formData(Listing|null $listing = null): array
     {
         $rawGeneral = self::parseGeneralPairs($listing?->getMetaValue('General'));
         $existingPhotos = self::photoPaths($listing);
@@ -233,7 +232,7 @@ class ListingEditor
         return $data;
     }
 
-    public static function detailPayload(array $validated, array $photos, Listing|CondoListing|null $listing = null): array
+    public static function detailPayload(array $validated, array $photos, Listing|null $listing = null): array
     {
         $rawGeneral = self::parseGeneralPairs($listing?->getMetaValue('General'));
 
@@ -327,7 +326,7 @@ class ListingEditor
         return $merged;
     }
 
-    public static function photoPaths(Listing|CondoListing|null $listing): array
+    public static function photoPaths(Listing|null $listing): array
     {
         if (! $listing) {
             return [];

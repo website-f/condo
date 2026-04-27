@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\CondoListing;
 use App\Models\IcpListing;
 use App\Models\Listing;
 use Illuminate\Http\JsonResponse;
@@ -11,12 +10,11 @@ use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Str;
 use Throwable;
 
 class ListingApiController extends Controller
 {
-    private const SOURCES = ['all', 'ipp', 'icp', 'condo'];
+    private const SOURCES = ['all', 'ipp', 'icp'];
 
     public function index(Request $request): JsonResponse
     {
@@ -34,13 +32,6 @@ class ListingApiController extends Controller
                     return $query->get()->map(fn ($listing) => $this->decorateListing($listing, $sourceKey));
                 });
 
-            if ($this->sourceAvailable('condo')) {
-                $listings = $listings->concat(
-                    $this->applyCollectionFilters($this->condoListingsCollection(true), $request, $username)
-                        ->map(fn ($listing) => $this->decorateListing($listing, 'condo'))
-                );
-            }
-
             $listings = $listings
                 ->sortByDesc(fn (Listing $listing) => preg_replace('/\D+/', '', (string) $listing->createddate) ?: '0')
                 ->values();
@@ -50,15 +41,6 @@ class ListingApiController extends Controller
 
         if (! $this->sourceAvailable($source)) {
             return response()->json($this->paginateCollection(collect(), $request, $perPage));
-        }
-
-        if ($source === 'condo') {
-            $listings = $this->applyCollectionFilters($this->condoListingsCollection(true), $request, $username)
-                ->sortByDesc(fn (Listing $listing) => preg_replace('/\D+/', '', (string) $listing->createddate) ?: '0')
-                ->values()
-                ->map(fn ($listing) => $this->decorateListing($listing, 'condo'));
-
-            return response()->json($this->paginateCollection($listings, $request, $perPage));
         }
 
         $query = $this->queryForSource($source)
@@ -86,7 +68,7 @@ class ListingApiController extends Controller
         $source = $this->resolveSource($request->query('source'));
 
         if ($source === 'all') {
-            foreach (['ipp', 'icp', 'condo'] as $candidate) {
+            foreach (['ipp', 'icp'] as $candidate) {
                 if (! $this->sourceAvailable($candidate)) {
                     continue;
                 }
@@ -155,7 +137,6 @@ class ListingApiController extends Controller
         return match ($source) {
             'ipp' => true,
             'icp' => $this->icpSourceAvailable(),
-            'condo' => $this->condoSourceAvailable(),
             default => false,
         };
     }
@@ -180,22 +161,10 @@ class ListingApiController extends Controller
         }
     }
 
-    private function condoSourceAvailable(): bool
-    {
-        static $available = null;
-
-        if ($available !== null) {
-            return $available;
-        }
-
-        return $available = CondoListing::schemaAvailable();
-    }
-
     private function queryForSource(string $source)
     {
         return match ($source) {
             'icp' => IcpListing::query(),
-            'condo' => CondoListing::query(),
             default => Listing::query(),
         };
     }
@@ -231,55 +200,9 @@ class ListingApiController extends Controller
         }
     }
 
-    private function condoListingsCollection(bool $withRelations = false): Collection
+    private function decorateListing(Listing $listing, string $source): Listing
     {
-        $query = CondoListing::query()->active()->with('details');
-
-        if ($withRelations) {
-            $query->with(['agent.detail']);
-        }
-
-        return $query->get()->values();
-    }
-
-    private function applyCollectionFilters(Collection $listings, Request $request, ?string $username = null): Collection
-    {
-        return $listings
-            ->when($username !== null && $username !== '', fn (Collection $items) => $items->filter(
-                fn ($listing) => $listing->username === $username
-            ))
-            ->when($request->filled('propertyid'), fn (Collection $items) => $items->filter(
-                fn ($listing) => $listing->propertyid === $request->propertyid
-            ))
-            ->when($request->filled('listingtype'), fn (Collection $items) => $items->filter(
-                fn ($listing) => $listing->listingtype === $request->listingtype
-            ))
-            ->when($request->filled('propertytype'), fn (Collection $items) => $items->filter(
-                fn ($listing) => $listing->propertytype === $request->propertytype
-            ))
-            ->when($request->filled('state'), fn (Collection $items) => $items->filter(
-                fn ($listing) => $listing->state === $request->state
-            ))
-            ->when($request->filled('min_price'), fn (Collection $items) => $items->filter(
-                fn ($listing) => (float) $listing->price >= (float) $request->min_price
-            ))
-            ->when($request->filled('max_price'), fn (Collection $items) => $items->filter(
-                fn ($listing) => (float) $listing->price <= (float) $request->max_price
-            ))
-            ->when($request->filled('search'), function (Collection $items) use ($request) {
-                $needle = Str::lower(trim((string) $request->search));
-
-                return $items->filter(function ($listing) use ($needle) {
-                    return Str::contains(Str::lower((string) $listing->propertyname), $needle)
-                        || Str::contains(Str::lower((string) $listing->area), $needle);
-                });
-            })
-            ->values();
-    }
-
-    private function decorateListing(Listing|CondoListing $listing, string $source): Listing|CondoListing
-    {
-        $listing->setAttribute('id', $listing instanceof CondoListing ? $listing->getKey() : $listing->id);
+        $listing->setAttribute('id', $listing->id);
         $listing->setAttribute('source_key', $source);
         $listing->setAttribute('source_label', strtoupper($source));
 

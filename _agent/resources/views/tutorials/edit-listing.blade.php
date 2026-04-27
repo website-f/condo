@@ -196,9 +196,6 @@
         <a href="{{ route('listings.index') }}" class="tut-cta-btn primary">
             Open my listings
         </a>
-        <a href="{{ route('tutorials.show', 'migrate-listing') }}" class="tut-cta-btn secondary">
-            Next: Move a listing →
-        </a>
     </div>
 </div>
 @endsection

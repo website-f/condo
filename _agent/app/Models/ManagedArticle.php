@@ -2,8 +2,6 @@
 
 namespace App\Models;
 
-use App\Support\CondoWordpressBridge;
-use App\Support\RankMathBridge;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -12,6 +10,11 @@ use Illuminate\Support\Str;
 
 class ManagedArticle extends Model
 {
+    public const META_USERNAME = 'condo_agent_username';
+    public const RANK_MATH_TITLE = 'rank_math_title';
+    public const RANK_MATH_DESCRIPTION = 'rank_math_description';
+    public const RANK_MATH_FOCUS_KEYWORD = 'rank_math_focus_keyword';
+
     protected $connection = 'condo';
     protected $table = 'posts';
     protected $primaryKey = 'ID';
@@ -83,7 +86,7 @@ class ManagedArticle extends Model
                         ->select(DB::raw(1))
                         ->from('postmeta as owner_meta')
                         ->whereColumn('owner_meta.post_id', 'posts.ID')
-                        ->where('owner_meta.meta_key', CondoWordpressBridge::META_USERNAME)
+                        ->where('owner_meta.meta_key', self::META_USERNAME)
                         ->where('owner_meta.meta_value', $username);
                 })
                 ->orWhereExists(function ($subquery) use ($username) {
@@ -192,7 +195,7 @@ class ManagedArticle extends Model
             return $guid;
         }
 
-        return rtrim(CondoWordpressBridge::siteBaseUrl(), '/') . '/?p=' . $this->getKey();
+        return rtrim(self::wordpressSiteBaseUrl(), '/') . '/?p=' . $this->getKey();
     }
 
     public function getFeaturedImageUrlAttribute(): ?string
@@ -217,7 +220,7 @@ class ManagedArticle extends Model
             return $attachedFile;
         }
 
-        return CondoWordpressBridge::publicUrlForRelativeUploadPath($attachedFile);
+        return rtrim(self::wordpressSiteBaseUrl(), '/') . '/wp-content/uploads/' . ltrim(str_replace('\\', '/', $attachedFile), '/');
     }
 
     /**
@@ -238,17 +241,34 @@ class ManagedArticle extends Model
 
     public function getSeoTitleAttribute(): ?string
     {
-        return $this->metaValue(RankMathBridge::TITLE);
+        return $this->metaValue(self::RANK_MATH_TITLE);
     }
 
     public function getSeoDescriptionAttribute(): ?string
     {
-        return $this->metaValue(RankMathBridge::DESCRIPTION);
+        return $this->metaValue(self::RANK_MATH_DESCRIPTION);
     }
 
     public function getFocusKeywordAttribute(): ?string
     {
-        return $this->metaValue(RankMathBridge::FOCUS_KEYWORD);
+        return $this->metaValue(self::RANK_MATH_FOCUS_KEYWORD);
+    }
+
+    public static function wordpressSiteBaseUrl(): string
+    {
+        $appUrl = rtrim((string) config('app.url'), '/');
+
+        if ($appUrl !== '') {
+            return preg_replace('#/agent/?$#i', '', $appUrl) ?: $appUrl;
+        }
+
+        try {
+            $home = DB::connection('condo')->table('options')->where('option_name', 'home')->value('option_value');
+
+            return rtrim((string) $home, '/');
+        } catch (\Throwable) {
+            return '';
+        }
     }
 
     public function getRenderedContentAttribute(): string

@@ -5,17 +5,15 @@
 @php
     $filterKeys = ['search', 'listingtype', 'propertytype', 'state', 'min_price', 'max_price', 'sort', 'dir'];
     $currentFilters = request()->except('page', 'source');
-    $createSource = in_array($activeSource, ['ipp', 'icp', 'condo'], true) ? $activeSource : 'ipp';
+    $createSource = in_array($activeSource, ['ipp', 'icp'], true) ? $activeSource : 'ipp';
     $hasFilters = request()->hasAny($filterKeys);
     $bulkTotalCount = method_exists($listings, 'total') ? $listings->total() : $listings->count();
     $bulkStateKey = 'listing-bulk:' . sha1(auth('agent')->user()->username . '|' . http_build_query(array_filter(array_merge($currentFilters, ['source' => $activeSource]), static fn ($value) => $value !== null && $value !== '')));
     $emptyCopy = match ($activeSource) {
         'ipp' => 'No IPP listings found matching your criteria.',
         'icp' => 'No ICP listings found matching your criteria.',
-        'condo' => 'No Condo listings found matching your criteria.',
         default => 'No listings found matching your criteria.',
     };
-    $condoLocked = !($condoPackageSummary['enabled'] ?? false);
 @endphp
 
 <style>
@@ -733,80 +731,6 @@
     .listings-welcome-actions a.primary { background: var(--apple-blue); color: #fff; }
     .listings-welcome-actions a.primary:hover { background: var(--apple-blue-hover); }
 
-    .listings-condo-strip {
-        margin: -10px auto 24px;
-        width: min(100%, 980px);
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 16px;
-        flex-wrap: wrap;
-        padding: 16px 18px;
-        border-radius: 18px;
-        background: #f2f7ff;
-        border: 1px solid rgba(0, 102, 204, 0.12);
-        color: var(--apple-text);
-    }
-
-    .listings-condo-strip.is-locked {
-        background: #fffaf1;
-        border-color: #ffe1a1;
-    }
-
-    .listings-condo-copy {
-        display: grid;
-        gap: 4px;
-    }
-
-    .listings-condo-copy strong {
-        font-size: 14px;
-        font-weight: 700;
-    }
-
-    .listings-condo-copy span {
-        font-size: 13px;
-        color: var(--apple-text-muted);
-        line-height: 1.6;
-    }
-
-    .listings-condo-metrics {
-        display: flex;
-        gap: 10px;
-        flex-wrap: wrap;
-    }
-
-    .listings-condo-metric {
-        display: inline-flex;
-        align-items: center;
-        padding: 7px 12px;
-        border-radius: 999px;
-        background: rgba(255,255,255,0.72);
-        border: 1px solid rgba(0,0,0,0.08);
-        font-size: 12px;
-        font-weight: 600;
-        color: var(--apple-text-muted);
-    }
-
-    .listings-condo-link {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        padding: 10px 16px;
-        border-radius: 999px;
-        background: #fff;
-        border: 1px solid rgba(0,0,0,0.08);
-        text-decoration: none;
-        font-size: 13px;
-        font-weight: 600;
-        color: var(--apple-text);
-        transition: var(--transition);
-    }
-
-    .listings-condo-link:hover {
-        background: rgba(255,255,255,0.82);
-        transform: translateY(-1px);
-    }
-
     @media (max-width: 768px) {
         .listing-source-tabs-container {
             padding: 0;
@@ -819,10 +743,6 @@
         }
         .listings-welcome h2 { font-size: 16px; flex: 1; min-width: 0; }
         .listings-welcome-actions a { padding: 8px 14px; font-size: 13px; }
-        .listings-condo-strip {
-            margin-top: 0;
-            padding: 14px 16px;
-        }
         .filters-header {
             padding: 14px 16px;
         }
@@ -878,35 +798,6 @@
     </div>
 </div>
 
-<div class="listings-condo-strip {{ $condoLocked ? 'is-locked' : '' }}">
-    <div class="listings-condo-copy">
-        @if($condoLocked)
-            <strong>Condo tools are locked on this account.</strong>
-            <span>Condo listings, Articles, and Social Media unlock with Condo Premium Package or Condo Premium Lite Package.</span>
-        @else
-            <strong>{{ $condoPackageSummary['package_name'] }} is active.</strong>
-            <span>
-                {{ number_format($condoPackageSummary['listing_used']) }} used of {{ number_format($condoPackageSummary['listing_limit']) }} listing spaces.
-                Daily credits: {{ number_format($condoPackageSummary['daily_remaining']) }} of {{ number_format($condoPackageSummary['daily_limit']) }} left.
-            </span>
-            <div class="listings-condo-metrics">
-                <span class="listings-condo-metric">Listing Space Left: {{ number_format($condoPackageSummary['listing_remaining']) }}</span>
-                <span class="listings-condo-metric">Daily Credit Left: {{ number_format($condoPackageSummary['daily_remaining']) }}</span>
-                @if($condoPackageSummary['article_submission_uses_credit'])
-                    <span class="listings-condo-metric">Social schedules and article publish use daily credit</span>
-                @else
-                    <span class="listings-condo-metric">Social schedules use daily credit</span>
-                    <span class="listings-condo-metric">Article publishing is unlimited</span>
-                @endif
-            </div>
-        @endif
-    </div>
-
-    <a href="{{ route('billing.index') }}" class="listings-condo-link">
-        {{ $condoLocked ? 'View Packages' : 'Manage Package' }}
-    </a>
-</div>
-
 <div class="listing-source-tabs-container">
     <div class="listing-source-tabs" aria-label="Listing sources">
         @foreach($sourceTabs as $tab)
@@ -915,18 +806,13 @@
                     array_merge($currentFilters, ['source' => $tab['key']]),
                     static fn ($value) => !is_null($value) && $value !== ''
                 );
-                $tabLocked = (bool) ($tab['locked'] ?? false);
-                $tabHref = $tabLocked ? route('billing.index') : route('listings.index', $tabQuery);
+                $tabHref = route('listings.index', $tabQuery);
             @endphp
             <a
                 href="{{ $tabHref }}"
                 class="listing-source-tab {{ $activeSource === $tab['key'] ? 'is-active' : '' }}"
-                @if($tabLocked) title="Subscribe to unlock condo listings" @endif
             >
                 {{ $tab['label'] }}
-                @if($tabLocked)
-                    <span class="listing-source-badge">Locked</span>
-                @endif
                 @if(!is_null($tab['count']))
                     <span class="listing-source-count">{{ number_format($tab['count']) }}</span>
                 @endif
@@ -979,92 +865,6 @@
 </div>
 
 @if($listings->count())
-    <form method="POST" action="{{ route('listings.bulk') }}" class="bulk-toolbar" id="bulkListingForm">
-        @csrf
-        <input type="hidden" name="return_source" value="{{ $activeSource }}">
-        @foreach($currentFilters as $filterKey => $filterValue)
-            @if(is_array($filterValue))
-                @foreach($filterValue as $nestedValue)
-                    @if($nestedValue !== null && $nestedValue !== '')
-                        <input type="hidden" name="return_filters[{{ $filterKey }}][]" value="{{ $nestedValue }}">
-                    @endif
-                @endforeach
-            @elseif($filterValue !== null && $filterValue !== '')
-                <input type="hidden" name="return_filters[{{ $filterKey }}]" value="{{ $filterValue }}">
-            @endif
-        @endforeach
-        <input type="hidden" name="selection_mode" id="bulkSelectionMode" value="manual">
-
-        <label class="bulk-checkbox-label" title="Select every listing across all pages">
-            <input type="checkbox" id="bulkSelectAll">
-            <span>Select all</span>
-            <span class="bulk-selection-count" id="bulkSelectedCount">0</span>
-        </label>
-        <button type="button" class="bulk-clear-button" id="bulkClearSelection" hidden>Clear</button>
-
-        <div class="bulk-toolbar-actions">
-            <button type="button" class="btn btn-secondary" id="bulkMigrateButton" disabled aria-label="Move selected to another type">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"></polyline><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><polyline points="7 23 3 19 7 15"></polyline><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></svg>
-                Move
-            </button>
-            <button type="button" class="btn btn-danger" id="bulkDeleteButton" disabled aria-label="Delete selected">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6"></path></svg>
-                Delete
-            </button>
-        </div>
-    </form>
-
-    <div class="bulk-modal" id="bulkActionModal" hidden aria-hidden="true">
-        <div class="bulk-modal-backdrop" data-bulk-modal-close></div>
-        <div class="bulk-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="bulkModalTitle">
-            <div class="bulk-modal-shell">
-                <div class="bulk-modal-header">
-                    <div>
-                        <div class="bulk-modal-title" id="bulkModalTitle">Bulk action</div>
-                        <div class="bulk-modal-subtitle" id="bulkModalSubtitle">Choose how you want to process the selected listings.</div>
-                    </div>
-                    <button type="button" class="bulk-modal-close" data-bulk-modal-close aria-label="Close bulk action modal">&times;</button>
-                </div>
-
-                <div class="bulk-modal-body">
-                    <div class="bulk-modal-block">
-                        <div class="bulk-modal-summary" id="bulkModalSummary"></div>
-
-                        <div class="bulk-modal-block" id="bulkTargetBlock" hidden>
-                            <div class="bulk-modal-subtitle">Choose where the copied listings should be created.</div>
-                            <div class="bulk-target-grid">
-                                @foreach($bulkTargetSources as $targetSource)
-                                    <label class="bulk-target-option" data-bulk-target-option>
-                                        <input type="radio" name="bulk_modal_target_source" value="{{ $targetSource['key'] }}">
-                                        <div>
-                                            <div class="bulk-target-name">{{ $targetSource['label'] }}</div>
-                                            <div class="bulk-target-description">{{ $targetSource['description'] }}</div>
-                                        </div>
-                                    </label>
-                                @endforeach
-                            </div>
-                        </div>
-
-                        <div class="bulk-progress" id="bulkProgressBlock" hidden>
-                            <div class="bulk-progress-label" id="bulkProgressLabel">Preparing bulk action...</div>
-                            <div class="bulk-progress-bar"><span id="bulkProgressFill"></span></div>
-                        </div>
-
-                        <div class="bulk-modal-block" id="bulkResultBlock" hidden>
-                            <div class="bulk-modal-subtitle" id="bulkResultSummary"></div>
-                            <div class="bulk-result-list" id="bulkResultList"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bulk-modal-footer">
-                    <button type="button" class="btn btn-secondary" id="bulkCancelButton" data-bulk-modal-close>Cancel</button>
-                    <button type="button" class="btn btn-primary" id="bulkConfirmButton">Start</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <div class="grid-4">
         @foreach($listings as $listing)
             @php
@@ -1089,16 +889,6 @@
                 }
             @endphp
             <article class="listing-card" data-listing-card>
-                @if($canManage)
-                    <label class="listing-select-control">
-                        <input
-                            type="checkbox"
-                            value="{{ $listingSource }}:{{ $listing->id }}"
-                            data-listing-checkbox
-                        >
-                        <span>Mark</span>
-                    </label>
-                @endif
                 <a href="{{ route('listings.show', $showParams) }}" class="listing-card-link">
                     <div class="listing-card-img">
                         @if($listing->photopath)
@@ -1107,10 +897,10 @@
                             <div style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; color:var(--apple-text-muted); font-size:14px; font-weight:500;">No Image</div>
                         @endif
                     </div>
-                    
+
                     <div class="listing-card-body">
                         <div class="listing-card-head">
-                            <span class="badge {{ $listingSource === 'icp' ? 'badge-warning' : ($listingSource === 'condo' ? 'badge-default' : 'badge-success') }}">
+                            <span class="badge {{ $listingSource === 'icp' ? 'badge-warning' : 'badge-success' }}">
                                 {{ $listing->source_label ?? strtoupper($listingSource) }}
                             </span>
                         </div>
@@ -1164,410 +954,5 @@
         <a href="{{ route('listings.create', ['source' => $createSource]) }}" class="btn btn-primary">Create your first listing</a>
     </div>
 @endif
-
-<script>
-    (() => {
-        const bulkForm = document.getElementById('bulkListingForm');
-
-        if (!bulkForm) {
-            return;
-        }
-
-        const selectAll = document.getElementById('bulkSelectAll');
-        const checkboxes = Array.from(document.querySelectorAll('[data-listing-checkbox]'));
-        const countLabel = document.getElementById('bulkSelectedCount');
-        const clearButton = document.getElementById('bulkClearSelection');
-        const migrateButton = document.getElementById('bulkMigrateButton');
-        const deleteButton = document.getElementById('bulkDeleteButton');
-        const selectionModeInput = document.getElementById('bulkSelectionMode');
-        const modal = document.getElementById('bulkActionModal');
-        const modalTitle = document.getElementById('bulkModalTitle');
-        const modalSubtitle = document.getElementById('bulkModalSubtitle');
-        const modalSummary = document.getElementById('bulkModalSummary');
-        const targetBlock = document.getElementById('bulkTargetBlock');
-        const targetOptions = Array.from(document.querySelectorAll('[data-bulk-target-option]'));
-        const targetInputs = targetOptions.map((option) => option.querySelector('input[type="radio"]')).filter(Boolean);
-        const progressBlock = document.getElementById('bulkProgressBlock');
-        const progressLabel = document.getElementById('bulkProgressLabel');
-        const progressFill = document.getElementById('bulkProgressFill');
-        const resultBlock = document.getElementById('bulkResultBlock');
-        const resultSummary = document.getElementById('bulkResultSummary');
-        const resultList = document.getElementById('bulkResultList');
-        const confirmButton = document.getElementById('bulkConfirmButton');
-        const cancelButton = document.getElementById('bulkCancelButton');
-        const closeTriggers = Array.from(document.querySelectorAll('[data-bulk-modal-close]'));
-        const storageKey = @json($bulkStateKey);
-        const totalResults = {{ (int) $bulkTotalCount }};
-        const csrfToken = @json(csrf_token());
-
-        let activeAction = null;
-        let progressTimer = null;
-        let isProcessing = false;
-
-        const uniqueTokens = (tokens) => Array.from(new Set((tokens || []).filter((value) => typeof value === 'string' && value !== '')));
-        const loadState = () => {
-            try {
-                const parsed = JSON.parse(window.localStorage.getItem(storageKey) || '{}');
-
-                return {
-                    mode: parsed.mode === 'all_filtered' ? 'all_filtered' : 'manual',
-                    selected: uniqueTokens(parsed.selected),
-                    excluded: uniqueTokens(parsed.excluded),
-                };
-            } catch (error) {
-                return { mode: 'manual', selected: [], excluded: [] };
-            }
-        };
-
-        let state = loadState();
-
-        const saveState = () => {
-            window.localStorage.setItem(storageKey, JSON.stringify(state));
-            selectionModeInput.value = state.mode;
-        };
-
-        const clearState = () => {
-            state = { mode: 'manual', selected: [], excluded: [] };
-            saveState();
-            applyCheckboxState();
-            updateToolbar();
-        };
-
-        const syncCardState = (checkbox) => {
-            const card = checkbox.closest('[data-listing-card]');
-
-            if (card) {
-                card.classList.toggle('is-selected', checkbox.checked);
-            }
-        };
-
-        const selectedCount = () => {
-            if (state.mode === 'all_filtered') {
-                return Math.max(0, totalResults - state.excluded.length);
-            }
-
-            return state.selected.length;
-        };
-
-        const tokenSelected = (token) => {
-            if (state.mode === 'all_filtered') {
-                return !state.excluded.includes(token);
-            }
-
-            return state.selected.includes(token);
-        };
-
-        const applyCheckboxState = () => {
-            checkboxes.forEach((checkbox) => {
-                checkbox.checked = tokenSelected(checkbox.value);
-                syncCardState(checkbox);
-            });
-        };
-
-        const syncTargetCards = () => {
-            targetOptions.forEach((option) => {
-                const input = option.querySelector('input[type="radio"]');
-                option.classList.toggle('is-selected', Boolean(input && input.checked));
-            });
-        };
-
-        const updateToolbar = () => {
-            const count = selectedCount();
-            countLabel.textContent = count;
-
-            if (state.mode === 'all_filtered') {
-                const everythingMarked = state.excluded.length === 0 && totalResults > 0;
-                selectAll.checked = everythingMarked;
-                selectAll.indeterminate = !everythingMarked && count > 0;
-            } else {
-                selectAll.checked = false;
-                selectAll.indeterminate = count > 0;
-            }
-
-            bulkForm.classList.toggle('has-selection', count > 0);
-            if (clearButton) clearButton.hidden = count === 0;
-            migrateButton.disabled = count === 0;
-            deleteButton.disabled = count === 0;
-        };
-
-        const resetModal = () => {
-            activeAction = null;
-            isProcessing = false;
-            targetInputs.forEach((input) => {
-                input.checked = false;
-            });
-            syncTargetCards();
-            targetBlock.hidden = true;
-            progressBlock.hidden = true;
-            resultBlock.hidden = true;
-            resultList.innerHTML = '';
-            progressFill.style.width = '0%';
-            modalSummary.innerHTML = '';
-            resultSummary.textContent = '';
-            confirmButton.disabled = false;
-            cancelButton.disabled = false;
-            confirmButton.textContent = 'Start';
-            cancelButton.textContent = 'Cancel';
-            closeTriggers.forEach((trigger) => {
-                trigger.disabled = false;
-            });
-            if (progressTimer) {
-                window.clearInterval(progressTimer);
-                progressTimer = null;
-            }
-        };
-
-        const openModal = (action) => {
-            const count = selectedCount();
-
-            if (count === 0) {
-                return;
-            }
-
-            resetModal();
-            activeAction = action;
-            targetBlock.hidden = action !== 'migrate';
-            modalTitle.textContent = action === 'delete' ? 'Delete listings?' : 'Move listings to another type?';
-            modalSubtitle.textContent = action === 'delete'
-                ? 'They will go to Recently Deleted &mdash; you can restore them later.'
-                : 'A copy will be made in the new type. The originals stay where they are.';
-            modalSummary.innerHTML = action === 'delete'
-                ? `You are about to delete <strong>${count}</strong> listing${count === 1 ? '' : 's'}.`
-                : `You are about to move <strong>${count}</strong> listing${count === 1 ? '' : 's'}.`;
-            confirmButton.textContent = action === 'delete' ? 'Yes, delete' : 'Yes, move';
-            modal.hidden = false;
-            modal.setAttribute('aria-hidden', 'false');
-            document.body.style.overflow = 'hidden';
-        };
-
-        const closeModal = () => {
-            if (isProcessing) {
-                return;
-            }
-
-            modal.hidden = true;
-            modal.setAttribute('aria-hidden', 'true');
-            document.body.style.overflow = '';
-            resetModal();
-        };
-
-        const startProgress = (label) => {
-            let progress = 12;
-            progressLabel.textContent = label;
-            progressBlock.hidden = false;
-            progressFill.style.width = `${progress}%`;
-
-            progressTimer = window.setInterval(() => {
-                if (progress >= 88) {
-                    return;
-                }
-
-                progress += progress < 48 ? 9 : 4;
-                progressFill.style.width = `${Math.min(progress, 88)}%`;
-            }, 170);
-        };
-
-        const stopProgress = (label, finalValue = 100) => {
-            if (progressTimer) {
-                window.clearInterval(progressTimer);
-                progressTimer = null;
-            }
-
-            progressFill.style.width = `${finalValue}%`;
-            progressLabel.textContent = label;
-        };
-
-        const buildFormData = () => {
-            const formData = new FormData(bulkForm);
-            formData.set('selection_mode', state.mode);
-
-            state.selected.forEach((token) => {
-                formData.append('selected[]', token);
-            });
-
-            state.excluded.forEach((token) => {
-                formData.append('excluded[]', token);
-            });
-
-            return formData;
-        };
-
-        const runBulkAction = async () => {
-            if (!activeAction) {
-                return;
-            }
-
-            const count = selectedCount();
-
-            if (count === 0) {
-                closeModal();
-                return;
-            }
-
-            const formData = buildFormData();
-            formData.set('action', activeAction);
-
-            let actionLabel = 'Deleting selected listings...';
-
-            if (activeAction === 'migrate') {
-                const selectedTarget = targetInputs.find((input) => input.checked);
-
-                if (!selectedTarget) {
-                    modalSummary.innerHTML = '<strong>Please choose where the selected listings should be migrated.</strong>';
-                    return;
-                }
-
-                formData.set('target_source', selectedTarget.value);
-                actionLabel = `Migrating ${count} listing${count === 1 ? '' : 's'} into ${selectedTarget.value.toUpperCase()}...`;
-            }
-
-            isProcessing = true;
-            confirmButton.disabled = true;
-            cancelButton.disabled = true;
-            closeTriggers.forEach((trigger) => {
-                trigger.disabled = true;
-            });
-            startProgress(actionLabel);
-
-            try {
-                const response = await window.fetch(bulkForm.action, {
-                    method: 'POST',
-                    headers: {
-                        'Accept': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'X-CSRF-TOKEN': csrfToken,
-                    },
-                    body: formData,
-                    credentials: 'same-origin',
-                });
-
-                const payload = await response.json();
-
-                if (!response.ok) {
-                    const errorMessages = payload.errors
-                        ? Object.values(payload.errors).flat()
-                        : [payload.message || 'The bulk action could not be completed.'];
-                    throw new Error(errorMessages.join(' '));
-                }
-
-                stopProgress(payload.message || 'Bulk action complete.');
-                resultBlock.hidden = false;
-                resultSummary.textContent = payload.message || 'Bulk action complete.';
-                resultList.innerHTML = '';
-
-                if (Array.isArray(payload.skipped) && payload.skipped.length > 0) {
-                    payload.skipped.forEach((message) => {
-                        const item = document.createElement('div');
-                        item.className = 'bulk-result-item';
-                        item.textContent = message;
-                        resultList.appendChild(item);
-                    });
-                } else {
-                    const item = document.createElement('div');
-                    item.className = 'bulk-result-item';
-                    item.style.background = '#eefbf3';
-                    item.style.borderColor = 'rgba(24, 121, 78, 0.14)';
-                    item.style.color = '#18794e';
-                    item.textContent = `${payload.completed} listing${payload.completed === 1 ? '' : 's'} processed successfully.`;
-                    resultList.appendChild(item);
-                }
-
-                clearState();
-                const shouldRefresh = !Array.isArray(payload.skipped) || payload.skipped.length === 0;
-                confirmButton.textContent = 'Refresh listings';
-                confirmButton.disabled = false;
-                cancelButton.textContent = 'Close';
-                cancelButton.disabled = false;
-                closeTriggers.forEach((trigger) => {
-                    trigger.disabled = false;
-                });
-                isProcessing = false;
-                activeAction = null;
-
-                if (shouldRefresh) {
-                    resultSummary.textContent = `${payload.message || 'Bulk action complete.'} Refreshing listings...`;
-                    window.setTimeout(() => {
-                        window.location.reload();
-                    }, 1100);
-                }
-            } catch (error) {
-                stopProgress('Bulk action could not finish.', 100);
-                resultBlock.hidden = false;
-                resultSummary.textContent = error instanceof Error ? error.message : 'The bulk action could not be completed.';
-                resultList.innerHTML = '';
-                confirmButton.disabled = false;
-                cancelButton.disabled = false;
-                closeTriggers.forEach((trigger) => {
-                    trigger.disabled = false;
-                });
-                isProcessing = false;
-            }
-        };
-
-        checkboxes.forEach((checkbox) => {
-            checkbox.addEventListener('change', () => {
-                const token = checkbox.value;
-
-                if (state.mode === 'all_filtered') {
-                    state.excluded = checkbox.checked
-                        ? state.excluded.filter((value) => value !== token)
-                        : uniqueTokens([...state.excluded, token]);
-                } else {
-                    state.selected = checkbox.checked
-                        ? uniqueTokens([...state.selected, token])
-                        : state.selected.filter((value) => value !== token);
-                }
-
-                saveState();
-                updateToolbar();
-                applyCheckboxState();
-            });
-        });
-
-        selectAll.addEventListener('change', () => {
-            if (selectAll.checked) {
-                state = { mode: 'all_filtered', selected: [], excluded: [] };
-            } else {
-                state = { mode: 'manual', selected: [], excluded: [] };
-            }
-
-            saveState();
-            applyCheckboxState();
-            updateToolbar();
-        });
-
-        clearButton.addEventListener('click', clearState);
-        migrateButton.addEventListener('click', () => openModal('migrate'));
-        deleteButton.addEventListener('click', () => openModal('delete'));
-
-        targetInputs.forEach((input) => {
-            input.addEventListener('change', syncTargetCards);
-        });
-
-        closeTriggers.forEach((trigger) => {
-            trigger.addEventListener('click', closeModal);
-        });
-
-        confirmButton.addEventListener('click', () => {
-            if (activeAction === null && !isProcessing && !modal.hidden) {
-                window.location.reload();
-                return;
-            }
-
-            runBulkAction();
-        });
-        cancelButton.addEventListener('click', closeModal);
-
-        document.addEventListener('keydown', (event) => {
-            if (event.key === 'Escape' && !modal.hidden) {
-                closeModal();
-            }
-        });
-
-        saveState();
-        applyCheckboxState();
-        updateToolbar();
-    })();
-</script>
 
 @endsection

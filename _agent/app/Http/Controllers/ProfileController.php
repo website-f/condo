@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Support\CondoAgentDomainManager;
 use App\Support\LegacyPassword;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -14,6 +15,27 @@ class ProfileController extends Controller
         $agent = Auth::guard('agent')->user();
         $agent->load('detail', 'subscription');
         return view('profile.index', compact('agent'));
+    }
+
+    public function visitSite(CondoAgentDomainManager $domains)
+    {
+        $agent = Auth::guard('agent')->user();
+        $username = $agent->username;
+
+        $domain = $domains->primaryDomainForAgent($username);
+        $host = $domain?->host ?: $domains->defaultHostForUsername($username);
+
+        if (! $host) {
+            return back()->with('error', 'Unable to resolve a public site host for this account.');
+        }
+
+        try {
+            $domains->ensureDefaultDomain($username);
+        } catch (\Throwable) {
+        }
+
+        $scheme = request()->isSecure() ? 'https' : 'http';
+        return redirect()->away($scheme . '://' . $host);
     }
 
     public function update(Request $request)

@@ -2,24 +2,21 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Concerns\InteractsWithCondoFeatureGate;
-use App\Models\CondoListing;
-use App\Support\CondoPackageManager;
 use App\Support\FsPosterBridge;
 use App\Support\RecentlyDeletedService;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 class SocialMediaController extends Controller
 {
-    use InteractsWithCondoFeatureGate;
+    private const META_USERNAME = 'condo_agent_username';
 
     public function __construct(
-        private readonly CondoPackageManager $condoPackageManager,
         private readonly FsPosterBridge $fsPosterBridge,
         private readonly RecentlyDeletedService $recentlyDeletedService,
     )
@@ -28,20 +25,6 @@ class SocialMediaController extends Controller
 
     public function index(Request $request)
     {
-        if ($response = $this->condoFeatureAccessResponse(
-            $this->condoPackageManager,
-            'Social Media',
-            'Social Media',
-            'FS Poster scheduling is only available on the condo packages.',
-            [
-                'Condo Premium and Condo Premium Lite unlock the Laravel social calendar and channel manager.',
-                'Each scheduled social send uses 1 daily credit from the package allowance.',
-            ]
-        )) {
-            return $response;
-        }
-
-        $this->condoPackageManager->syncDailyCredits(Auth::guard('agent')->user());
         $username = Auth::guard('agent')->user()->username;
         $channels = $this->fsPosterBridge->availableChannels($username);
         $schedules = $this->fsPosterBridge->scheduleDisplayGroupsForAgent($username);
@@ -220,15 +203,6 @@ class SocialMediaController extends Controller
 
     public function create(Request $request)
     {
-        if ($response = $this->condoFeatureAccessResponse(
-            $this->condoPackageManager,
-            'Social Media',
-            'Social Media',
-            'FS Poster scheduling is only available on the condo packages.'
-        )) {
-            return $response;
-        }
-
         $username = Auth::guard('agent')->user()->username;
         $channels = $this->fsPosterBridge->availableChannels($username);
         $listings = $this->fsPosterBridge->availableListings($username);
@@ -239,7 +213,7 @@ class SocialMediaController extends Controller
         if ($request->filled('listing') && is_array($selectedListing) && ! empty($selectedListing['current_group_id'])) {
             return redirect()
                 ->route('social.edit', $selectedListing['current_group_id'])
-                ->with('success', 'This condo listing already has a live FS Poster schedule. Editing it here keeps Laravel and WordPress in sync.');
+                ->with('success', 'This listing already has a live FS Poster schedule. Editing it here keeps Laravel and WordPress in sync.');
         }
 
         $defaultScheduledAt = now()->addMinutes(15)->format('Y-m-d\TH:i');
@@ -267,39 +241,20 @@ class SocialMediaController extends Controller
 
     public function store(Request $request)
     {
-        if ($response = $this->condoFeatureAccessResponse(
-            $this->condoPackageManager,
-            'Social Media',
-            'Social Media',
-            'FS Poster scheduling is only available on the condo packages.'
-        )) {
-            return $response;
-        }
-
         $agent = Auth::guard('agent')->user();
         $username = $agent->username;
         $validated = $this->validateSchedule($request);
         $validated['channel_customizations'] = $this->buildChannelCustomizations($username, $validated);
-        $listing = $this->findOwnedCondoListingOrFail((int) $validated['listing_id'], $username);
-        $this->condoPackageManager->consumeCredit($agent, 1);
+        $listing = $this->findOwnedListingOrFail((int) $validated['listing_id'], $username);
         $groupId = $this->fsPosterBridge->storeScheduleGroup($listing, $username, $validated);
 
         return redirect()
             ->route('social.edit', $groupId)
-            ->with('success', 'FS Poster schedule queued for this condo listing.');
+            ->with('success', 'FS Poster schedule queued for this listing.');
     }
 
     public function edit(string $groupId)
     {
-        if ($response = $this->condoFeatureAccessResponse(
-            $this->condoPackageManager,
-            'Social Media',
-            'Social Media',
-            'FS Poster scheduling is only available on the condo packages.'
-        )) {
-            return $response;
-        }
-
         $username = Auth::guard('agent')->user()->username;
         $group = $this->fsPosterBridge->findScheduleGroupForAgent($username, $groupId);
 
@@ -332,15 +287,6 @@ class SocialMediaController extends Controller
 
     public function update(Request $request, string $groupId)
     {
-        if ($response = $this->condoFeatureAccessResponse(
-            $this->condoPackageManager,
-            'Social Media',
-            'Social Media',
-            'FS Poster scheduling is only available on the condo packages.'
-        )) {
-            return $response;
-        }
-
         $username = Auth::guard('agent')->user()->username;
         $group = $this->fsPosterBridge->findScheduleGroupForAgent($username, $groupId);
 
@@ -356,7 +302,7 @@ class SocialMediaController extends Controller
 
         $validated = $this->validateSchedule($request);
         $validated['channel_customizations'] = $this->buildChannelCustomizations($username, $validated, $group);
-        $listing = $this->findOwnedCondoListingOrFail((int) $validated['listing_id'], $username);
+        $listing = $this->findOwnedListingOrFail((int) $validated['listing_id'], $username);
         $this->fsPosterBridge->storeScheduleGroup($listing, $username, $validated, $groupId);
 
         return redirect()
@@ -366,15 +312,6 @@ class SocialMediaController extends Controller
 
     public function destroy(string $groupId)
     {
-        if ($response = $this->condoFeatureAccessResponse(
-            $this->condoPackageManager,
-            'Social Media',
-            'Social Media',
-            'FS Poster scheduling is only available on the condo packages.'
-        )) {
-            return $response;
-        }
-
         $username = Auth::guard('agent')->user()->username;
 
         if (! $this->recentlyDeletedService->registryAvailable()) {
@@ -399,14 +336,33 @@ class SocialMediaController extends Controller
             ->with('success', 'FS Poster schedule moved to Recently Deleted.');
     }
 
-    private function findOwnedCondoListingOrFail(int $listingId, string $username): CondoListing
+    private function findOwnedListingOrFail(int $listingId, string $username): object
     {
-        $listing = CondoListing::query()
-            ->active()
-            ->with('details')
-            ->findOrFail($listingId);
+        $listing = DB::connection('condo')
+            ->table('posts')
+            ->leftJoin('postmeta as agent_username_meta', function ($join) {
+                $join->on('agent_username_meta.post_id', '=', 'posts.ID')
+                    ->where('agent_username_meta.meta_key', '=', self::META_USERNAME);
+            })
+            ->where('posts.ID', $listingId)
+            ->where('posts.post_type', 'properties')
+            ->whereNotIn('posts.post_status', ['trash', 'auto-draft'])
+            ->select([
+                'posts.ID',
+                'posts.post_title',
+                'posts.post_status',
+                'posts.post_author',
+                'agent_username_meta.meta_value as agent_username',
+            ])
+            ->first();
 
-        if ($listing->username !== $username) {
+        if (! is_object($listing)) {
+            abort(404);
+        }
+
+        $owned = trim((string) ($listing->agent_username ?? '')) === $username;
+
+        if (! $owned) {
             abort(403);
         }
 

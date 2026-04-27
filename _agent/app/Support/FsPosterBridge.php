@@ -3,16 +3,19 @@
 namespace App\Support;
 
 use App\Models\Agent;
-use App\Models\CondoListing;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 class FsPosterBridge
 {
+    private const META_USERNAME = 'condo_agent_username';
+
     /**
      * @var array<int, array<int, array{name:string,taxonomy:string}>>
      */
@@ -83,21 +86,19 @@ class FsPosterBridge
      */
     public function availableListings(string $username): Collection
     {
-        $listings = $this->ownedListings($username)
-            ->sortByDesc(fn (CondoListing $listing) => (string) $listing->updateddate)
-            ->values();
+        $listings = $this->ownedListings($username);
         $currentGroupIds = $this->currentScheduleGroupIdsForPosts(
-            $listings->map(fn (CondoListing $listing) => (int) $listing->getKey())->all()
+            $listings->map(fn (object $listing) => (int) $listing->ID)->all()
         );
 
-        return $listings->map(fn (CondoListing $listing) => [
-                'id' => (int) $listing->getKey(),
-                'title' => (string) $listing->propertyname,
-                'formatted_price' => (string) $listing->formatted_price,
+        return $listings->map(fn (object $listing) => [
+                'id' => (int) $listing->ID,
+                'title' => (string) ($listing->post_title ?? ''),
+                'formatted_price' => '',
                 'source_key' => 'condo',
-                'image_url' => $listing->image_url,
-                'current_group_id' => $currentGroupIds[(int) $listing->getKey()] ?? null,
-                'has_active_schedule' => isset($currentGroupIds[(int) $listing->getKey()]),
+                'image_url' => null,
+                'current_group_id' => $currentGroupIds[(int) $listing->ID] ?? null,
+                'has_active_schedule' => isset($currentGroupIds[(int) $listing->ID]),
             ]);
     }
 
@@ -259,7 +260,7 @@ class FsPosterBridge
             ->join('posts', 'posts.ID', '=', 'fsp_schedules.wp_post_id')
             ->leftJoin('postmeta as agent_username_meta', function ($join) {
                 $join->on('agent_username_meta.post_id', '=', 'posts.ID')
-                    ->where('agent_username_meta.meta_key', '=', CondoWordpressBridge::META_USERNAME);
+                    ->where('agent_username_meta.meta_key', '=', self::META_USERNAME);
             })
             ->join('fsp_channels', 'fsp_channels.id', '=', 'fsp_schedules.channel_id')
             ->join('fsp_channel_sessions', 'fsp_channel_sessions.id', '=', 'fsp_channels.channel_session_id')
@@ -314,9 +315,9 @@ class FsPosterBridge
             ]));
     }
 
-    public function storeScheduleGroup(CondoListing $listing, string $username, array $validated, ?string $groupId = null): string
+    public function storeScheduleGroup(object $listing, string $username, array $validated, ?string $groupId = null): string
     {
-        $postId = (int) $listing->getKey();
+        $postId = (int) ($listing->ID ?? 0);
         $groupId = $this->resolveScheduleGroupId($username, $postId, $groupId);
         $scheduledAt = Carbon::parse((string) $validated['scheduled_at'], config('app.timezone'));
         $channelIds = collect($validated['channel_ids'] ?? [])->map(fn (mixed $id) => (int) $id)->unique()->values();
@@ -964,6 +965,231 @@ class FsPosterBridge
         return $siteUrl . $path;
     }
 
+    public function wordpressBridgeAuthStartUrl(string $username, string $socialNetwork, int $appId = 0, ?string $proxy = null): string
+    {
+        $siteUrl = $this->wordpressSiteUrl();
+
+        if ($siteUrl === '') {
+            return $this->wordpressPublicAuthStartUrl($socialNetwork, $appId, $proxy);
+        }
+
+        $token = Str::random(64);
+        $identity = $this->bridgeAgentIdentity($username);
+
+        Cache::put($this->wordpressBridgeAuthCacheKey($token), [
+            'agent_username' => $username,
+            'agent_email' => $identity['email'],
+            'agent_name' => $identity['name'],
+            'wordpress_user_id' => $identity['wordpress_user_id'],
+            'social_network' => trim($socialNetwork),
+            'app_id' => max(0, $appId),
+            'proxy' => trim((string) $proxy),
+            'host' => $this->currentWordpressHost(),
+            'issued_at' => now()->toIso8601String(),
+        ], now()->addMinutes(5));
+
+        return $siteUrl . '/?' . http_build_query([
+            'condo_bridge_auth_token' => $token,
+        ]);
+    }
+
+    /**
+     * @return array{
+     *     agent_username:string,
+     *     agent_email:string,
+     *     agent_name:string,
+     *     wordpress_user_id:int|null,
+     *     social_network:string,
+     *     app_id:int,
+     *     proxy:string,
+     *     host:string,
+     *     issued_at:string
+     * }|null
+     */
+    public function consumeWordpressBridgeAuthToken(string $token, ?string $host = null): ?array
+    {
+        $token = trim($token);
+
+        if ($token === '') {
+            return null;
+        }
+
+        $payload = Cache::pull($this->wordpressBridgeAuthCacheKey($token));
+
+        if (! is_array($payload)) {
+            return null;
+        }
+
+        $expectedHost = strtolower(trim((string) ($payload['host'] ?? '')));
+        $host = strtolower(trim((string) $host));
+
+        if ($expectedHost !== '' && $host !== '' && ! hash_equals($expectedHost, $host)) {
+            return null;
+        }
+
+        return [
+            'agent_username' => trim((string) ($payload['agent_username'] ?? '')),
+            'agent_email' => trim((string) ($payload['agent_email'] ?? '')),
+            'agent_name' => trim((string) ($payload['agent_name'] ?? '')),
+            'wordpress_user_id' => isset($payload['wordpress_user_id']) && is_numeric($payload['wordpress_user_id'])
+                ? (int) $payload['wordpress_user_id']
+                : null,
+            'social_network' => trim((string) ($payload['social_network'] ?? '')),
+            'app_id' => max(0, (int) ($payload['app_id'] ?? 0)),
+            'proxy' => trim((string) ($payload['proxy'] ?? '')),
+            'host' => $expectedHost,
+            'issued_at' => trim((string) ($payload['issued_at'] ?? '')),
+        ];
+    }
+
+    /**
+     * @return array{
+     *     message:string,
+     *     channel:array{
+     *         id:int,
+     *         channel_session_id:int,
+     *         name:string,
+     *         channel_type:string,
+     *         remote_id:string,
+     *         picture:string,
+     *         status:bool,
+     *         auto_share:bool,
+     *         is_deleted:bool,
+     *         social_network:string,
+     *         social_network_label:string,
+     *         session_name:string,
+     *         session_method:string,
+     *         session_remote_id:string,
+     *         proxy:string,
+     *         data_json:string,
+     *         custom_settings_json:string,
+     *         label_count:int,
+     *         permission_count:int
+     *     }
+     * }
+     */
+    public function refreshChannelFromWordpress(string $username, int $channelId): array
+    {
+        $this->findChannelForAgent($username, $channelId);
+
+        $response = $this->dispatchWordpressBridgeAction($username, 'refresh_channel', [
+            'channel_id' => $channelId,
+        ]);
+
+        return [
+            'message' => trim((string) ($response['message'] ?? '')) !== ''
+                ? trim((string) $response['message'])
+                : 'The channel was refreshed from FS Poster.',
+            'channel' => $this->findChannelForAgent($username, $channelId),
+        ];
+    }
+
+    /**
+     * @param  array{
+     *     post_status_changed?:bool,
+     *     post_date_changed?:bool,
+     *     post_terms_changed?:bool,
+     *     previous_status?:string|null
+     * }  $changes
+     * @return array{
+     *     message:string,
+     *     data:array<string, mixed>
+     * }
+     */
+    public function syncWordpressPostMutation(string $username, int $postId, array $changes = []): array
+    {
+        if ($postId <= 0) {
+            throw ValidationException::withMessages([
+                'listing' => 'A valid WordPress post id is required before FS Poster can sync this listing.',
+            ]);
+        }
+
+        $response = $this->dispatchWordpressBridgeAction($username, 'sync_post_mutation', [
+            'post_id' => $postId,
+            'post_status_changed' => ! empty($changes['post_status_changed']),
+            'post_date_changed' => ! empty($changes['post_date_changed']),
+            'post_terms_changed' => ! empty($changes['post_terms_changed']),
+            'previous_status' => trim((string) ($changes['previous_status'] ?? '')),
+        ]);
+
+        return [
+            'message' => trim((string) ($response['message'] ?? '')) !== ''
+                ? trim((string) $response['message'])
+                : 'FS Poster post sync completed.',
+            'data' => isset($response['data']) && is_array($response['data'])
+                ? $response['data']
+                : [],
+        ];
+    }
+
+    public function deletePostSchedulingData(int $postId): void
+    {
+        if ($postId <= 0) {
+            return;
+        }
+
+        DB::connection('condo')->transaction(function () use ($postId) {
+            DB::connection('condo')
+                ->table('fsp_schedules')
+                ->where('wp_post_id', $postId)
+                ->delete();
+
+            $this->deleteMeta($postId, 'fsp_schedule_group_id');
+            $this->deleteMeta($postId, 'fsp_enable_auto_share');
+            $this->deleteMeta($postId, 'fsp_schedule_created_manually');
+            $this->deleteMeta($postId, 'fsp_cache_schedules_data');
+        });
+    }
+
+    /**
+     * @return array{
+     *     agent_username:string,
+     *     agent_email:string,
+     *     agent_name:string,
+     *     wordpress_user_id:int|null,
+     *     action:string,
+     *     payload:array<string, mixed>,
+     *     host:string,
+     *     issued_at:string
+     * }|null
+     */
+    public function consumeWordpressBridgeActionToken(string $token, ?string $host = null): ?array
+    {
+        $token = trim($token);
+
+        if ($token === '') {
+            return null;
+        }
+
+        $payload = Cache::pull($this->wordpressBridgeActionCacheKey($token));
+
+        if (! is_array($payload)) {
+            return null;
+        }
+
+        $expectedHost = strtolower(trim((string) ($payload['host'] ?? '')));
+        $host = strtolower(trim((string) $host));
+
+        if ($expectedHost !== '' && $host !== '' && ! hash_equals($expectedHost, $host)) {
+            return null;
+        }
+
+        return [
+            'agent_username' => trim((string) ($payload['agent_username'] ?? '')),
+            'agent_email' => trim((string) ($payload['agent_email'] ?? '')),
+            'agent_name' => trim((string) ($payload['agent_name'] ?? '')),
+            'wordpress_user_id' => isset($payload['wordpress_user_id']) && is_numeric($payload['wordpress_user_id'])
+                ? (int) $payload['wordpress_user_id']
+                : null,
+            'action' => trim((string) ($payload['action'] ?? '')),
+            'payload' => isset($payload['payload']) && is_array($payload['payload'])
+                ? $payload['payload']
+                : [],
+            'host' => $expectedHost,
+            'issued_at' => trim((string) ($payload['issued_at'] ?? '')),
+        ];
+    }
+
     /**
      * @param  array{id:int,name:string,channel_type:string,social_network:string}  $channel
      * @return array<string, mixed>
@@ -1004,13 +1230,193 @@ class FsPosterBridge
 
     private function wordpressSiteUrl(): string
     {
-        $siteUrl = rtrim(CondoWordpressBridge::siteBaseUrl(), '/');
+        $siteUrl = '';
+
+        if (app()->bound('request')) {
+            $request = app('request');
+
+            if (method_exists($request, 'getSchemeAndHttpHost')) {
+                $siteUrl = rtrim((string) $request->getSchemeAndHttpHost(), '/');
+            }
+        }
+
+        if ($siteUrl === '') {
+            $siteUrl = rtrim($this->wordpressHomeUrl(), '/');
+        }
 
         if ($siteUrl === '') {
             $siteUrl = rtrim((string) config('services.shared_assets.wordpress_site_url'), '/');
         }
 
         return $siteUrl;
+    }
+
+    private function wordpressHomeUrl(): string
+    {
+        $appUrl = rtrim((string) config('app.url'), '/');
+
+        if ($appUrl !== '') {
+            return preg_replace('#/agent/?$#i', '', $appUrl) ?: $appUrl;
+        }
+
+        try {
+            $home = DB::connection('condo')->table('options')->where('option_name', 'home')->value('option_value');
+
+            return rtrim((string) $home, '/');
+        } catch (\Throwable) {
+            return '';
+        }
+    }
+
+    private function currentWordpressHost(): string
+    {
+        if (app()->bound('request')) {
+            $request = app('request');
+
+            if (method_exists($request, 'getHost')) {
+                return strtolower(trim((string) $request->getHost()));
+            }
+        }
+
+        return '';
+    }
+
+    private function wordpressBridgeAuthCacheKey(string $token): string
+    {
+        return 'condo:wordpress-bridge-auth:' . trim($token);
+    }
+
+    private function wordpressBridgeActionCacheKey(string $token): string
+    {
+        return 'condo:wordpress-bridge-action:' . trim($token);
+    }
+
+    /**
+     * @return array{email:string,name:string,wordpress_user_id:?int}
+     */
+    private function bridgeAgentIdentity(string $username): array
+    {
+        $agent = Agent::query()
+            ->with('detail')
+            ->where('username', $username)
+            ->first();
+        $email = trim((string) ($agent?->detail?->email ?? $agent?->email ?? ''));
+        $name = trim((string) ($agent?->full_name ?? $agent?->name ?? $username));
+
+        return [
+            'email' => $email,
+            'name' => $name !== '' ? $name : $username,
+            'wordpress_user_id' => $this->preferredWordpressUserId($username, $email),
+        ];
+    }
+
+    /**
+     * @param  array<string, mixed>  $payload
+     * @return array{ok:bool,message?:string,data?:array<string, mixed>}
+     */
+    private function dispatchWordpressBridgeAction(string $username, string $action, array $payload = []): array
+    {
+        $siteUrl = $this->wordpressSiteUrl();
+
+        if ($siteUrl === '') {
+            throw ValidationException::withMessages([
+                'channel' => 'The WordPress bridge URL is not configured for this agent host.',
+            ]);
+        }
+
+        $token = $this->issueWordpressBridgeActionToken($username, $action, $payload);
+        $response = Http::timeout(20)
+            ->acceptJson()
+            ->asJson()
+            ->post(rtrim($siteUrl, '/') . '/wp-json/condo-bridge/v1/fsposter/action', [
+                'action_token' => $token,
+            ]);
+        $body = $response->json();
+        $message = is_array($body) ? trim((string) ($body['message'] ?? '')) : '';
+
+        if (! $response->successful() || ! is_array($body) || empty($body['ok'])) {
+            throw ValidationException::withMessages([
+                'channel' => $message !== ''
+                    ? $message
+                    : 'WordPress could not complete the FS Poster action.',
+            ]);
+        }
+
+        return $body;
+    }
+
+    /**
+     * @param  array<string, mixed>  $payload
+     */
+    private function issueWordpressBridgeActionToken(string $username, string $action, array $payload = []): string
+    {
+        $token = Str::random(64);
+        $identity = $this->bridgeAgentIdentity($username);
+
+        Cache::put($this->wordpressBridgeActionCacheKey($token), [
+            'agent_username' => $username,
+            'agent_email' => $identity['email'],
+            'agent_name' => $identity['name'],
+            'wordpress_user_id' => $identity['wordpress_user_id'],
+            'action' => trim($action),
+            'payload' => $payload,
+            'host' => $this->currentWordpressHost(),
+            'issued_at' => now()->toIso8601String(),
+        ], now()->addMinutes(5));
+
+        return $token;
+    }
+
+    private function preferredWordpressUserId(string $username, string $email = ''): ?int
+    {
+        $email = trim(strtolower($email));
+        $candidates = DB::connection('condo')
+            ->table('users')
+            ->where(function ($query) use ($username, $email) {
+                $query->where('user_login', $username);
+
+                if ($email !== '') {
+                    $query->orWhereRaw('LOWER(user_email) = ?', [$email]);
+                }
+            })
+            ->get(['ID', 'user_login']);
+
+        if ($candidates->isEmpty()) {
+            return null;
+        }
+
+        $candidateIds = $candidates
+            ->pluck('ID')
+            ->map(fn (mixed $value) => (int) $value)
+            ->filter(fn (int $value) => $value > 0)
+            ->values()
+            ->all();
+
+        $sessionCounts = $candidateIds === []
+            ? collect()
+            : DB::connection('condo')
+                ->table('fsp_channel_sessions')
+                ->selectRaw('created_by, COUNT(*) as aggregate')
+                ->whereIn('created_by', $candidateIds)
+                ->groupBy('created_by')
+                ->pluck('aggregate', 'created_by');
+
+        $bestId = null;
+        $bestScore = null;
+
+        foreach ($candidates as $candidate) {
+            $candidateId = (int) $candidate->ID;
+            $sessionCount = (int) ($sessionCounts[$candidateId] ?? 0);
+            $loginMatches = strcasecmp((string) $candidate->user_login, $username) === 0 ? 1 : 0;
+            $score = ($sessionCount * 1000) + ($loginMatches * 10) - $candidateId;
+
+            if ($bestScore === null || $score > $bestScore) {
+                $bestScore = $score;
+                $bestId = $candidateId;
+            }
+        }
+
+        return $bestId;
     }
 
     /**
@@ -1351,7 +1757,7 @@ class FsPosterBridge
                 $postSlug = trim((string) $postRow->post_name);
 
                 if ($postUrl === '' && $postSlug !== '') {
-                    $postUrl = rtrim(CondoWordpressBridge::siteBaseUrl(), '/') . '/' . ltrim($postSlug, '/');
+                    $postUrl = rtrim($this->wordpressHomeUrl(), '/') . '/' . ltrim($postSlug, '/');
                 }
 
                 $this->postPreviewContextCache[$postId] = [
@@ -1470,19 +1876,37 @@ class FsPosterBridge
     }
 
     /**
-     * @return Collection<int, CondoListing>
+     * @return Collection<int, object>
      */
     private function ownedListings(string $username): Collection
     {
         $wordpressUserIds = $this->wordpressUserIdsForAgent($username);
 
-        return CondoListing::query()
-            ->active()
-            ->with('details')
-            ->get()
-            ->filter(fn (CondoListing $listing) => $listing->username === $username
-                || in_array((int) ($listing->getAttribute('post_author') ?? 0), $wordpressUserIds, true))
-            ->values();
+        $query = DB::connection('condo')
+            ->table('posts')
+            ->leftJoin('postmeta as agent_username_meta', function ($join) {
+                $join->on('agent_username_meta.post_id', '=', 'posts.ID')
+                    ->where('agent_username_meta.meta_key', '=', self::META_USERNAME);
+            })
+            ->where('posts.post_type', 'properties')
+            ->whereNotIn('posts.post_status', ['trash', 'auto-draft'])
+            ->where(function ($builder) use ($username, $wordpressUserIds) {
+                $builder->where('agent_username_meta.meta_value', $username);
+
+                if ($wordpressUserIds !== []) {
+                    $builder->orWhereIn('posts.post_author', $wordpressUserIds);
+                }
+            })
+            ->orderByDesc('posts.post_modified')
+            ->select([
+                'posts.ID',
+                'posts.post_title',
+                'posts.post_status',
+                'posts.post_author',
+                'posts.post_modified',
+            ]);
+
+        return collect($query->get());
     }
 
     /**
@@ -1953,10 +2377,11 @@ class FsPosterBridge
 
     private function resolveWordpressUserId(string $username): int
     {
-        $authorId = DB::connection('condo')
-            ->table('users')
-            ->where('user_login', $username)
-            ->value('ID');
+        $agent = Agent::query()->with('detail')->where('username', $username)->first();
+        $authorId = $this->preferredWordpressUserId(
+            $username,
+            trim(strtolower((string) ($agent?->detail?->email ?? '')))
+        );
 
         return $authorId ? (int) $authorId : 1;
     }

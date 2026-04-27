@@ -3,11 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Agent;
-use App\Models\CondoListing;
 use App\Models\IcpListing;
 use App\Models\Listing;
 use App\Models\ManagedArticle;
-use App\Support\CondoPackageManager;
+use App\Support\BridgeSyncStatusStore;
 use App\Support\FsPosterBridge;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
@@ -17,8 +16,8 @@ use Throwable;
 class DashboardController extends Controller
 {
     public function __construct(
-        private readonly CondoPackageManager $condoPackageManager,
         private readonly FsPosterBridge $fsPosterBridge,
+        private readonly BridgeSyncStatusStore $bridgeSyncStatusStore,
     ) {
     }
 
@@ -37,6 +36,8 @@ class DashboardController extends Controller
         $totalSocialSchedules = $socialSchedules->count();
         $scheduledPosts = $socialSchedules->where('status', 'scheduled')->count();
         $publishedPosts = $socialSchedules->where('status', 'success')->count();
+        $bridgeIssueCount = $this->bridgeSyncStatusStore->issueCountForAgent($username);
+        $recentBridgeIssues = $this->bridgeSyncStatusStore->recentIssuesForAgent($username, 5);
 
         $recentListings = $allListings
             ->sortByDesc(fn ($listing) => $this->legacyTimestamp($listing->createddate ?? null, $listing->updateddate ?? null)?->timestamp ?? 0)
@@ -74,6 +75,8 @@ class DashboardController extends Controller
             'totalSocialSchedules',
             'scheduledPosts',
             'publishedPosts',
+            'bridgeIssueCount',
+            'recentBridgeIssues',
             'recentListings',
             'recentArticles',
             'upcomingPosts'
@@ -81,7 +84,7 @@ class DashboardController extends Controller
     }
 
     /**
-     * @return Collection<int, Listing|IcpListing|CondoListing>
+     * @return Collection<int, Listing|IcpListing>
      */
     private function dashboardListings(Agent $agent): Collection
     {
@@ -112,21 +115,6 @@ class DashboardController extends Controller
             // ICP is optional in some environments.
         }
 
-        if ($this->condoPackageManager->hasAccess($agent)) {
-            try {
-                $listings = $listings->concat(
-                    CondoListing::query()
-                        ->active()
-                        ->with('details')
-                        ->get()
-                        ->filter(fn (CondoListing $listing) => $listing->username === $username)
-                        ->each(fn (CondoListing $listing) => $listing->setAttribute('dashboard_source_label', 'Condo'))
-                );
-            } catch (Throwable) {
-                // Condo listings should not break the rest of the dashboard if WordPress is unavailable.
-            }
-        }
-
         return $listings->values();
     }
 
@@ -135,10 +123,6 @@ class DashboardController extends Controller
      */
     private function dashboardSocialSchedules(Agent $agent): Collection
     {
-        if (! $this->condoPackageManager->hasAccess($agent)) {
-            return collect();
-        }
-
         try {
             return $this->fsPosterBridge->scheduleDisplayGroupsForAgent($agent->username)->values();
         } catch (Throwable) {

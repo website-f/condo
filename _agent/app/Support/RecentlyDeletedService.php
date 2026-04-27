@@ -3,7 +3,6 @@
 namespace App\Support;
 
 use App\Models\Article;
-use App\Models\CondoListing;
 use App\Models\DeletedItem;
 use App\Models\IcpListing;
 use App\Models\Listing;
@@ -37,7 +36,6 @@ class RecentlyDeletedService
 
     public function __construct(
         private readonly FsPosterBridge $fsPosterBridge,
-        private readonly CondoWordpressBridge $condoWordpressBridge,
         private readonly ManagedArticleService $managedArticleService,
     ) {
     }
@@ -116,11 +114,10 @@ class RecentlyDeletedService
         ]);
     }
 
-    public function rememberListing(Listing|CondoListing $listing, string $source, string $deletedBy): void
+    public function rememberListing(Listing $listing, string $source, string $deletedBy): void
     {
         $type = match ($source) {
             'icp' => self::TYPE_LISTING_ICP,
-            'condo' => self::TYPE_LISTING_CONDO,
             default => self::TYPE_LISTING_IPP,
         };
 
@@ -129,10 +126,6 @@ class RecentlyDeletedService
             'propertyid' => (string) $listing->propertyid,
             'photo_paths' => ListingEditor::photoPaths($listing),
         ];
-
-        if ($source === 'condo') {
-            $payload['previous_status'] = (string) $listing->getRawOriginal('post_status');
-        }
 
         $this->remember([
             'agent_username' => $listing->username,
@@ -201,30 +194,34 @@ class RecentlyDeletedService
             ->values();
     }
 
-    public function restore(string $username, string $type, string $key): string
+    /**
+     * @return array{message:string,bridge_warnings:array<int, string>}
+     */
+    public function restore(string $username, string $type, string $key): array
     {
         return match ($type) {
-            self::TYPE_LISTING_IPP => $this->restoreIppListing($username, (int) $key),
-            self::TYPE_LISTING_ICP => $this->restoreIcpListing($username, (int) $key),
-            self::TYPE_LISTING_CONDO => $this->restoreCondoListing($username, (int) $key),
-            self::TYPE_NEWS => $this->restoreNews((int) $key),
-            self::TYPE_ARTICLE => $this->restoreArticle($username, (int) $key),
-            self::TYPE_SOCIAL_SCHEDULE => $this->restoreSocialSchedule($username, $key),
+            self::TYPE_LISTING_IPP => $this->actionResult($this->restoreIppListing($username, (int) $key)),
+            self::TYPE_LISTING_ICP => $this->actionResult($this->restoreIcpListing($username, (int) $key)),
+            self::TYPE_NEWS => $this->actionResult($this->restoreNews((int) $key)),
+            self::TYPE_ARTICLE => $this->actionResult($this->restoreArticle($username, (int) $key)),
+            self::TYPE_SOCIAL_SCHEDULE => $this->actionResult($this->restoreSocialSchedule($username, $key)),
             default => throw ValidationException::withMessages([
                 'type' => 'This deleted item type is not supported.',
             ]),
         };
     }
 
-    public function permanentlyDelete(string $username, string $type, string $key): string
+    /**
+     * @return array{message:string,bridge_warnings:array<int, string>}
+     */
+    public function permanentlyDelete(string $username, string $type, string $key): array
     {
         return match ($type) {
-            self::TYPE_LISTING_IPP => $this->purgeIppListing($username, (int) $key),
-            self::TYPE_LISTING_ICP => $this->purgeIcpListing($username, (int) $key),
-            self::TYPE_LISTING_CONDO => $this->purgeCondoListing($username, (int) $key),
-            self::TYPE_NEWS => $this->purgeNews((int) $key),
-            self::TYPE_ARTICLE => $this->purgeArticle($username, (int) $key),
-            self::TYPE_SOCIAL_SCHEDULE => $this->purgeRegistryOnly($username, self::TYPE_SOCIAL_SCHEDULE, (string) $key, 'Schedule permanently deleted.'),
+            self::TYPE_LISTING_IPP => $this->actionResult($this->purgeIppListing($username, (int) $key)),
+            self::TYPE_LISTING_ICP => $this->actionResult($this->purgeIcpListing($username, (int) $key)),
+            self::TYPE_NEWS => $this->actionResult($this->purgeNews((int) $key)),
+            self::TYPE_ARTICLE => $this->actionResult($this->purgeArticle($username, (int) $key)),
+            self::TYPE_SOCIAL_SCHEDULE => $this->actionResult($this->purgeRegistryOnly($username, self::TYPE_SOCIAL_SCHEDULE, (string) $key, 'Schedule permanently deleted.')),
             default => throw ValidationException::withMessages([
                 'type' => 'This deleted item type is not supported.',
             ]),
@@ -272,8 +269,7 @@ class RecentlyDeletedService
     private function listingItems(string $username, Collection $registryByLookup): Collection
     {
         return $this->ippListingItems($username, $registryByLookup)
-            ->concat($this->icpListingItems($username, $registryByLookup))
-            ->concat($this->condoListingItems($username, $registryByLookup));
+            ->concat($this->icpListingItems($username, $registryByLookup));
     }
 
     private function ippListingItems(string $username, Collection $registryByLookup): Collection
@@ -353,43 +349,6 @@ class RecentlyDeletedService
                     ]),
                 ]);
             });
-    }
-
-    private function condoListingItems(string $username, Collection $registryByLookup): Collection
-    {
-        if (! CondoListing::schemaAvailable()) {
-            return collect();
-        }
-
-        return CondoListing::query()
-            ->with('details')
-            ->where('post_type', 'properties')
-            ->where('post_status', 'trash')
-            ->get()
-            ->filter(fn (CondoListing $listing) => $listing->username === $username)
-            ->map(function (CondoListing $listing) use ($registryByLookup) {
-                $registry = $registryByLookup->get($this->lookupKey(self::TYPE_LISTING_CONDO, (string) $listing->getKey()));
-
-                return $this->buildItem([
-                    'group' => self::GROUP_LISTINGS,
-                    'type' => self::TYPE_LISTING_CONDO,
-                    'key' => (string) $listing->getKey(),
-                    'source_key' => 'condo',
-                    'source_label' => 'Condo',
-                    'title' => trim((string) $listing->propertyname) !== '' ? trim((string) $listing->propertyname) : 'Untitled listing',
-                    'summary' => $this->joinSummary([
-                        $listing->listingtype,
-                        $listing->propertytype,
-                        $listing->area ?: $listing->state,
-                    ]),
-                    'subtitle' => 'Property ID ' . trim((string) $listing->propertyid),
-                    'deleted_at' => $this->resolveDeletedAt($registry, [
-                        $listing->getRawOriginal('post_modified'),
-                        $listing->getRawOriginal('post_date'),
-                    ]),
-                ]);
-            })
-            ->values();
     }
 
     private function newsItems(Collection $registryByLookup): Collection
@@ -660,52 +619,6 @@ class RecentlyDeletedService
         return 'ICP listing restored.';
     }
 
-    private function restoreCondoListing(string $username, int $id): string
-    {
-        /** @var CondoListing|null $listing */
-        $listing = CondoListing::query()
-            ->with('details')
-            ->where('post_type', 'properties')
-            ->where('post_status', 'trash')
-            ->find($id);
-
-        if (! $listing || $listing->username !== $username) {
-            abort(404);
-        }
-
-        $registry = $this->findRegistryItem($username, self::TYPE_LISTING_CONDO, (string) $id);
-        $previousStatus = trim((string) Arr::get($registry?->payload, 'previous_status', 'publish'));
-        $previousStatus = $previousStatus !== '' && $previousStatus !== 'trash' ? $previousStatus : 'publish';
-        $propertyId = trim((string) $listing->propertyid);
-
-        if ($propertyId !== '') {
-            $duplicate = DB::connection('condo')
-                ->table('postmeta as meta')
-                ->join('posts as posts', 'posts.ID', '=', 'meta.post_id')
-                ->where('meta.meta_key', CondoWordpressBridge::META_PROPERTY_ID)
-                ->where('meta.meta_value', $propertyId)
-                ->where('posts.post_type', 'properties')
-                ->whereNotIn('posts.post_status', ['trash', 'auto-draft', 'inherit'])
-                ->where('posts.ID', '!=', $id)
-                ->exists();
-
-            if ($duplicate) {
-                throw ValidationException::withMessages([
-                    'type' => 'This condo listing cannot be restored because its property ID is already in use.',
-                ]);
-            }
-        }
-
-        $listing->post_status = $previousStatus;
-        $listing->post_modified = now()->format('Y-m-d H:i:s');
-        $listing->post_modified_gmt = now()->clone()->utc()->format('Y-m-d H:i:s');
-        $listing->save();
-
-        $this->forget(self::TYPE_LISTING_CONDO, (string) $id);
-
-        return 'Condo listing restored.';
-    }
-
     private function restoreNews(int $id): string
     {
         /** @var NewsUpdate|null $news */
@@ -793,13 +706,29 @@ class RecentlyDeletedService
         $group = (array) Arr::get($item->payload, 'group', []);
         $listingId = (int) Arr::get($group, 'listing_id', 0);
 
-        /** @var CondoListing $listing */
-        $listing = CondoListing::query()
-            ->active()
-            ->with('details')
-            ->findOrFail($listingId);
+        $listing = DB::connection('condo')
+            ->table('posts')
+            ->leftJoin('postmeta as agent_username_meta', function ($join) {
+                $join->on('agent_username_meta.post_id', '=', 'posts.ID')
+                    ->where('agent_username_meta.meta_key', '=', 'condo_agent_username');
+            })
+            ->where('posts.ID', $listingId)
+            ->where('posts.post_type', 'properties')
+            ->whereNotIn('posts.post_status', ['trash', 'auto-draft'])
+            ->select([
+                'posts.ID',
+                'posts.post_title',
+                'posts.post_status',
+                'posts.post_author',
+                'agent_username_meta.meta_value as agent_username',
+            ])
+            ->first();
 
-        if ($listing->username !== $username) {
+        if (! is_object($listing)) {
+            abort(404);
+        }
+
+        if (trim((string) ($listing->agent_username ?? '')) !== $username) {
             abort(403);
         }
 
@@ -900,32 +829,6 @@ class RecentlyDeletedService
         return 'ICP listing permanently deleted.';
     }
 
-    private function purgeCondoListing(string $username, int $id): string
-    {
-        /** @var CondoListing|null $listing */
-        $listing = CondoListing::query()
-            ->with('details')
-            ->where('post_type', 'properties')
-            ->where('post_status', 'trash')
-            ->find($id);
-
-        if (! $listing || $listing->username !== $username) {
-            abort(404);
-        }
-
-        DB::connection('condo')->transaction(function () use ($listing) {
-            $this->condoWordpressBridge->deleteListingAssets($listing);
-
-            DB::connection('condo')->table('term_relationships')->where('object_id', $listing->getKey())->delete();
-            DB::connection('condo')->table('postmeta')->where('post_id', $listing->getKey())->delete();
-            DB::connection('condo')->table('posts')->where('ID', $listing->getKey())->delete();
-        });
-
-        $this->forget(self::TYPE_LISTING_CONDO, (string) $id);
-
-        return 'Condo listing permanently deleted.';
-    }
-
     private function purgeNews(int $id): string
     {
         /** @var NewsUpdate|null $news */
@@ -980,6 +883,20 @@ class RecentlyDeletedService
         $item->delete();
 
         return $message;
+    }
+
+    /**
+     * @param  array<int, string>  $bridgeWarnings
+     * @return array{message:string,bridge_warnings:array<int, string>}
+     */
+    private function actionResult(string $message, array $bridgeWarnings = []): array
+    {
+        return [
+            'message' => $message,
+            'bridge_warnings' => array_values(array_unique(array_filter(
+                array_map(static fn (mixed $warning) => trim((string) $warning), $bridgeWarnings)
+            ))),
+        ];
     }
 
     private function forget(string $type, string $key): void
