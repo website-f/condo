@@ -61,6 +61,7 @@ class ResolveAgentSubsite
     {
         return [
             'condo.com.my',
+            'ppp.my',
             'condo.test',
         ];
     }

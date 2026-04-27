@@ -1,33 +1,44 @@
 <?php
 /**
- * WordPress configuration — works on both local (condo.test) and prod
- * (condo.com.my / ppp.my). DB credentials and IPP auth bridge creds are
- * selected automatically based on the request hostname.
+ * WordPress configuration — works on:
+ *   - Local:    condo.test           (wp_condo, root/root)
+ *   - Staging:  ppp.my               (shares prod DB, URLs rewritten to ppp.my)
+ *   - Prod:     condo.com.my         (real DB)
+ *
+ * Selected automatically based on the request hostname.
  */
 
 $condo_request_host = strtolower( preg_replace( '/:\d+$/', '', (string) ( $_SERVER['HTTP_HOST'] ?? '' ) ) );
-$condo_local_domain = 'condo.test';
-$condo_primary_domain = getenv( 'CONDO_MULTISITE_PRIMARY_DOMAIN' );
-$condo_primary_domain = is_string( $condo_primary_domain ) && $condo_primary_domain !== '' ? $condo_primary_domain : 'condo.com.my';
-$condo_primary_domain = preg_replace( '#^https?://#i', '', trim( $condo_primary_domain ) );
-$condo_primary_domain = strtolower( trim( (string) explode( '/', (string) $condo_primary_domain, 2 )[0], '. ' ) );
-$condo_primary_domain = strtolower( trim( (string) explode( ':', (string) $condo_primary_domain, 2 )[0], '. ' ) );
+
+$condo_local_domain   = 'condo.test';
+$condo_staging_domain = 'ppp.my';
+$condo_primary_domain = 'condo.com.my';
 
 $condo_is_local_host = $condo_request_host === $condo_local_domain
     || $condo_request_host === 'www.' . $condo_local_domain
     || ( $condo_request_host !== '' && str_ends_with( $condo_request_host, '.' . $condo_local_domain ) );
 
-// CLI / cron has no HTTP_HOST. Detect prod vs local from a server-side env var
-// or a fallback file on the prod server. Default = prod (safer for cron).
+$condo_is_staging_host = ! $condo_is_local_host && (
+    $condo_request_host === $condo_staging_domain
+    || $condo_request_host === 'www.' . $condo_staging_domain
+    || ( $condo_request_host !== '' && str_ends_with( $condo_request_host, '.' . $condo_staging_domain ) )
+);
+
+// CLI / cron has no HTTP_HOST. Pick environment from CONDO_ENV (local|staging|prod).
 if ( $condo_request_host === '' ) {
-    $cli_env = getenv( 'CONDO_ENV' );
-    $condo_is_local_host = $cli_env === 'local';
+    $cli_env = strtolower( (string) getenv( 'CONDO_ENV' ) );
+    $condo_is_local_host  = $cli_env === 'local';
+    $condo_is_staging_host = $cli_env === 'staging';
 }
 
-$condo_multisite_domain = $condo_is_local_host ? $condo_local_domain : $condo_primary_domain;
+// Multisite identifies its network by primary domain — staging uses ppp.my,
+// local uses condo.test, otherwise prod.
+$condo_multisite_domain = $condo_is_local_host
+    ? $condo_local_domain
+    : ( $condo_is_staging_host ? $condo_staging_domain : $condo_primary_domain );
 
 if ( ! defined( 'WP_CACHE' ) ) {
-    define( 'WP_CACHE', ! $condo_is_local_host ); // Keep WP Rocket off local .test hosts.
+    define( 'WP_CACHE', ! $condo_is_local_host && ! $condo_is_staging_host );
 }
 
 if ( $condo_is_local_host ) {
@@ -39,12 +50,20 @@ if ( ! defined( 'CONDO_MULTISITE_PRIMARY_DOMAIN' ) ) {
     define( 'CONDO_MULTISITE_PRIMARY_DOMAIN', $condo_primary_domain );
 }
 
+if ( ! defined( 'CONDO_MULTISITE_STAGING_DOMAIN' ) ) {
+    define( 'CONDO_MULTISITE_STAGING_DOMAIN', $condo_staging_domain );
+}
+
 if ( ! defined( 'CONDO_LOCAL_MULTISITE_DOMAIN' ) ) {
     define( 'CONDO_LOCAL_MULTISITE_DOMAIN', $condo_local_domain );
 }
 
+if ( ! defined( 'CONDO_IS_STAGING' ) ) {
+    define( 'CONDO_IS_STAGING', $condo_is_staging_host );
+}
+
 // ---------------------------------------------------------------------------
-// Database settings — switch by environment
+// Database settings
 // ---------------------------------------------------------------------------
 if ( $condo_is_local_host ) {
     define( 'DB_NAME',     'wp_condo' );
@@ -52,18 +71,17 @@ if ( $condo_is_local_host ) {
     define( 'DB_PASSWORD', 'root' );
     define( 'DB_HOST',     'localhost' );
 
-    // IPP centralized auth credentials (for mu-plugins/condo-ipp-auth.php)
     define( 'CONDO_IPP_AUTH_DB_HOST',     'localhost' );
     define( 'CONDO_IPP_AUTH_DB_NAME',     'ipp_user' );
     define( 'CONDO_IPP_AUTH_DB_USER',     'root' );
     define( 'CONDO_IPP_AUTH_DB_PASSWORD', 'root' );
 } else {
+    // Staging shares the prod database. URLs are rewritten by sunrise.php.
     define( 'DB_NAME',     'property_condo1' );
     define( 'DB_USER',     'property_condo1' );
     define( 'DB_PASSWORD', 'hjRh2yW7WffAGTbcaF2L' );
     define( 'DB_HOST',     'localhost' );
 
-    // Prod IPP user (the same DB Laravel reads from)
     define( 'CONDO_IPP_AUTH_DB_HOST',     'localhost' );
     define( 'CONDO_IPP_AUTH_DB_NAME',     'ipp_user' );
     define( 'CONDO_IPP_AUTH_DB_USER',     'ipp_user' );
@@ -86,8 +104,8 @@ if (
 }
 
 // ---------------------------------------------------------------------------
-// Authentication keys and salts — keep identical between local + prod so
-// users do not get logged out when DB is copied between environments.
+// Authentication keys and salts — keep identical across all 3 envs so DB
+// copies between them don't invalidate sessions.
 // ---------------------------------------------------------------------------
 define( 'AUTH_KEY',         'ebHPj<ZW;)Ne>rwD8;tl,8_MH#V>&oR8fqmG6%7^E4<;bw3.eW&}>Ohm$3md+xZ5' );
 define( 'SECURE_AUTH_KEY',  'B@<=QXfv>1A-M>}`J.^TM|fm|cX+5p27|.Gd:Byu~a6GNmZp_r%c2,l/Y!5?`U=9' );
@@ -98,21 +116,15 @@ define( 'SECURE_AUTH_SALT', 'FTvu{P%II+LQiPZE1NXCApkHL<rgp<f}jC5j0#=4I1N]u.KkXsG
 define( 'LOGGED_IN_SALT',   'W0J_?A#laN^zTa.kYh@+B]<99b $j*iXT#M6zAq?Y5xnm)#yUr,x=?!0Zs}U%1q0' );
 define( 'NONCE_SALT',       'wLk|g;kj#qF(wUr|hUy&a1*MQd..HU#L{I%1TO~|Bu?F!-ewH6d^@C<ALlxmfkxu' );
 
-// ---------------------------------------------------------------------------
-// Table prefix
-// ---------------------------------------------------------------------------
 $table_prefix = 'cd_';
 
-// ---------------------------------------------------------------------------
-// Debug
-// ---------------------------------------------------------------------------
-define( 'WP_DEBUG', $condo_is_local_host );
-define( 'WP_DEBUG_LOG', $condo_is_local_host );
+define( 'WP_DEBUG', $condo_is_local_host || $condo_is_staging_host );
+define( 'WP_DEBUG_LOG', $condo_is_local_host || $condo_is_staging_host );
 define( 'WP_DEBUG_DISPLAY', false );
 @ini_set( 'display_errors', '0' );
 
 // ---------------------------------------------------------------------------
-// Multisite (subdomain network)
+// Multisite
 // ---------------------------------------------------------------------------
 define( 'WP_ALLOW_MULTISITE', true );
 define( 'SUNRISE', true );
@@ -122,8 +134,6 @@ define( 'DOMAIN_CURRENT_SITE', $condo_multisite_domain );
 define( 'PATH_CURRENT_SITE', '/' );
 define( 'SITE_ID_CURRENT_SITE', 1 );
 define( 'BLOG_ID_CURRENT_SITE', 1 );
-
-/* That's all, stop editing! Happy publishing. */
 
 if ( ! defined( 'ABSPATH' ) ) {
     define( 'ABSPATH', __DIR__ . '/' );

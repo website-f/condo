@@ -17,7 +17,7 @@ use App\Http\Middleware\ResolveAgentSubsite;
 use Illuminate\Support\Facades\Route;
 
 // Public agent subdomain routes — only match when Host is *.condo.com.my (or *.condo.test)
-foreach (['condo.com.my', 'condo.test'] as $publicBase) {
+foreach (['condo.com.my', 'ppp.my', 'condo.test'] as $publicBase) {
     Route::domain('{publicAgentLabel}.' . $publicBase)
         ->middleware(ResolveAgentSubsite::class)
         ->group(function () {

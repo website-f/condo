@@ -18,7 +18,7 @@ if ( '/agent' === $condo_request_uri || str_starts_with( $condo_request_uri, '/a
 }
 
 // 2) Public agent subdomain -> Laravel
-$condo_public_bases = array( 'condo.com.my', 'condo.test' );
+$condo_public_bases = array( 'condo.com.my', 'ppp.my', 'condo.test' );
 
 $condo_is_agent_subdomain = false;
 foreach ( $condo_public_bases as $base ) {
